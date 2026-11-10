@@ -1,0 +1,32 @@
+# Rahasia: jangan pernah masuk git
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+**/credentials/
+.near-credentials/
+near-credentials/
+*-key.json
+*.seed
+
+# Node
+node_modules/
+.next/
+out/
+dist/
+coverage/
+*.tsbuildinfo
+npm-debug.log*
+
+# Rust (contract/res/fullback.wasm tetap di-commit, KTD9)
+target/
+
+# Vercel
+.vercel/
+
+# Sistem operasi dan editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

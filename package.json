@@ -1,0 +1,23 @@
+{
+  "name": "fullback",
+  "version": "0.1.0",
+  "private": true,
+  "description": "FULLBACK: perjanjian transfer pemain sepak bola yang menagih dan membagi uangnya sendiri di NEAR testnet.",
+  "license": "MIT",
+  "workspaces": [
+    "agent",
+    "web",
+    "scripts"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "npm run dev -w web",
+    "build": "npm run build -w web",
+    "test": "npm test --workspaces --if-present",
+    "setup:demo": "npm run setup:demo -w scripts",
+    "demo": "npm run demo -w scripts",
+    "collector": "npm run collector -w agent"
+  }
+}
