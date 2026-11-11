@@ -2,6 +2,7 @@
 title: FULLBACK - Plan
 type: feat
 date: 2026-11-10
+updated: 2026-11-11 (rev 2)
 artifact_contract: ce-unified-plan/v1
 product_contract_source: ce-plan-bootstrap
 execution: code
@@ -17,9 +18,11 @@ Kalau isi file lain bertentangan dengan file ini, file ini yang menang, lalu tan
 
 ## Goal Capsule
 
-- **Objective:** Juri bisa membuka demo online, mengunggah kontrak transfer pemain fiktif (Lucas), dan melihat sendiri di testnet NEAR bahwa cicilan, jaminan, sell-on, dan jatah klub pembina dibayar otomatis sesuai isi kontrak, dengan link explorer untuk setiap transaksi.
-- **Means:** Smart contract Rust di NEAR testnet yang memegang token mock fEUR (KTD1, KTD2), agen AI Pembaca + Penagih (KTD6, KTD7), dan web Next.js dengan Judge demo mode (KTD8).
-- **Authority:** PLAN.md > `contract/INTERFACE.md` > `agent/schema.ts` > kode. Angka cerita Lucas (R1–R4) terkunci dan tidak boleh diubah oleh AI.
+- **Objective:** Membangun FULLBACK sebagai aplikasi umum untuk klub sepak bola: dua klub yang bertransaksi bisa mengubah perjanjian transfer menjadi kontrak di NEAR yang menagih cicilan, memegang jaminan, membayar sell-on, dan menyalurkan royalti SSB/akademi (Academy royalties) secara otomatis. Fokus utama: melindungi klub penjual dari cicilan yang menunggak. FIFA atau federasi bisa memantau semua deal (hanya melihat).
+- **Urutan kerja:** Fase 1 membangun web umum yang bisa dipakai klub mana pun, tanpa unsur demo. Fase 2 (setelah Fase 1 jalan) menambah Judge demo mode dengan skenario Lucas.
+- **Bukti untuk juri (Fase 2):** Juri membuka demo online, menjalankan skenario fiktif Lucas (data demo saja, bukan isi produk), dan melihat sendiri di testnet NEAR bahwa cicilan, jaminan, sell-on, dan Academy royalties dibayar sesuai isi kontrak, dengan link explorer untuk setiap transaksi.
+- **Means:** Smart contract Rust di NEAR testnet yang memegang token mock fEUR (KTD1, KTD2), agen AI Pembaca + Penagih (KTD6, KTD7), dan web Next.js berbahasa Inggris dengan Dashboard klub dan Judge demo mode (KTD8, KTD14).
+- **Authority:** PLAN.md > `contract/INTERFACE.md` > `agent/schema.ts` > kode. Angka cerita demo Lucas (R1–R4) terkunci dan tidak boleh diubah oleh AI. Lucas hanya mengisi demo; copy produk di web tidak boleh bercerita tentang Lucas.
 - **Execution profile:** 4 orang, masing-masing menjalankan Claude Code di folder miliknya sendiri. Tanpa branch dan tanpa PR: semua commit langsung ke `main` dengan aturan folder (KTD10).
 - **Siapa yang menyelesaikan dan mengirim:** Orang 4 (koordinator) yang menekan tombol submit. Hanya manusia yang boleh membuat repo publik, posting di X, dan mengisi form.
 - **Stop conditions:** Berhenti dan tanya manusia jika (a) perlu mengubah file di luar folder sendiri, (b) perlu mengubah `INTERFACE.md`, `schema.ts`, atau angka terkunci, (c) diminta memakai mainnet atau uang asli, (d) `git pull` menghasilkan konflik, (e) tes kontrak gagal dan penyebabnya ada di folder orang lain.
@@ -31,10 +34,14 @@ Kalau isi file lain bertentangan dengan file ini, file ini yang menang, lalu tan
 
 ### Summary
 
-FULLBACK mengubah perjanjian transfer pemain sepak bola menjadi kontrak di blockchain NEAR yang menagih dan membagi uangnya sendiri.
+FULLBACK adalah aplikasi untuk klub sepak bola yang mengubah perjanjian transfer pemain menjadi kontrak di blockchain NEAR yang menagih dan membagi uangnya sendiri, dari transfer fee dan cicilannya sampai royalti SSB/akademi pembina (di web disebut **Academy royalties**).
+Sasaran utamanya klub penjual yang menjual pemain secara cicilan dan takut pembelinya menunggak; klub pembeli, SSB/akademi, dan pemegang sell-on ikut terlindungi.
 Agen AI membaca PDF perjanjian dan mengeluarkan angka-angka beserta kutipan pasalnya.
-Kontrak memegang jaminan, menagih cicilan, memakai jaminan saat pembeli telat, dan otomatis membagi uang ke penjual, klub pembina (jatah pembinaan FIFA 5%), dan pemegang sell-on saat pemain dijual lagi.
+Kontrak memegang jaminan, menagih cicilan, memakai jaminan saat pembeli telat, dan otomatis membagi uang ke penjual, SSB/klub pembina (Academy royalties, setara jatah pembinaan/solidarity FIFA 5%), dan pemegang sell-on saat pemain dijual lagi.
+Setiap klub melihat semua deal-nya di Dashboard: sebagai penjual, sebagai pembeli, dan royalti yang diterima sebagai akademi.
+FIFA atau federasi nasional punya Federation view untuk memantau semua deal, cicilan telat, deal yang Defaulted, dan Academy royalties yang sudah tersalurkan. Federasi hanya melihat, tidak bisa mengubah apa pun.
 Sidik jari PDF disimpan on-chain supaya siapa pun bisa memeriksa bahwa PDF tidak diubah.
+Skenario Lucas (R1–R4) dan kasus nyata di Problem Frame hanya dipakai untuk demo dan pitch, bukan sebagai isi produk. Skenario Lucas diibaratkan klub biasa yang memakai FULLBACK untuk menjual pemain.
 
 ### Problem Frame
 
@@ -50,20 +57,28 @@ Klub kecil harus menggugat ke FIFA, menunggu bertahun-tahun, dan bunga keterlamb
 - **FULLBACK dipilih, bukan JURAGAN atau ClipSettle.** ClipSettle sudah ramai pesaing (Whop Content Rewards, Distro, FlowBack). FULLBACK punya masalah nyata yang terdokumentasi. Governs R1–R16. (session-settled: user-directed — chosen over JURAGAN dan ClipSettle: masalah global nyata dan bisa didemokan)
 - **Data cerita fiktif tapi realistis (Lucas, klub fiktif), bukti masalah dari kasus nyata.** Nama klub asli tidak dipakai di demo. Governs R1–R4, R20. (session-settled: user-approved — chosen over memakai kontrak asli: kontrak asli tidak publik dan berisiko hukum)
 - **Testnet dengan uang mainan fEUR, 1 fEUR = €1.** NEAR Intents tidak punya testnet, jadi hanya opsional di mainnet. Governs R5, R18. (session-settled: user-approved — chosen over mainnet uang asli: gratis dan aman untuk pemula)
+- **FULLBACK adalah produk umum untuk klub; Lucas hanya data demo.** Copy web membahas klub penjual, klub pembeli, SSB/akademi, dan pemegang sell-on secara umum. Lucas muncul di Judge demo mode, di deal demo, dan di satu teaser "See it in action" di Beranda. Governs R1–R4, R21, R22. (session-settled: user-directed, 11 Nov — chosen over website bercerita tentang Lucas: produk harus terlihat bisa dipakai klub mana pun)
+- **Tambah Dashboard klub ("My deals").** Satu halaman, bukan halaman SSB terpisah. Governs R21. (session-settled: user-approved, 11 Nov — chosen over Dashboard + halaman SSB khusus: beban Orang 3 tetap muat Kamis–Jumat)
+- **Web berbahasa Inggris; royalti SSB disebut "Academy royalties".** Penjelasan "setara FIFA solidarity 5%" ditaruh sebagai teks kecil. Governs R22. (session-settled: user-approved, 11 Nov — chosen over "Solidarity payments" dan "Training rewards": paling mudah dimengerti juri internasional)
+- **Web umum dulu (Fase 1), demo Lucas belakangan (Fase 2).** Desain dan kode Fase 1 tidak memuat Judge demo bar, teaser Lucas, hitung mundur demo, atau tombol "agen curang". Halaman Fase 1 memakai data contoh netral (lihat Peta halaman). Governs R18, R22–R24, U6, U7. (session-settled: user-directed, 11 Nov — chosen over langsung mendesain sekitar demo: web harus terlihat bisa dipakai semua klub)
+- **Federasi hanya memantau.** Federation view bersifat read-only dari data publik on-chain; tidak ada tombol aksi, sengketa, atau pembekuan deal. Governs R23. (session-settled: user-approved, 11 Nov — chosen over federasi sebagai arbiter: alur sengketa di luar lingkup)
+- **Masuk lewat dompet NEAR, lalu pilih peran.** `@hot-labs/near-connect`, peran Club, Academy, atau Federation. Governs R24. (session-settled: user-approved, 11 Nov)
 - **Sidik Jari Kontrak dan Kunci Terbatas Agen wajib ada.** Rapor Klub, Pemeriksa Manusia Berbayar, dan Intents mainnet adalah stretch. Governs R10, R11, R13. (session-settled: user-approved — chosen over memasukkan semua fitur: waktu 4 hari)
 
 ### Actors
 
-- A1. Pembeli: Porto Alegre FC (Deal 1), Club Z (Deal 2).
-- A2. Penjual: Nordvik IF (Deal 1), Porto Alegre FC (Deal 2).
-- A3. Klub pembina: Akademi Desa (umur 12–15), Kota FC (umur 16–23).
-- A4. Agen Pembaca: mengubah PDF menjadi JSON berkutipan.
-- A5. Agen Penagih: memanggil `settle_due` dengan kunci terbatas.
-- A6. Juri: memakai Judge demo mode tanpa dompet.
+- A1. Klub penjual: menjual pemain secara cicilan, butuh jaminan agar tidak ditunggak. (Demo: Nordvik IF di Deal 1, Porto Alegre FC di Deal 2.)
+- A2. Klub pembeli: menyetor jaminan dan membayar cicilan. (Demo: Porto Alegre FC di Deal 1, Club Z di Deal 2.)
+- A3. SSB/akademi pembina: menerima Academy royalties dari setiap pembayaran pemain binaannya. (Demo: Akademi Desa umur 12–15, Kota FC umur 16–23.)
+- A4. Pemegang sell-on: menerima persentase saat pemain dijual lagi. (Demo: Nordvik IF.)
+- A5. Agen Pembaca: mengubah PDF menjadi JSON berkutipan.
+- A6. Agen Penagih: memanggil `settle_due` dengan kunci terbatas.
+- A7. Federasi (FIFA atau federasi nasional seperti PSSI): memantau semua deal lewat Federation view, hanya melihat.
+- A8. Juri: memakai Judge demo mode tanpa dompet (Fase 2).
 
 ### Requirements
 
-**Cerita demo terkunci (AI tidak boleh mengubah angka ini)**
+**Data demo terkunci: skenario Lucas (AI tidak boleh mengubah angka ini; hanya untuk demo, bukan isi produk)**
 
 - R1. Pemain fiktif Lucas, umur 26. Riwayat pembinaan: Akademi Desa umur 12–15, Kota FC umur 16–23, Nordvik IF sejak umur 24.
 - R2. Deal 1: Porto Alegre FC membeli Lucas dari Nordvik IF seharga 10.000.000 fEUR, dicicil 4 × 2.500.000. Jaminan 2.500.000. Sell-on 15% (1500 bps) dari harga kotor untuk Nordvik.
@@ -95,6 +110,13 @@ Klub kecil harus menggugat ke FIFA, menunggu bertahun-tahun, dan bunga keterlamb
 - R19. README mengikuti HACKATHON.md: langkah "lakukan X, lihat Y", daftar tools NEAR yang dipakai, daftar library, pengakuan kode lama (tidak ada), dan LICENSE MIT.
 - R20. Repo bisa dijalankan dengan `cp .env.example .env && npm install && npm run dev` (KTD9).
 
+**Produk untuk klub**
+
+- R21. Dashboard klub ("My deals"): klub memilih/masuk sebagai satu akun dan melihat deal-nya dalam tiga tab: sebagai penjual (Selling), sebagai pembeli (Buying), dan Academy royalties yang diterima. Setiap baris menampilkan lawan transaksi, harga, progres cicilan, jatuh tempo berikutnya, dan status (termasuk "harus top up"). Di Fase 2 (Judge demo mode), juri bisa berganti sudut pandang klub (mis. Nordvik IF, Porto Alegre FC, Kota FC).
+- R22. Semua copy web berbahasa Inggris dan ditulis untuk klub mana pun. Royalti SSB disebut "Academy royalties". Lucas hanya muncul di Fase 2 (Judge demo mode dan deal demo), tidak di halaman Fase 1.
+- R23. Federation view: daftar semua deal di kontrak dengan filter status (Active, harus top up, Defaulted, Completed, Resold), ringkasan total nilai deal, cicilan yang dibayar dari jaminan, deal Defaulted, dan Academy royalties yang tersalurkan, plus link explorer. Tanpa tombol aksi.
+- R24. Masuk: tombol "Connect wallet" (`@hot-labs/near-connect`), lalu pilih peran Club, Academy, atau Federation. Peran hanya mengatur tampilan; semua data tetap data publik on-chain, jadi kontrak tidak perlu daftar peran.
+
 ### Acceptance Examples
 
 - AE1. Covers R8. **Given** Deal 1 aktif dan cicilan 1 sudah dibayar, **when** cicilan 2 lewat jatuh tempo dan Penagih memanggil `settle_due`, **then** jaminan turun dari 2.500.000 ke 0, Nordvik menerima 2.375.000, Kota FC 100.000, Akademi Desa 25.000, dan status pembeli "harus top up".
@@ -107,6 +129,7 @@ Klub kecil harus menggugat ke FIFA, menunggu bertahun-tahun, dan bunga keterlamb
 
 - Juri yang belum pernah memakai NEAR bisa menyelesaikan cerita Deal 1 sampai Deal 2 di demo online dalam kurang dari 5 menit.
 - AI screening (Claude Code / Codex) yang mengikuti README berhasil menjalankan repo dan melihat apa yang dijanjikan README.
+- Juri yang hanya membaca Beranda paham bahwa FULLBACK adalah aplikasi untuk klub mana pun, bukan cerita satu pemain.
 
 ### Scope Boundaries
 
@@ -137,6 +160,7 @@ Klub kecil harus menggugat ke FIFA, menunggu bertahun-tahun, dan bunga keterlamb
 
 - KTD1. **Kontrak Rust near-sdk v5 di testnet.** Skill: `near-smart-contracts`, `near-contract-audit`. (session-settled: user-approved — chosen over JavaScript SDK: contoh dan skill audit paling lengkap)
 - KTD2. **Token mock fEUR NEP-141 terpisah, 6 desimal.** Akun `feur.<master>.testnet`. Punya fungsi `mint` yang hanya bisa dipanggil pemilik token, supaya Judge demo mode bisa mengisi saldo pembeli untuk setiap putaran demo. Script setup mendaftarkan storage semua akun demo.
+- KTD14. **Dashboard membaca `list_deals` lalu menyaring per akun di web.** Tidak perlu fungsi kontrak baru, jadi `INTERFACE.md` tidak berubah. Kalau Orang 1 sempat menambah view `list_deals_by_account(account_id)` sebelum pembekuan Rabu malam, Dashboard memakainya.
 - KTD13. **Setiap putaran Judge demo membuat deal dan `player_id` baru** (mis. `lucas-<waktu>`). Dua juri yang membuka demo bersamaan tidak saling mengganggu, dan cerita bisa diulang dari awal kapan saja dengan tombol "Mulai ulang demo".
 - KTD3. **Pembayaran lewat `ft_transfer_call` → `ft_on_transfer` dengan `msg` JSON.** Aksi: `deposit_collateral`, `top_up_collateral`, `pay_installment`, `pay_resale`. Kontrak menolak token selain fEUR (R15) dan mengembalikan kelebihan bayar.
 - KTD4. **Jadwal cicilan dipadatkan untuk demo.** PDF berisi tanggal asli (ditampilkan di UI). On-chain, cicilan ke-i jatuh tempo pada `waktu aktif + i × 120 detik`, disimpan sebagai offset saat `create_deal`.
@@ -218,7 +242,7 @@ Bentuk fungsi kontrak (nama final ditulis di `INTERFACE.md`):
 | `record_resale(player_id, new_buyer, fee)` | pemilik saat ini | membuka pembayaran Deal 2 |
 | `claim_pending` | penerima | menarik pembayaran yang tertunda |
 | `ft_on_transfer` | kontrak fEUR | aksi `deposit_collateral`, `top_up_collateral`, `pay_installment`, `pay_resale` |
-| view | siapa saja | `get_deal`, `list_deals`, `get_events`, `verify_pdf_hash(deal_id, hash)` |
+| view | siapa saja | `get_deal`, `list_deals`, `get_events`, `verify_pdf_hash(deal_id, hash)`; opsional `list_deals_by_account` (KTD14) |
 
 Bentuk JSON Pembaca (`agent/schema.ts`):
 
@@ -241,9 +265,10 @@ Bentuk JSON Pembaca (`agent/schema.ts`):
 Potong dari atas ke bawah. Yang ada di daftar "jangan pernah dipotong" tetap dibangun.
 
 1. Semua stretch (Rapor Klub, JURAGAN, Intents).
-2. Login dompet asli; sisakan Judge demo mode saja.
+2. Login dompet asli; pemilih peran tetap ada tanpa dompet, dan aksi klub di demo lewat Judge demo mode.
 3. Pembaca live LLM; sisakan fixture `DEMO_MODE`.
 4. Halaman Resale yang cantik; Deal 2 cukup lewat tombol + link explorer.
+4a. Dashboard klub cukup satu tabel tanpa tab; tab Academy royalties jadi filter sederhana.
 5. `npm run setup:demo` untuk akun baru; README mengarahkan ke demo online.
 
 **Jangan pernah dipotong:** kontrak inti + tes, cicilan telat dibayar jaminan, pembagian sell-on dan pembinaan, Sidik Jari, demo Kunci Terbatas, link explorer, video, README.
@@ -276,6 +301,35 @@ Setiap orang menulis catatan hariannya di `docs/progress/orang-N.md` (file sendi
 **Hanya manusia yang boleh:** mengeluarkan uang asli, deploy ke mainnet, membuat repo publik, posting di X, mengisi form submit (sekali, tidak bisa diedit).
 
 ---
+
+## Peta halaman web (Fase 1, desain Figma Orang 4)
+
+| Halaman | Route | Isi |
+|---|---|---|
+| Beranda | `/` | Untuk klub umum: masalah, cara kerja, empat peran, contoh pembagian, FAQ. Tanpa demo. |
+| Sign in | `/signin` | Connect wallet, pilih peran Club / Academy / Federation (R24). |
+| Dashboard klub | `/dashboard` | My deals: Selling, Buying, Academy royalties (R21). |
+| New deal | `/deals/new` | Upload PDF → hasil Pembaca berkutipan → konfirmasi → buat deal (R12, R14). |
+| Detail deal | `/deals/[id]` | Papan deal, cicilan, aktivitas, pembagian, sidik jari PDF, status agen Penagih. |
+| Verify | `/verify` | Unggah PDF → cocok / tidak cocok (R12). |
+| Resale | `/deals/[id]/resale` | Catat penjualan ulang dan pratinjau pembagian (R11). |
+| Federation view | `/federation` | Pantau semua deal, read-only (R23). |
+
+Data contoh netral untuk desain dan `web/lib/mock.ts` Fase 1 (tidak terkunci, boleh diubah; jangan dipakai di kontrak atau tes):
+Riverside SC menjual pemain fiktif "R. Santos" (21) ke Kingsport FC seharga 6.000.000 fEUR, 3 × 2.000.000, jaminan 2.000.000, sell-on 10%.
+Akademi: Pine Hill Academy umur 13–15 (75 bps), Eastgate Youth umur 16–20 (250 bps).
+Setiap cicilan: Riverside SC 1.935.000, Eastgate Youth 50.000, Pine Hill Academy 15.000.
+
+## Fase 2: Demo Lucas
+
+Dikerjakan setelah semua halaman Fase 1 tersambung ke testnet. Isinya Judge demo mode (R18), skenario Lucas R1–R4, bilah demo dengan langkah cerita dan hitung mundur, tombol "Coba agen curang" (R13), dan pemilih sudut pandang klub. Demo memakai halaman Fase 1 yang sama, hanya ditambah bilah demo; tidak ada halaman khusus demo.
+
+## Pertanyaan terbuka (perlu keputusan sebelum `INTERFACE.md` dibekukan)
+
+1. Boleh membayar cicilan sebelum jatuh tempo? Usul: boleh. Tanpa ini, cerita demo butuh ≥ 8 menit karena cicilan #4 jatuh tempo di menit ke-8 (KTD4), padahal target juri < 5 menit.
+2. Top up harus mengembalikan jaminan ke jumlah penuh? Usul: ya, penuh, supaya aturan Defaulted (AE2) tetap jelas.
+3. Angka "bunga keterlambatan 8% per tahun" di Problem Frame perlu dicek; standar yang lazim dipakai FIFA setahu kami 5% per tahun. Jangan dipakai di pitch sebelum ada sumber.
+4. Angka kasus nyata (Botafogo, Fenerbahçe, Zamalek, Clearing House) wajib punya link sumber di `docs/bukti-masalah.md` sebelum muncul di web, README, atau video.
 
 ## Implementation Units
 
@@ -383,25 +437,32 @@ Setiap orang menulis catatan hariannya di `docs/progress/orang-N.md` (file sendi
 ### U6. Halaman web dengan data contoh
 
 - **Pemilik:** Orang 3. Kamis.
-- **Goal:** Empat halaman yang bisa diklik dengan data contoh, mengikuti desain Figma Orang 4.
-- **Requirements:** R12, R14, R17.
+- **Goal:** Semua halaman Fase 1 di Peta halaman bisa diklik dengan data contoh netral, mengikuti desain Figma Orang 4 (bahasa Inggris, R22). Belum ada unsur demo.
+- **Requirements:** R12, R14, R17, R21–R24.
 - **Dependencies:** U1, desain dari U8, bentuk data dari `agent/schema.ts` dan `contract/INTERFACE.md`.
-- **Files:** `web/` (dibuat dengan skill `near-dapp`, Next.js), `web/app/page.tsx` (beranda), `web/app/upload/`, `web/app/deal/[id]/`, `web/app/verify/`, `web/app/resale/`, `web/lib/mock.ts`.
+- **Files:** `web/` (dibuat dengan skill `near-dapp`, Next.js), `web/app/page.tsx` (beranda), `web/app/upload/`, `web/app/deal/[id]/`, `web/app/verify/`, `web/app/resale/`, `web/app/dashboard/`, `web/app/signin/`, `web/app/federation/`, `web/lib/mock.ts`.
 - **Approach:**
   1. Upload: unggah PDF → tampilkan hasil Pembaca, kutipan disorot, peringatan merah memblokir tombol "Buat deal".
   2. Deal: linimasa cicilan, saldo jaminan, status pembeli, riwayat event, link explorer di setiap baris.
   3. Verifikasi: unggah PDF → hash dihitung di browser → ✅/❌ besar.
   4. Resale: diagram pembagian 20.000.000 sesuai R4.
+  5. Dashboard: tab Selling, Buying, Academy royalties; ringkasan angka di atas; baris deal dengan progres cicilan dan status.
+  6. Beranda: copy umum untuk klub, SSB, dan federasi; tanpa Lucas.
+  7. Sign in: Connect wallet + pilih peran.
+  8. Federation view: ringkasan + tabel semua deal + filter status, tanpa tombol aksi.
 - **Test scenarios:**
   - Upload dengan fixture yang punya `warnings`: tombol "Buat deal" nonaktif sampai dicentang manusia.
   - Halaman Deal dengan data mock status "harus top up": banner peringatan terlihat.
   - Verifikasi: file yang sama menampilkan ✅, file berbeda menampilkan ❌.
+  - Dashboard dengan data mock sebagai Riverside SC: deal ke Kingsport FC muncul di tab Selling dengan status "harus top up"; sebagai Eastgate Youth, royalti 50.000 per cicilan muncul di tab Academy royalties.
+  - Federation view: filter "Defaulted" hanya menampilkan deal Defaulted; tidak ada tombol yang mengirim transaksi.
+  - Halaman Fase 1 tidak memuat teks "Lucas", "Judge", atau "demo".
 - **Verification:** `npm run build -w web` sukses. Semua halaman bisa dibuka di HP dan laptop (cek dengan `ce-test-browser`).
 
 ### U7. Web tersambung ke testnet, Judge demo mode, deploy Vercel
 
 - **Pemilik:** Orang 3. Jumat.
-- **Goal:** Juri bisa menjalankan cerita Lucas penuh di URL publik tanpa dompet.
+- **Goal:** Halaman Fase 1 membaca data asli testnet, login dompet berjalan (R24), lalu Fase 2: juri bisa menjalankan cerita Lucas penuh di URL publik tanpa dompet.
 - **Requirements:** R17, R18, R20, KTD7, KTD8, KTD13.
 - **Dependencies:** U3, U4, U5, U6.
 - **Files:** `web/app/api/reader/`, `web/app/api/demo/[action]/`, `web/app/api/collector/tick/`, `web/lib/near.ts`, `web/components/JudgeDemoBar.tsx`.
@@ -411,12 +472,14 @@ Setiap orang menulis catatan hariannya di `docs/progress/orang-N.md` (file sendi
   3. Bilah demo menampilkan hitung mundur ke jatuh tempo berikutnya. Setelah jaminan dipakai untuk cicilan 2, tombol "Top up jaminan" disorot, karena kalau juri diam sampai cicilan 3 jatuh tempo, deal menjadi `Defaulted` (AE2).
   4. Halaman Deal memanggil `/api/collector/tick` setiap 15 detik.
   5. Tombol "Coba agen curang" memanggil `illegal-attempt` dan menampilkan penolakan.
-  6. Login dompet asli lewat `@hot-labs/near-connect` sebagai tambahan (boleh dipotong, lihat urutan pemotongan).
+  6. Login dompet lewat `@hot-labs/near-connect` + pilih peran (R24). Kalau dipotong, pemilih peran tetap ada tanpa dompet (hanya melihat).
+  7. Bilah demo, skenario Lucas, dan tombol "Coba agen curang" ditambahkan di atas halaman Fase 1 yang sama (Fase 2).
 - **Test scenarios:**
   - Covers AE1. Klik langkah cerita sampai cicilan 2 telat: dalam 30 detik jaminan menjadi 0 tanpa klik tambahan.
   - Covers AE4. Tombol "Coba agen curang": muncul pesan ditolak + link explorer.
   - Dua jendela incognito menjalankan demo bersamaan: masing-masing mendapat deal sendiri dan event pembagian tiap deal sesuai R3 dan R4.
   - Route demo dipanggil tanpa env kunci: pesan jelas "Judge demo mode belum dikonfigurasi", bukan crash.
+  - Dashboard membaca deal asli dari testnet: setelah langkah settle_due, baris deal di Dashboard ikut berubah ke "harus top up".
   - Integrasi: seluruh cerita Deal 1 → Deal 2 dari URL Vercel di jendela incognito.
 - **Verification:** URL Vercel publik menjalankan cerita penuh. Kunci akun demo tidak muncul di kode sisi browser maupun di repo.
 
@@ -428,9 +491,9 @@ Setiap orang menulis catatan hariannya di `docs/progress/orang-N.md` (file sendi
 - **Dependencies:** U1. README final butuh U3 dan U7.
 - **Files:** `sample-agreements/deal1-nordvik-portoalegre.pdf` (+ sumber teks), `sample-agreements/deal1-TAMPERED.pdf`, `sample-agreements/deal2-portoalegre-clubz.pdf`, `docs/bukti-masalah.md`, `docs/pembeda.md`, `docs/video-script.md`, `docs/libraries.md`, `README.md`.
 - **Approach:**
-  1. Rabu–Kamis: desain Figma 4 halaman (layer biasa, tanpa component/instance), lalu kirim link ke Orang 3.
+  1. Rabu–Kamis: desain Figma semua halaman di Peta halaman (Fase 1, tanpa unsur demo; layer biasa, tanpa component/instance, copy bahasa Inggris), lalu kirim link ke Orang 3. Bilah demo Fase 2 didesain setelahnya.
   2. Kamis: tulis PDF perjanjian fiktif dengan angka R2 dan R4 tepat, pasal bernomor, riwayat pembinaan R1. Buat versi `TAMPERED` dengan satu angka diubah.
-  3. Jumat: README dengan bagian "Coba dalam 2 menit" (demo online), "Jalankan sendiri", "Tools NEAR yang dipakai", "Library", "Lisensi". Rapikan dengan `ce-noslop`.
+  3. Jumat: README membuka dengan masalah klub secara umum, lalu menyebut Lucas sebagai skenario demo. Bagian "Coba dalam 2 menit" (demo online), "Jalankan sendiri", "Tools NEAR yang dipakai", "Library", "Lisensi". Rapikan dengan `ce-noslop`.
   4. Jumat malam: uji README di laptop yang belum pernah clone repo, idealnya oleh orang yang tidak membangunnya.
   5. Sabtu: rekam video (≤ 3 menit), posting X dengan "built at NEAR HACKATHON", tag @NEARProtocol dan #NEARHackathon, buat repo publik, isi form sekali.
 - **Test scenarios:**
