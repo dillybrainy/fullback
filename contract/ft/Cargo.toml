@@ -1,0 +1,17 @@
+[package]
+name = "feur"
+version = "0.1.0"
+edition = "2021"
+description = "fEUR: mock NEP-141 euro token (6 decimals) for the FULLBACK testnet demo."
+license = "MIT"
+repository = "https://github.com/"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk = "5"
+near-contract-standards = "5"
+
+[dev-dependencies]
+near-sdk = { version = "5", features = ["unit-testing"] }
