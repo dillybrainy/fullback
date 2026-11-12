@@ -2,7 +2,7 @@
 title: FULLBACK - Plan
 type: feat
 date: 2026-11-10
-updated: 2026-11-11 (rev 2)
+updated: 2026-11-12 (rev 3)
 artifact_contract: ce-unified-plan/v1
 product_contract_source: ce-plan-bootstrap
 execution: code
@@ -46,11 +46,11 @@ Skenario Lucas (R1–R4) dan kasus nyata di Problem Frame hanya dipakai untuk de
 ### Problem Frame
 
 Klub sering tidak dibayar meski perjanjian transfernya jelas.
-Botafogo belum membayar €8 juta ke Ludogorets dan dihukum larangan transfer 3 periode oleh FIFA (Apr 2026).
-Fenerbahçe diperintahkan membayar Sevilla sekitar $2,95 juta dari transfer €19,5 juta yang dicicil 8 kali selama 4 tahun.
-Zamalek menumpuk utang sekitar $6,17 juta di beberapa kasus.
-FIFA Clearing House hanya menangani jatah pembinaan (sekitar $1 miliar dibayarkan, 1.665 klub terdaftar), tidak memakai blockchain, dan tidak menjamin cicilan maupun sell-on.
-Klub kecil harus menggugat ke FIFA, menunggu bertahun-tahun, dan bunga keterlambatan standarnya hanya 8% per tahun.
+Botafogo belum membayar €8 juta ke Ludogorets (transfer Rwan Cruz) dan dihukum larangan transfer 3 periode oleh FIFA (Apr 2026).
+Fenerbahçe diperintahkan FIFA membayar Sevilla sekitar $2,95 juta, yaitu cicilan transfer En-Nesyri (€19,5 juta, dibayar bertahap) yang telat, dan dikenai larangan transfer 3 periode sampai membayar (Sep 2026).
+Zamalek menumpuk lebih dari 15 larangan transfer FIFA karena utang. Salah satunya ke AIK untuk Omar Faraj (USD 1,1 juta dicicil, sell-on 15%), dan AIK baru menang di CAS hampir dua tahun kemudian.
+FIFA Clearing House hanya menangani jatah pembinaan (hampir $1 miliar dialokasikan dan sekitar $639 juta dibayarkan sejak Nov 2022, per Juli 2026), tidak memakai blockchain, dan tidak menjamin cicilan maupun sell-on.
+Klub kecil harus menggugat ke FIFA, menunggu bertahun-tahun, dan bunga keterlambatan yang lazim diputuskan hanya 5% per tahun.
 
 ### Key Decisions
 
@@ -136,7 +136,7 @@ Klub kecil harus menggugat ke FIFA, menunggu bertahun-tahun, dan bunga keterlamb
 **Di luar lingkup (tidak dibangun):**
 
 - Bonus/add-on transfer, kompensasi pelatihan (training compensation), gaji pemain, alur sengketa/arbiter.
-- Bunga keterlambatan 8% per tahun. Alasan: tidak mengubah cerita demo. Akan dipertimbangkan jika juri bertanya soal insentif bayar tepat waktu.
+- Bunga keterlambatan (lazimnya 5% per tahun). Alasan: tidak mengubah cerita demo. Akan dipertimbangkan jika juri bertanya soal insentif bayar tepat waktu.
 - Sell-on basis bersih (net). Pembaca menandainya "tidak didukung".
 - Uang asli, multi-mata uang, upgrade kontrak, akun admin.
 - Penagih yang berjalan 24 jam di server. Alasan: Vercel tidak menjalankan proses terus-menerus. Penagih dipicu per halaman (KTD7).
@@ -149,8 +149,8 @@ Klub kecil harus menggugat ke FIFA, menunggu bertahun-tahun, dan bunga keterlamb
 
 ### Sources
 
-- Kasus Botafogo–Ludogorets, Fenerbahçe–Sevilla, Zamalek, klausul sell-on 15% AIK–Zamalek, FIFA Clearing House: lihat `docs/bukti-masalah.md` (Orang 4 mengisi link sumber).
-- Pembeda dari pesaing (TransferChain, tokenisasi Vasco, Blocsport.one, RoadToPro, Sevilla Transfer Tracker): `docs/pembeda.md`. Jawaban singkat untuk juri: "FIFA Clearing House hanya menangani jatah pembinaan; cicilan dan sell-on tidak dijamin siapa pun."
+- Kasus Botafogo–Ludogorets, Fenerbahçe–Sevilla, Zamalek, klausul sell-on 15% AIK–Zamalek (basis net), FIFA Clearing House: lihat `docs/bukti-masalah.md` (link sumber sudah diisi 12 Nov). Hanya angka di file itu yang boleh dipakai di web, README, dan video.
+- Pembeda dari pesaing (FIFA Clearing House, Blocsport.one, tokenisasi Vasco, WIN × MANTRA, RoadToPro, pembayaran stablecoin): `docs/pembeda.md`. TransferChain dan Sevilla Transfer Tracker tidak ditemukan, jadi jangan disebut. Jawaban singkat untuk juri: "FIFA Clearing House hanya menangani jatah pembinaan; cicilan dan sell-on tidak dijamin siapa pun."
 
 ---
 
@@ -328,8 +328,8 @@ Dikerjakan setelah semua halaman Fase 1 tersambung ke testnet. Isinya Judge demo
 
 1. Boleh membayar cicilan sebelum jatuh tempo? Usul: boleh. Tanpa ini, cerita demo butuh ≥ 8 menit karena cicilan #4 jatuh tempo di menit ke-8 (KTD4), padahal target juri < 5 menit.
 2. Top up harus mengembalikan jaminan ke jumlah penuh? Usul: ya, penuh, supaya aturan Defaulted (AE2) tetap jelas.
-3. Angka "bunga keterlambatan 8% per tahun" di Problem Frame perlu dicek; standar yang lazim dipakai FIFA setahu kami 5% per tahun. Jangan dipakai di pitch sebelum ada sumber.
-4. Angka kasus nyata (Botafogo, Fenerbahçe, Zamalek, Clearing House) wajib punya link sumber di `docs/bukti-masalah.md` sebelum muncul di web, README, atau video.
+3. ~~Bunga 8%~~ **Selesai 12 Nov:** dikoreksi menjadi 5% per tahun dengan sumber CAS (lihat `docs/bukti-masalah.md`).
+4. **Selesai 12 Nov:** semua angka kasus nyata sudah bersumber di `docs/bukti-masalah.md`. "Dicicil 8 kali" (Fenerbahçe) dan "$6,17 juta" (Zamalek) tidak ditemukan sumbernya, jadi dihapus.
 
 ## Implementation Units
 

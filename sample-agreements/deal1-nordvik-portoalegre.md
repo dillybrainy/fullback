@@ -1,130 +1,68 @@
 # PERMANENT TRANSFER AGREEMENT
 
-**Player: Lucas**
-**Nordvik IF → Porto Alegre FC**
+**Agreement No. FB-DEMO-001** · Signed on 1 April 2027
 
-> FICTIONAL DOCUMENT. This agreement was written for the FULLBACK demo at NEAR HACKATHON "Build Beyond Boundaries". The player, clubs, and amounts are invented. It has no legal effect.
+> FICTIONAL DEMO DOCUMENT. Prepared for the FULLBACK project at NEAR HACKATHON "Build Beyond Boundaries". The clubs and the player are invented. This is not a real contract.
 
-Agreement date: 12 November 2026
+## 1. Parties
 
----
+1.1 Nordvik IF, a football club registered in Norway (the "Seller").
 
-## Clause 1. Parties
+1.2 Porto Alegre FC, a football club registered in Brazil (the "Buyer").
 
-1.1 The Selling Club is Nordvik IF ("Seller").
+1.3 The professional football player Lucas Andrade, born on 14 March 2001 (the "Player").
 
-1.2 The Buying Club is Porto Alegre FC ("Buyer").
+## 2. Transfer
 
-1.3 The Seller and the Buyer together are "the Parties".
+2.1 The Seller agrees to transfer the registration of the Player to the Buyer on a permanent basis, subject to the terms of this Agreement.
 
-## Clause 2. Player
+## 3. Transfer fee
 
-2.1 The Player is Lucas, born on 14 March 2000.
+3.1 The Buyer shall pay the Seller a fixed transfer fee of EUR 10,000,000 (ten million euros).
 
-2.2 On the date of this Agreement the Player is 26 years old.
+3.2 The transfer fee shall be paid in four (4) equal installments of EUR 2,500,000 (two million five hundred thousand euros) each, due on 30 April 2027, 31 July 2027, 31 October 2027 and 31 January 2028.
 
-2.3 The Player is registered with the Seller and transfers to the Buyer on a permanent basis.
+3.3 The Buyer may pay any installment before its due date.
 
-## Clause 3. Training History
+## 4. Security
 
-3.1 The Player was registered with Akademi Desa from age 12 to age 15.
+4.1 Before the registration of the Player, the Buyer shall deposit security of EUR 2,500,000 (two million five hundred thousand euros), equal to one installment.
 
-3.2 The Player was registered with Kota FC from age 16 to age 23.
+4.2 If an installment is not paid by its due date, the security shall be applied to that installment and the Buyer shall restore the security to its full amount.
 
-3.3 The Player has been registered with Nordvik IF since age 24.
+4.3 If an installment is overdue and the remaining security is not sufficient to pay it, the Buyer is in default.
 
-3.4 Akademi Desa and Kota FC are the "Training Clubs" for this Agreement.
+4.4 The security shall be returned to the Buyer after the final installment has been paid.
 
-## Clause 4. Transfer Fee
+## 5. Sell-on
 
-4.1 The Buyer shall pay the Seller a total transfer fee of 10,000,000 fEUR.
+5.1 If the Buyer transfers the Player to another club, the Buyer shall pay the Seller fifteen percent (15%) of the gross transfer fee received, without any deduction.
 
-4.2 fEUR is a test token on NEAR testnet. 1 fEUR represents €1.
+## 6. Training clubs
 
-4.3 The transfer fee is fixed. There are no bonuses, add-ons, or interest under this Agreement.
+6.1 The parties acknowledge the registration history of the Player set out in Annex A.
 
-## Clause 5. Payment Schedule
+6.2 A solidarity contribution of up to five percent (5%) shall be distributed to the training clubs in accordance with Annex 5 of the FIFA Regulations on the Status and Transfer of Players, and shall be deducted from each payment of the transfer fee.
 
-5.1 The transfer fee is paid in 4 equal installments of 2,500,000 fEUR each.
+## 7. Payment and evidence
 
-5.2 Installment 1 of 2,500,000 fEUR is due on 1 December 2026.
+7.1 All payments under this Agreement shall be made in fEUR through the FULLBACK contract on the NEAR testnet, where 1 fEUR represents EUR 1.
 
-5.3 Installment 2 of 2,500,000 fEUR is due on 1 June 2027.
+7.2 The SHA-256 fingerprint of this Agreement is recorded in the FULLBACK contract when the deal is created. Any copy whose fingerprint differs is not the signed Agreement.
 
-5.4 Installment 3 of 2,500,000 fEUR is due on 1 December 2027.
+## 8. Governing rules
 
-5.5 Installment 4 of 2,500,000 fEUR is due on 1 June 2028.
+8.1 This Agreement is governed by the FIFA Regulations on the Status and Transfer of Players. Disputes shall be referred to the FIFA Football Tribunal.
 
-5.6 The Buyer pays each installment to the FULLBACK contract on NEAR, which distributes it under Clause 6.
+## Annex A - Registration history of the Player
 
-## Clause 6. Solidarity Contribution to Training Clubs
-
-6.1 A solidarity contribution of 5% of every installment is paid to the Training Clubs, following the FIFA training model.
-
-6.2 Kota FC receives 4% of every installment (8 years at 0.5% per year).
-
-6.3 Akademi Desa receives 1% of every installment (4 years at 0.25% per year).
-
-6.4 For each installment of 2,500,000 fEUR, the Seller receives 2,375,000 fEUR, Kota FC receives 100,000 fEUR, and Akademi Desa receives 25,000 fEUR.
-
-6.5 Over all 4 installments, the Seller receives 9,500,000 fEUR, Kota FC receives 400,000 fEUR, and Akademi Desa receives 100,000 fEUR.
-
-## Clause 7. Collateral
-
-7.1 The Buyer shall deposit collateral of 2,500,000 fEUR with the FULLBACK contract.
-
-7.2 This Agreement becomes active only after the Seller approves it and the Buyer has deposited the full collateral.
-
-7.3 If an installment is unpaid after its due date, anyone may trigger settlement, and the overdue installment is paid from the collateral.
-
-7.4 An installment paid from the collateral is distributed exactly as set out in Clause 6.
-
-7.5 After the collateral is used, the Buyer must top up the collateral to 2,500,000 fEUR.
-
-7.6 If the collateral is less than an overdue installment, the Agreement is marked as defaulted and no further automatic payments are made.
-
-7.7 After all installments are paid, the Buyer may withdraw the full collateral of 2,500,000 fEUR.
-
-## Clause 8. Sell-On Clause
-
-8.1 If the Buyer transfers the Player to another club, the Seller receives 15% (fifteen percent) of the gross transfer fee of that future transfer.
-
-8.2 The sell-on percentage is calculated on the gross fee, before any deduction.
-
-8.3 On that future transfer, the Training Clubs also receive their solidarity contribution based on the training history in Clause 3.
-
-8.4 The new buying club pays the future transfer fee to the FULLBACK contract, which splits it in one transaction. For example, if the future transfer fee is 20,000,000 fEUR, the Seller receives 3,000,000 fEUR as sell-on, the Training Clubs receive 1,000,000 fEUR as solidarity contribution (Kota FC 800,000 fEUR and Akademi Desa 200,000 fEUR), and the Buyer receives the remaining 16,000,000 fEUR.
-
-## Clause 9. Contract Fingerprint
-
-9.1 The SHA-256 fingerprint of this document is recorded on NEAR when the deal is created.
-
-9.2 Any copy of this document whose fingerprint does not match the recorded fingerprint is not a valid copy of this Agreement.
-
-## Clause 10. Failed Payments
-
-10.1 If a payment to a recipient fails, the amount is held as pending in the FULLBACK contract and the recipient may claim it later.
-
-## Clause 11. Entire Agreement
-
-11.1 This Agreement is the entire agreement between the Parties about the transfer of the Player.
-
-11.2 Any change to this Agreement must be in writing and signed by both Parties.
-
----
+| Club | Player age | Calendar years |
+|---|---|---|
+| Akademi Desa | 12 to 15 | 2013 to 2016 |
+| Kota FC | 16 to 23 | 2017 to 2024 |
+| Nordvik IF | 24 onwards | 2025 to 2027 |
 
 ## Signatures
 
-For Nordvik IF (Seller)
-
-Name: ______________________
-Title: Chief Executive
-Date: 12 November 2026
-
-For Porto Alegre FC (Buyer)
-
-Name: ______________________
-Title: Chief Executive
-Date: 12 November 2026
-
-> FICTIONAL DOCUMENT. Created for the FULLBACK hackathon demo. Not a real contract.
+For Nordvik IF: ______________________ (authorised signatory)
+For Porto Alegre FC: ______________________ (authorised signatory)
