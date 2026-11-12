@@ -11,6 +11,7 @@ import {
   teraToGas,
   type KeyPairString,
 } from "near-api-js";
+import { AccessKeyDoesNotExistError, AccountDoesNotExistError } from "near-api-js/rpc-errors";
 
 export const SCRIPTS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 export const REPO_DIR = resolve(SCRIPTS_DIR, "..");
@@ -36,8 +37,9 @@ export const fmt = (units: bigint | string) =>
   (BigInt(units) / 10n ** FEUR_DECIMALS).toLocaleString("en-US") + " fEUR";
 
 export const GAS_CALL = teraToGas("30");
-export const GAS_SETTLE = teraToGas("100");
-export const GAS_PAY = teraToGas("200");
+// Each payout costs 14 TGas of static gas; up to 5 academies + seller (+ sell-on holder).
+export const GAS_SETTLE = teraToGas("150");
+export const GAS_PAY = teraToGas("250");
 export const ONE_YOCTO = 1n;
 
 export function env(name: string): string {
@@ -84,12 +86,25 @@ export async function view<T>(contractId: string, method: string, args: Record<s
   return (await provider.callFunction({ contractId, method, args })) as T;
 }
 
+/** False only when the chain says the account does not exist; other RPC errors throw. */
 export async function accountExists(accountId: string): Promise<boolean> {
   try {
     await provider.viewAccount({ accountId });
     return true;
-  } catch {
-    return false;
+  } catch (err) {
+    if (err instanceof AccountDoesNotExistError) return false;
+    throw err;
+  }
+}
+
+/** True when `accountId` holds `publicKey`; false only when the chain says it does not. */
+export async function hasAccessKey(accountId: string, publicKey: string): Promise<boolean> {
+  try {
+    await provider.viewAccessKey({ accountId, publicKey });
+    return true;
+  } catch (err) {
+    if (err instanceof AccessKeyDoesNotExistError) return false;
+    throw err;
   }
 }
 

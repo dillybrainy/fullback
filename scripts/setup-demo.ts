@@ -6,7 +6,7 @@
 // gives the collector a function-call key that may only call `settle_due`.
 //
 // Needs MASTER_ACCOUNT_ID and MASTER_PRIVATE_KEY in .env (a testnet account with
-// about 12 NEAR, e.g. from https://near-faucet.io). Every account and key it creates
+// about 15 NEAR, e.g. from https://near-faucet.io). Every account and key it creates
 // is written to scripts/.env.demo (gitignored) right after it is created, so a
 // second run continues where the first one stopped.
 
@@ -19,6 +19,7 @@ import {
   accountExists,
   accountLink,
   call,
+  hasAccessKey,
   env,
   provider,
   txLink,
@@ -33,20 +34,25 @@ interface Role {
   near: `${number}`;
 }
 
-// The prefixes become <prefix>.<master>. The NEAR amounts cover contract storage
-// (fullback.wasm is about 250 KB) and gas for the demo accounts.
+// The prefixes become <prefix>.<master>. The NEAR amounts cover contract storage and
+// gas for the demo accounts. The FULLBACK contract pays storage for every deal and its
+// events (no deposit is asked from callers): about 2.6 NEAR is locked by the 254 KB
+// wasm, and the rest pays for roughly 100 demo deals. Top it up if it runs low.
 const ROLES: Role[] = [
   { prefix: "feur", label: "fEUR token (owner mints)", idVar: "FT_ID", keyVar: "FT_OWNER_PRIVATE_KEY", near: "2.5" },
-  { prefix: "fullback", label: "FULLBACK contract", idVar: "CONTRACT_ID", keyVar: "CONTRACT_PRIVATE_KEY", near: "3.5" },
+  { prefix: "fullback", label: "FULLBACK contract", idVar: "CONTRACT_ID", keyVar: "CONTRACT_PRIVATE_KEY", near: "7" },
   { prefix: "nordvik", label: "Selling club (Nordvik IF)", idVar: "DEMO_SELLER_ACCOUNT_ID", keyVar: "DEMO_SELLER_PRIVATE_KEY", near: "0.5" },
   { prefix: "portoalegre", label: "Buying club (Porto Alegre FC)", idVar: "DEMO_BUYER_ACCOUNT_ID", keyVar: "DEMO_BUYER_PRIVATE_KEY", near: "1" },
   { prefix: "clubz", label: "Resale buyer (Club Z)", idVar: "DEMO_RESALE_BUYER_ACCOUNT_ID", keyVar: "DEMO_RESALE_BUYER_PRIVATE_KEY", near: "0.5" },
   { prefix: "kotafc", label: "Academy, age 16-23 (Kota FC)", idVar: "DEMO_ACADEMY_1_ACCOUNT_ID", keyVar: "DEMO_ACADEMY_1_PRIVATE_KEY", near: "0.2" },
   { prefix: "akademidesa", label: "Academy, age 12-15 (Akademi Desa)", idVar: "DEMO_ACADEMY_2_ACCOUNT_ID", keyVar: "DEMO_ACADEMY_2_PRIVATE_KEY", near: "0.2" },
-  { prefix: "keeper", label: "Collector agent", idVar: "KEEPER_ACCOUNT_ID", keyVar: "KEEPER_FULL_ACCESS_PRIVATE_KEY", near: "1.5" },
+  { prefix: "keeper", label: "Collector agent", idVar: "KEEPER_ACCOUNT_ID", keyVar: "KEEPER_FULL_ACCESS_PRIVATE_KEY", near: "2" },
 ];
 
-const KEEPER_ALLOWANCE = nearToYocto("1");
+// Every settle_due sent with this key spends allowance (about 0.015 NEAR at 150 TGas),
+// even when it returns NotDue. 2 NEAR is about 130 calls, so the collector must read
+// get_deal (free) and only send settle_due once next_due_at_ns has passed.
+const KEEPER_ALLOWANCE = nearToYocto("2");
 
 const demoEnv = new Map<string, string>();
 
@@ -83,8 +89,9 @@ async function ensureAccount(master: Account, role: Role): Promise<Account> {
     console.log(`  = ${role.label}: ${accountId}`);
     return new Account(accountId, provider, knownKey as KeyPairString);
   }
-  const keyPair = KeyPair.fromRandom("ed25519");
-  // Save the key before the account exists, so it is never lost.
+  // Reuse a key saved by an earlier run whose create failed; otherwise make one and
+  // save it before the account exists, so it is never lost or overwritten.
+  const keyPair = knownKey ? KeyPair.fromString(knownKey as KeyPairString) : KeyPair.fromRandom("ed25519");
   set(role.idVar, accountId);
   set(role.keyVar, keyPair.toString());
   const res = await master.createSubAccount({
@@ -149,11 +156,13 @@ async function main() {
   }
 
   console.log("\n4. Collector key (may only call settle_due on FULLBACK)");
-  if (demoEnv.get("KEEPER_PRIVATE_KEY")) {
+  const savedLimited = demoEnv.get("KEEPER_PRIVATE_KEY");
+  const limited = savedLimited ? KeyPair.fromString(savedLimited as KeyPairString) : KeyPair.fromRandom("ed25519");
+  set("KEEPER_PRIVATE_KEY", limited.toString());
+  // Decide from the chain, not the file: an earlier run may have saved the key and failed to add it.
+  if (await hasAccessKey(keeper.accountId, limited.getPublicKey().toString())) {
     console.log("  = already added");
   } else {
-    const limited = KeyPair.fromRandom("ed25519");
-    set("KEEPER_PRIVATE_KEY", limited.toString());
     const res = await keeper.addFunctionCallAccessKey({
       publicKey: limited.getPublicKey(),
       contractId: fullback.accountId,

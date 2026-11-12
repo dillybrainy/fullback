@@ -121,6 +121,9 @@ fn verify_pdf_hash_matches_only_the_recorded_fingerprint() {
     tampered.replace_range(0..1, "4");
     assert!(!sim.c.verify_pdf_hash(id, tampered));
     assert!(!sim.c.verify_pdf_hash(99, PDF_HASH.into()));
+    // An id above u32::MAX must not wrap around to deal 0.
+    assert!(!sim.c.verify_pdf_hash(id + (1 << 32), PDF_HASH.into()));
+    assert!(sim.c.get_deal(id + (1 << 32)).is_none());
 }
 
 #[test]

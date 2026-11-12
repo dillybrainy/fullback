@@ -113,6 +113,8 @@ async function illegalAttempt() {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
+    // Only an access-key rejection proves the point; a network error proves nothing.
+    if (!/receiver|access ?key|method/i.test(message)) throw err;
     log(`Collector agent tried ft_transfer on fEUR and the chain refused it:\n    ${message.split("\n")[0]}`);
     return;
   }

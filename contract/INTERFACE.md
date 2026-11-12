@@ -20,7 +20,7 @@ Explorer: `https://testnet.nearblocks.io/txns/<tx_hash>` dan `https://testnet.ne
 - **Waktu:** `*_ns` = nanodetik sejak epoch (dari `block_timestamp`). Jadwal cicilan disimpan sebagai `due_offset_sec` (detik setelah deal aktif). Tanggal asli dari PDF hanya ditampilkan di web, tidak disimpan on-chain.
 - **bps:** 1 bps = 0,01 %. 10000 bps = 100 %. Semua hitungan memakai pembulatan ke bawah; sisa pembulatan masuk ke penjual.
 - **Hash PDF:** SHA-256 dalam hex, 64 karakter. Kontrak menyimpannya dalam huruf kecil.
-- **Gas:** `settle_due`, `release_collateral`, `claim_pending` disarankan 100 TGas; fungsi ubah lain 30 TGas.
+- **Gas:** `settle_due` disarankan 150 TGas, `release_collateral` dan `claim_pending` 100 TGas; fungsi ubah lain 30 TGas.
 - **Pembayaran** selalu lewat `ft_transfer_call` di kontrak fEUR dengan `receiver_id = <FULLBACK>` dan `msg` JSON (lihat bawah). Kontrak FULLBACK menolak token dari akun selain fEUR resmi; token itu dikembalikan otomatis oleh standar NEP-141.
 - **Kelebihan bayar** dikembalikan ke pengirim (lewat nilai balik `ft_on_transfer`).
 - **Kekurangan bayar** ditolak seluruhnya (uang dikembalikan).
@@ -80,7 +80,7 @@ Ditolak jika:
 - `sell_on_bps` + total pembinaan > 10000;
 - `sell_on_basis` bukan `"gross"` (basis bersih tidak didukung);
 - `pdf_hash` bukan 64 karakter hex;
-- `collateral` atau `price` bernilai 0, `player_id` kosong/lebih dari 64 karakter, lebih dari 24 cicilan atau 10 klub pembina;
+- `collateral` atau `price` bernilai 0, `player_id` kosong/lebih dari 64 karakter, lebih dari 24 cicilan atau 5 klub pembina (batas gas pembagian);
 - `seller_id` sama dengan pembeli, atau klub pembina sama dengan penjual/pembeli, atau klub pembina ganda;
 - `player_id` sudah pernah dipakai (penjualan berikutnya lewat `record_resale`).
 
@@ -123,7 +123,7 @@ Klien memanggil di kontrak **fEUR**:
 
 ```
 ft_transfer_call({ receiver_id: <FULLBACK>, amount: "<U128>", msg: "<JSON string>" })
-deposit: 1 yoctoNEAR, gas: 200 TGas (disarankan; pembagian ke 4 penerima butuh ±60 TGas di kontrak FULLBACK)
+deposit: 1 yoctoNEAR, gas: 250 TGas (disarankan; tiap penerima butuh 14 TGas, maksimal 7 penerima pada penjualan ulang)
 ```
 
 `msg` (string JSON):
@@ -235,7 +235,7 @@ Setiap akun yang menerima fEUR (klub, akademi, kontrak FULLBACK) harus `storage_
 
 ## Kunci terbatas Agen Penagih
 
-`npm run setup:demo` (atau `scripts/add-keeper-key.sh`) menambah Function Call access key ke akun Penagih: `receiver_id = <FULLBACK>`, `method_names = ["settle_due"]`, allowance 1 NEAR (±100 panggilan `settle_due` dengan 100 TGas). Kunci ini tidak bisa memanggil `ft_transfer` di kontrak fEUR maupun mengirim NEAR. Agen memakai `KEEPER_PRIVATE_KEY` (kunci terbatas ini); kunci penuh akun Penagih hanya disimpan di `scripts/.env.demo` sebagai `KEEPER_FULL_ACCESS_PRIVATE_KEY`.
+`npm run setup:demo` (atau `scripts/add-keeper-key.sh`) menambah Function Call access key ke akun Penagih: `receiver_id = <FULLBACK>`, `method_names = ["settle_due"]`, allowance 2 NEAR (±130 panggilan `settle_due` dengan 150 TGas; Penagih harus membaca `get_deal` dulu dan hanya memanggil `settle_due` setelah `next_due_at_ns` lewat). Kunci ini tidak bisa memanggil `ft_transfer` di kontrak fEUR maupun mengirim NEAR. Agen memakai `KEEPER_PRIVATE_KEY` (kunci terbatas ini); kunci penuh akun Penagih hanya disimpan di `scripts/.env.demo` sebagai `KEEPER_FULL_ACCESS_PRIVATE_KEY`.
 
 ## Variabel env yang ditulis `npm run setup:demo`
 

@@ -10,7 +10,7 @@
 set -euo pipefail
 
 keeper="${1:?keeper account id}"; contract="${2:?FULLBACK contract id}"; pubkey="${3:?ed25519:... public key}"
-allowance="${ALLOWANCE:-1 NEAR}"
+allowance="${ALLOWANCE:-2 NEAR}"
 case "$keeper" in *.testnet) ;; *) echo "testnet accounts only" >&2; exit 1 ;; esac
 
 near account add-key "$keeper" \

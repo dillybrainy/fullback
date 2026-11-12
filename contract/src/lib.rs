@@ -21,7 +21,11 @@ use near_sdk::{
 pub const MAX_TRAINING_BPS: u32 = 500;
 pub const BPS_DENOMINATOR: u128 = 10_000;
 pub const MAX_INSTALLMENTS: usize = 24;
-pub const MAX_TRAINING_CLUBS: usize = 10;
+/// Each payout reserves GAS_FT_TRANSFER + GAS_ON_PAYOUT (14 TGas). Five clubs plus the
+/// seller (and the sell-on holder on a resale) keep a payment under ~100 TGas of
+/// payouts, which fits the recommended 150 TGas for settle_due and 250 TGas for
+/// ft_transfer_call.
+pub const MAX_TRAINING_CLUBS: usize = 5;
 pub const MAX_TEXT_LEN: usize = 64;
 
 const GAS_FT_TRANSFER: Gas = Gas::from_tgas(8);
@@ -634,9 +638,7 @@ impl Fullback {
     }
 
     pub fn get_deal(&self, deal_id: u64) -> Option<DealView> {
-        self.deals
-            .get(deal_id as u32)
-            .map(|d| deal_view(deal_id, d))
+        self.find_deal(deal_id).map(|d| deal_view(deal_id, d))
     }
 
     pub fn list_deals(&self, from_index: Option<u64>, limit: Option<u64>) -> Vec<DealView> {
@@ -680,7 +682,7 @@ impl Fullback {
     }
 
     pub fn verify_pdf_hash(&self, deal_id: u64, pdf_hash: String) -> bool {
-        match self.deals.get(deal_id as u32) {
+        match self.find_deal(deal_id) {
             Some(deal) => !deal.pdf_hash.is_empty() && deal.pdf_hash == normalize_hash(&pdf_hash),
             None => false,
         }
@@ -698,10 +700,13 @@ impl Fullback {
 // -------------------------------------------------------------- internals
 
 impl Fullback {
+    /// Ids above u32::MAX never exist (the Vector index is u32); never wrap them.
+    fn find_deal(&self, deal_id: u64) -> Option<&Deal> {
+        u32::try_from(deal_id).ok().and_then(|i| self.deals.get(i))
+    }
+
     fn deal(&self, deal_id: u64) -> &Deal {
-        u32::try_from(deal_id)
-            .ok()
-            .and_then(|i| self.deals.get(i))
+        self.find_deal(deal_id)
             .unwrap_or_else(|| env::panic_str("Deal not found"))
     }
 

@@ -226,6 +226,38 @@ fn create_deal_rejects_academy_royalties_above_five_percent() {
 }
 
 #[test]
+fn create_deal_rejects_more_training_clubs_than_one_payment_can_pay_out() {
+    let mut sim = Sim::new();
+    // Six clubs at 50 bps stay under 500 bps but exceed the club limit.
+    let clubs: Vec<TrainingClub> = (1..=6)
+        .map(|i| TrainingClub {
+            account_id: acc(&format!("academy{i}.testnet")),
+            name: format!("Academy {i}"),
+            bps: 50,
+        })
+        .collect();
+
+    let err = sim
+        .call(PORTO, |c| {
+            c.create_deal(
+                "lucas-x".into(),
+                "Lucas".into(),
+                acc(NORDVIK),
+                U128(fe(10_000_000)),
+                deal1_installments(),
+                U128(fe(2_500_000)),
+                1500,
+                "gross".into(),
+                clubs,
+                PDF_HASH.into(),
+            )
+        })
+        .unwrap_err();
+
+    assert!(err.contains("Too many training clubs"), "{err}");
+}
+
+#[test]
 fn create_deal_rejects_a_net_sell_on_basis() {
     let mut sim = Sim::new();
     let err = sim

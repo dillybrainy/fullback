@@ -28,4 +28,12 @@ Catatan teknis:
 - **Semua:** setujui `contract/INTERFACE.md` supaya bisa dibekukan.
 - **Orang 4:** tambah variabel baru ke `.env.example`: `MASTER_PRIVATE_KEY`, `CONTRACT_PRIVATE_KEY`, `DEMO_ACADEMY_1_ACCOUNT_ID`, `DEMO_ACADEMY_1_PRIVATE_KEY`, `DEMO_ACADEMY_2_ACCOUNT_ID`, `DEMO_ACADEMY_2_PRIVATE_KEY`, `KEEPER_FULL_ACCESS_PRIVATE_KEY`.
 - **Orang 4:** `package-lock.json` root berubah karena dependensi `scripts/` (near-api-js, tsx, dotenv).
-- **Orang 2:** Penagih memakai `settle_due` yang tidak pernah panic dan mengembalikan `{ result, installment_index }`; lihat INTERFACE.
+- **Orang 2:** Penagih memakai `settle_due` yang tidak pernah panic dan mengembalikan `{ result, installment_index }`; lihat INTERFACE. **Penting:** setiap `settle_due` memotong allowance kunci terbatas (±0,015 NEAR di 150 TGas) walau hasilnya `NotDue`. Jadi `tick()` harus membaca `get_deal`/`list_deals` (gratis) dan hanya mengirim `settle_due` kalau `status == "Active"` dan `next_due_at_ns` sudah lewat. Kalau tidak, allowance 2 NEAR habis dalam ±30 menit polling 15 detik.
+
+## Hasil code review (Kamis 12 Nov)
+
+Diperbaiki: `get_deal`/`verify_pdf_hash` tidak lagi membungkus id > u32; batas klub pembina 10 → 5 agar pembagian muat di gas; gas skrip 150/250 TGas; dana kontrak 3,5 → 7 NEAR; allowance Penagih 2 NEAR; `setup-demo` tidak menimpa kunci tersimpan saat RPC error dan mengecek kunci Penagih di chain; langkah "agen curang" hanya lulus kalau ditolak karena kunci.
+
+Ditunda (butuh keputusan grup karena mengubah INTERFACE):
+- `create_deal` belum meminta deposit storage; siapa pun bisa membuat deal gratis dan menghabiskan saldo storage kontrak. Solusi: `#[payable]` + hitung `storage_usage`.
+- Penjualan ulang yang belum dibayar dan deal `Proposed` tidak bisa dibatalkan (pemain terkunci). Solusi: `cancel_resale` / `cancel_deal` + status `Cancelled`.
