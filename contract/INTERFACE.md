@@ -235,7 +235,11 @@ Setiap akun yang menerima fEUR (klub, akademi, kontrak FULLBACK) harus `storage_
 
 ## Kunci terbatas Agen Penagih
 
-`scripts/add-keeper-key.sh` menambah Function Call access key ke akun Penagih: `receiver_id = <FULLBACK>`, `method_names = ["settle_due"]`, allowance 0,25 NEAR. Kunci ini tidak bisa memanggil `ft_transfer` di kontrak fEUR maupun mengirim NEAR.
+`npm run setup:demo` (atau `scripts/add-keeper-key.sh`) menambah Function Call access key ke akun Penagih: `receiver_id = <FULLBACK>`, `method_names = ["settle_due"]`, allowance 1 NEAR (±100 panggilan `settle_due` dengan 100 TGas). Kunci ini tidak bisa memanggil `ft_transfer` di kontrak fEUR maupun mengirim NEAR. Agen memakai `KEEPER_PRIVATE_KEY` (kunci terbatas ini); kunci penuh akun Penagih hanya disimpan di `scripts/.env.demo` sebagai `KEEPER_FULL_ACCESS_PRIVATE_KEY`.
+
+## Variabel env yang ditulis `npm run setup:demo`
+
+Ditulis ke `scripts/.env.demo` (diabaikan git). Selain yang sudah ada di `.env.example`, ada variabel baru: `MASTER_PRIVATE_KEY` (dibaca, bukan ditulis), `CONTRACT_PRIVATE_KEY`, `DEMO_ACADEMY_1_ACCOUNT_ID`/`_PRIVATE_KEY` (Kota FC), `DEMO_ACADEMY_2_ACCOUNT_ID`/`_PRIVATE_KEY` (Akademi Desa), `KEEPER_FULL_ACCESS_PRIVATE_KEY`.
 
 ## Keputusan yang diambil di versi ini
 
