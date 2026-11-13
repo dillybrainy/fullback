@@ -234,7 +234,7 @@ Pemilik `contract/INTERFACE.md` adalah Orang 1. Pemilik `agent/schema.ts` adalah
 Bentuk fungsi kontrak (nama final ditulis di `INTERFACE.md`):
 
 | Fungsi | Pemanggil | Isi |
-|---|---|---|
+| --- | --- | --- |
 | `create_deal` | pembeli | pemain, penjual, harga, jadwal (offset), jaminan, sell-on bps + basis `gross`, klub pembina + bps, hash PDF |
 | `approve_deal` | penjual | menyetujui deal |
 | `settle_due(deal_id)` | siapa saja | membayar cicilan telat dari jaminan atau menandai `Defaulted` |
@@ -280,7 +280,7 @@ Potong dari atas ke bawah. Yang ada di daftar "jangan pernah dipotong" tetap dib
 **Siapa memegang folder apa:**
 
 | Orang | Peran | Folder miliknya | Skill utama |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Orang 1 | Kontrak | `contract/`, `scripts/` | near-smart-contracts, near-contract-audit, near-cli-rs |
 | Orang 2 | Agen AI / backend | `agent/` | near-ai-cloud, near-api-js atau near-kit |
 | Orang 3 | Frontend | `web/` | near-dapp, frontend-design, figma:figma-design-to-code, ce-test-browser |
@@ -305,7 +305,7 @@ Setiap orang menulis catatan hariannya di `docs/progress/orang-N.md` (file sendi
 ## Peta halaman web (Fase 1, desain Figma Orang 4)
 
 | Halaman | Route | Isi |
-|---|---|---|
+| --- | --- | --- |
 | Beranda | `/` | Untuk klub umum: masalah, cara kerja, empat peran, contoh pembagian, FAQ. Tanpa demo. |
 | Sign in | `/signin` | Connect wallet, pilih peran Club / Academy / Federation (R24). |
 | Dashboard klub | `/dashboard` | My deals: Selling, Buying, Academy royalties (R21). |
@@ -507,7 +507,7 @@ Dikerjakan setelah semua halaman Fase 1 tersambung ke testnet. Isinya Judge demo
 ## Jadwal (WIB)
 
 | Hari | Orang 1 (kontrak) | Orang 2 (agen) | Orang 3 (frontend) | Orang 4 (desain/konten) |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Rabu 11 | Setup Rust + akun testnet, tulis `INTERFACE.md` | Tulis `schema.ts`, fixture Deal 1 | Setup `web/` dengan near-dapp, kerangka halaman | U1 kerangka repo, mulai Figma |
 | Kamis 12 | U2 kontrak inti + tes, hash, kunci terbatas | U4 Pembaca + tes | U6 empat halaman dengan data mock | Figma selesai, PDF contoh |
 | Jumat 13 | U3 deploy testnet, audit, `run-demo` | U5 Penagih + demo agen curang | U7 sambung testnet, Judge demo, Vercel | Naskah video, README, uji README |
@@ -521,7 +521,7 @@ Titik periksa Jumat 20.00 WIB: kalau U7 belum jalan, mulai potong sesuai urutan 
 ## Verification Contract
 
 | Bukti | Perintah | Pemilik |
-|---|---|---|
+| --- | --- | --- |
 | Tes kontrak | `cd contract && cargo test` | Orang 1 |
 | Tes agen | `npm test -w agent` | Orang 2 |
 | Build web | `npm run build -w web` | Orang 3 |

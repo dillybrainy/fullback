@@ -1,0 +1,26 @@
+{
+  "name": "agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "FULLBACK AI agents: PDF Reader and Collector.",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "reader": "tsx reader/cli.ts",
+    "collector": "tsx collector/index.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "near-api-js": "^7.0.0",
+    "pdfjs-dist": "^4.10.38",
+    "zod": "^3.23.8",
+    "zod-to-json-schema": "^3.24.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
