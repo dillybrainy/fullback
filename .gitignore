@@ -30,3 +30,6 @@ target/
 Thumbs.db
 .vscode/
 .idea/
+
+# Model cache / script internal (diabaikan git)
+.near-models/

@@ -13,8 +13,9 @@ import { zodToJsonSchema } from "zod-to-json-schema";
 import { ReaderLLMSchema, type ReaderLLM } from "../schema.js";
 
 const DEFAULT_BASE_URL = "https://cloud-api.near.ai/v1";
-// Model is configurable; the default is the model used in the NEAR AI Cloud docs.
-const DEFAULT_MODEL = "deepseek-ai/DeepSeek-V3.1";
+// Model is configurable via NEARAI_MODEL. Default is a model currently in the
+// NEAR AI Cloud catalog (GET /v1/models) that is strong at structured JSON.
+const DEFAULT_MODEL = "google/gemini-2.5-flash";
 
 const JSON_SCHEMA = JSON.stringify(zodToJsonSchema(ReaderLLMSchema, { name: "AgreementTerms" }));
 
