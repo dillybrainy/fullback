@@ -1,0 +1,50 @@
+{
+  "player": {
+    "name": "Lucas Andrade",
+    "birthDate": "2001-03-14",
+    "quote": "Lucas Andrade, born on 14 March 2001",
+    "clause": "1.3"
+  },
+  "fee": {
+    "amount": 20000000,
+    "currency": "EUR",
+    "quote": "a fixed transfer fee of EUR 20,000,000",
+    "clause": "3.1"
+  },
+  "installments": [
+    {
+      "index": 0,
+      "amount": 20000000,
+      "dueDate": "2028-02-15",
+      "quote": "paid in a single payment on the date of signature",
+      "clause": "3.2"
+    }
+  ],
+  "sellOn": {
+    "bps": 1500,
+    "basis": "gross",
+    "quote": "a sell-on right of fifteen percent (15%) of the gross transfer fee",
+    "clause": "4.1"
+  },
+  "trainingClubs": [
+    {
+      "name": "Akademi Desa",
+      "account": "akademidesa.<master>.testnet",
+      "ageFrom": 12,
+      "ageTo": 15,
+      "bps": 100,
+      "quote": "12 to 15",
+      "clause": "Annex A"
+    },
+    {
+      "name": "Kota FC",
+      "account": "kotafc.<master>.testnet",
+      "ageFrom": 16,
+      "ageTo": 23,
+      "bps": 400,
+      "quote": "16 to 23",
+      "clause": "Annex A"
+    }
+  ],
+  "warnings": []
+}
