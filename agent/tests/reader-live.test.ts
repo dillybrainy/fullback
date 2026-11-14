@@ -3,9 +3,10 @@
  *
  *   LIVE_TEST=1 npm test -w agent
  *
- * Uses the real sample PDF from sample-agreements/ (committed LF bytes read
- * from git, so the SHA-256 matches the documented fingerprint even on a
- * Windows CRLF checkout).
+ * Uses the Deal 1 demo PDF, which was removed from sample-agreements/ on
+ * 15 Nov (only tests/ remains there now). The bytes are read from git history
+ * (commit f741c98, pinned on purpose), so the SHA-256 always matches the
+ * documented fingerprint regardless of the working tree or line endings.
  */
 import { execFileSync } from "node:child_process";
 import { config } from "dotenv";
@@ -19,11 +20,12 @@ const enabled = process.env.LIVE_TEST === "1" && !!process.env.NEARAI_API_KEY;
 
 describe.runIf(enabled)("live NEAR AI Cloud reader (LIVE_TEST=1)", () => {
   it("reads deal1 PDF and returns the Deal 1 terms with no warnings", async () => {
-    // Read the committed LF blob so the fingerprint matches the README table.
+    // Read the committed LF blob from git history so the fingerprint matches
+    // the documented hash even after the file left the working tree.
     const pdf = execFileSync("git", [
       "cat-file",
       "blob",
-      "HEAD:sample-agreements/deal1-nordvik-portoalegre.pdf",
+      "f741c98:sample-agreements/deal1-nordvik-portoalegre.pdf",
     ]);
 
     process.env.DEMO_MODE = "false";
