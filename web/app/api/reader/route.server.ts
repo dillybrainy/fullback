@@ -7,6 +7,9 @@ import { createReaderHandler } from "agent/dist/reader/http.js";
 export const runtime = "nodejs"; // pdfjs and node:crypto do not run on the Edge runtime
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
+// Answer before the platform kills the function (maxDuration 60 s): the client
+// then always receives the JSON error below instead of an HTML gateway timeout.
+const ROUTE_TIMEOUT_MS = 55_000;
 
 // Same-origin requests are always allowed; READER_ALLOWED_ORIGINS adds others.
 function allowedOrigins(request: Request): string[] {
@@ -20,7 +23,7 @@ function handlerFor(request: Request) {
   const key = origins.join(",");
   let handle = handlers.get(key);
   if (!handle) {
-    handle = createReaderHandler({ origins });
+    handle = createReaderHandler({ origins, timeoutMs: ROUTE_TIMEOUT_MS });
     handlers.set(key, handle);
   }
   return handle;

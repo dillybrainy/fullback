@@ -7,6 +7,7 @@ export async function requestAiReview({ file, pdfHash, url = "/api/reader", sign
   const timeout = setTimeout(() => controller.abort(new DOMException("The AI review timed out before the Reader finished. Reviews rarely exceed a minute — please try again.", "TimeoutError")), 78000);
   try {
     const response = await fetchImpl(url, { method: "POST", headers: { "Content-Type": "application/pdf" }, body: file, signal: controller.signal });
+    if (response.status === 413) throw new Error("This PDF is larger than this deployment accepts for AI review. Choose a smaller agreement.");
     let result;
     try { result = await response.json(); } catch { throw new Error("AI review is not available on this deployment."); }
     if (!response.ok) throw new Error(typeof result.error === "string" ? result.error : "AI review is unavailable. Please retry later.");

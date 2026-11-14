@@ -46,5 +46,5 @@ describe.runIf(enabled)("live NEAR AI Cloud reader (LIVE_TEST=1)", () => {
 
     // R14: every quote must appear verbatim in the PDF text.
     expect(output.warnings).toEqual([]);
-  }, 90_000);
+  }, 150_000);
 });

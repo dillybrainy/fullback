@@ -3,3 +3,5 @@
 tsconfig.tsbuildinfo
 out/
 .impeccable/review/
+.env*
+!.env.example
