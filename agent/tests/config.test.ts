@@ -6,7 +6,7 @@
  */
 
 import { afterEach, describe, expect, it } from "vitest";
-import { getApiKey, getModel, getRawBaseUrl } from "../config.js";
+import { DEFAULT_MODEL, getApiKey, getExtraBody, getModel, getRawBaseUrl } from "../config.js";
 
 const SAVED = { ...process.env };
 
@@ -24,6 +24,7 @@ function setEnv(vars: Record<string, string>) {
   delete process.env.NEARAI_MODEL;
   delete process.env.LLM_API_BASE_URL;
   delete process.env.NEARAI_API_BASE_URL;
+  delete process.env.LLM_EXTRA_BODY;
   Object.assign(process.env, vars);
 }
 
@@ -45,7 +46,8 @@ describe("config env fallback", () => {
 
   it("falls back to the default model when LLM_MODEL is empty", () => {
     setEnv({ LLM_MODEL: "", NEARAI_MODEL: "" });
-    expect(getModel()).toBe("google/gemini-2.5-flash-lite");
+    expect(getModel()).toBe(DEFAULT_MODEL);
+    expect(DEFAULT_MODEL).toBe("Qwen/Qwen3.6-35B-A3B-FP8");
   });
 
   it("falls back to NEARAI_MODEL when LLM_MODEL is empty", () => {
@@ -64,5 +66,31 @@ describe("config env fallback", () => {
   it("treats whitespace-only values as unset", () => {
     setEnv({ LLM_API_KEY: "   ", NEARAI_API_KEY: "near-key" });
     expect(getApiKey()).toBe("near-key");
+  });
+});
+
+describe("extra request body", () => {
+  it("turns Qwen3 thinking off by default", () => {
+    setEnv({});
+    expect(getExtraBody("Qwen/Qwen3.6-35B-A3B-FP8")).toEqual({ chat_template_kwargs: { enable_thinking: false } });
+  });
+
+  it("sends nothing extra for other models", () => {
+    setEnv({});
+    expect(getExtraBody("google/gemini-2.5-flash-lite")).toEqual({});
+  });
+
+  it("lets LLM_EXTRA_BODY override the default, and {} switches it off", () => {
+    setEnv({ LLM_EXTRA_BODY: '{"max_tokens":2000}' });
+    expect(getExtraBody("Qwen/Qwen3.6-35B-A3B-FP8")).toEqual({ max_tokens: 2000 });
+    setEnv({ LLM_EXTRA_BODY: "{}" });
+    expect(getExtraBody("Qwen/Qwen3.6-35B-A3B-FP8")).toEqual({});
+  });
+
+  it("rejects LLM_EXTRA_BODY that is not a JSON object", () => {
+    setEnv({ LLM_EXTRA_BODY: "[1]" });
+    expect(() => getExtraBody("x")).toThrow(/JSON object/);
+    setEnv({ LLM_EXTRA_BODY: "{oops" });
+    expect(() => getExtraBody("x")).toThrow(/JSON object/);
   });
 });

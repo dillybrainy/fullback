@@ -34,9 +34,14 @@ const { output, pdfHash } = await readPdf(pdfBytes);
 
 - Endpoint OpenAI-compatible: `https://cloud-api.near.ai/v1` (`fetch` langsung,
   **bukan** package `openai`).
-- Default: **`google/gemini-2.5-flash-lite`** — dipilih lewat pengukuran (lulus 3/3
-  pada tes live, termurah/tercepat di kelasnya), bukan karena ukuran. Ganti tanpa
-  ubah kode lewat env `NEARAI_MODEL`.
+- Default (sejak 15 Nov): **`Qwen/Qwen3.6-35B-A3B-FP8`**, model **private** yang
+  jalan di TEE NEAR AI Cloud (Intel TDX + GPU NVIDIA, punya attestation). Lulus
+  15/15 PDF tes ×4 run dan Deal 1 12/12, ±2 dtk per PDF, ±$0,001 per PDF.
+  Mode "thinking" Qwen3 dimatikan otomatis (`config.ts`); override lewat env
+  `LLM_EXTRA_BODY`. Ganti model tanpa ubah kode lewat `LLM_MODEL`/`NEARAI_MODEL`.
+- Default lama `google/gemini-2.5-flash-lite` masih lulus semua tes, tapi itu
+  *external provider* (bukan TEE, teks PDF dikirim ke Google). Pakai hanya sebagai
+  cadangan.
 - Catatan penting: model default lama (`deepseek-ai/DeepSeek-V3.1`) dihapus dari
   katalog NEAR AI Cloud sehingga Reader sempat crash pada 14 Nov. Hasil evaluasi
   pemilihan model + file mentah ada di [`eval/README.md`](eval/README.md).
