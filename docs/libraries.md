@@ -19,7 +19,7 @@ Wajib menurut aturan HACKATHON.md: sebutkan semua library dan template yang dipa
 | @hot-labs/near-connect | `[isi]` | MIT `[cek]` | `web/` (login dompet) | Orang 3 |
 | Template `create-near-app` / skill near-dapp `[cek]` | `[isi]` | MIT | kerangka awal `web/` | Orang 3 |
 | Vitest | 2.1.9 | MIT | `agent/tests/` | Orang 2 |
-| reportlab (Python, hanya untuk membuat PDF contoh) | 5.0.1 | BSD | `sample-agreements/make_agreements.py` | Orang 4 |
+| reportlab (Python, hanya untuk membuat PDF contoh) | 5.0.1 | BSD | `sample-agreements/tests/make_tests.py` | Orang 4 |
 
 ## Aset desain
 

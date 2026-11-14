@@ -23,24 +23,42 @@ function loadJson<T>(...segments: string[]): T {
   return JSON.parse(readFileSync(resolve(AGENT_DIR, "..", ...segments), "utf8")) as T;
 }
 
-/** Club name → testnet account (placeholder `<master>` resolved by the web). */
+/** Club name → testnet account (concrete `*.fullback-team.testnet`, see clubs.json). */
 export const clubs = loadJson<Record<string, string>>("clubs.json");
 
+/** Test-suite fixture format: exact PDF fingerprint + the Reader's answer. */
+interface FixtureFile {
+  /** SHA-256 of the exact PDF bytes (hex, lowercase) — the DEMO_MODE lookup key. */
+  pdfHash: string;
+  /** The Reader's answer for that PDF (`ReaderOutput`). */
+  output: ReaderOutput;
+}
+
+// Lucas demo (PLAN.md R1–R4, locked numbers). Plain `ReaderOutput` files: the
+// web tests and scripts read them in this shape, so it must not change.
 const deal1Fixture = loadJson<ReaderOutput>("fixtures", "deal1.json");
 const deal2Fixture = loadJson<ReaderOutput>("fixtures", "deal2.json");
+// Neutral test-suite agreements, usable in DEMO_MODE without restoring a PDF.
+const ok01Fixture = loadJson<FixtureFile>("fixtures", "ok01-basic.json");
+const ok02Fixture = loadJson<FixtureFile>("fixtures", "ok02-unequal-installments.json");
 
 /**
- * SHA-256 of each demo PDF (PLAN.md R1–R4). The demo PDFs were removed from
- * sample-agreements/ on 15 Nov (only tests/ remains there); the committed LF
- * bytes live on in git history at commit f741c98. Restore one with:
- *   git checkout f741c98 -- sample-agreements/deal1-nordvik-portoalegre.pdf
- * Regenerating the PDF can change the bytes (CRLF) and therefore the hash.
+ * DEMO_MODE answer keys: PDF SHA-256 → ReaderOutput (details in
+ * agent/fixtures/README.md). Hashes are of the committed LF bytes; keep
+ * `*.pdf -text` (.gitattributes) so a Windows checkout cannot change them.
+ *  - Lucas Deal 1/2 PDFs: only in git history (commit f741c98), used by
+ *    `npm run demo` and the Phase 2 judge demo.
+ *  - sample-agreements/tests/OK-01 and OK-02: in the working tree.
  */
 export const DEMO_FIXTURES_BY_HASH: Record<string, ReaderOutput> = {
-  // deal1-nordvik-portoalegre.pdf
+  // deal1-nordvik-portoalegre.pdf (Lucas, R2/R3)
   eab475572d0bf6ce627ac7b0160e5a34ef3c2ebc49cbdd8c75b76aa54d0d1832: deal1Fixture,
-  // deal2-portoalegre-clubz.pdf
+  // deal2-portoalegre-clubz.pdf (Lucas resale, R4)
   "2d72a5235790ff650eedec20de6c1e61b6efb25fa1b38852da295a4abe60737e": deal2Fixture,
+  // tests/OK-01-basic.pdf
+  [ok01Fixture.pdfHash]: ok01Fixture.output,
+  // tests/OK-02-unequal-installments.pdf
+  [ok02Fixture.pdfHash]: ok02Fixture.output,
 };
 
 export interface ReadPdfResult {
@@ -62,10 +80,10 @@ export async function readPdf(data: Uint8Array, options: { signal?: AbortSignal;
     if (!fixture) {
       throw new Error(
         `DEMO_MODE is on and this PDF (sha256 ${pdfHash}) is not one of the demo agreements. ` +
-          "Restore the demo PDF from git history and upload it: " +
-          "`git checkout f741c98 -- sample-agreements/deal1-nordvik-portoalegre.pdf`. " +
-          "Or turn DEMO_MODE off (with an API key) to read any agreement, " +
-          "e.g. sample-agreements/tests/OK-01-basic.pdf.",
+          "Upload one of the demo PDFs: sample-agreements/tests/OK-01-basic.pdf " +
+          "(or OK-02-unequal-installments.pdf), or the Lucas demo PDF from git history " +
+          "(`git checkout f741c98 -- sample-agreements/deal1-nordvik-portoalegre.pdf`). " +
+          "Or turn DEMO_MODE off (with an API key) to read any agreement.",
       );
     }
     return { output: fixture, pdfHash };

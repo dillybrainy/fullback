@@ -71,3 +71,40 @@ describe("fixtures", () => {
     expect(deal.sellOn).toMatchObject({ bps: 1500, basis: "gross" });
   });
 });
+
+describe("test-suite fixtures ({ pdfHash, output })", () => {
+  const load = (name: string) =>
+    JSON.parse(readFileSync(resolve(FIXTURES, name), "utf8")) as { pdfHash: string; output: unknown };
+
+  it("ok01 (tests/OK-01-basic.pdf) passes ReaderOutputSchema and matches the PDF", () => {
+    const file = load("ok01-basic.json");
+    expect(file.pdfHash).toBe("1340d083678a312547b454050f3d4d5246f34deacc641c428ee36bb2c1d3bf88");
+    const deal = ReaderOutputSchema.parse(file.output);
+    expect(deal.fee.amount).toBe(6000000);
+    expect(deal.installments.map((i) => i.amount)).toEqual([2000000, 2000000, 2000000]);
+    expect(deal.collateral?.amount).toBe(2000000);
+    expect(deal.sellOn).toMatchObject({ bps: 1000, basis: "gross" });
+    const byName = Object.fromEntries(deal.trainingClubs.map((c) => [c.name, c.bps]));
+    expect(byName).toEqual({ "Akademi Desa": 100, "Kota FC": 250 });
+    expect(deal.warnings).toEqual([]);
+  });
+
+  it("ok02 (tests/OK-02-unequal-installments.pdf) passes ReaderOutputSchema with unequal installments", () => {
+    const file = load("ok02-unequal-installments.json");
+    expect(file.pdfHash).toBe("dc12f270a006a194ffa00e7dcc955b93ed3c9c3abb5c1a5944af1ee3d5bb816f");
+    const deal = ReaderOutputSchema.parse(file.output);
+    expect(deal.fee.amount).toBe(10000000);
+    expect(deal.installments.map((i) => i.amount)).toEqual([4000000, 3000000, 3000000]);
+    expect(deal.collateral?.amount).toBe(3000000);
+    expect(deal.warnings).toEqual([]);
+  });
+
+  it("the pdfHash keys equal tests/manifest.json (committed LF bytes)", () => {
+    const manifest = JSON.parse(
+      readFileSync(resolve(FIXTURES, "..", "..", "sample-agreements", "tests", "manifest.json"), "utf8"),
+    ) as { file: string; sha256: string }[];
+    const sha = Object.fromEntries(manifest.map((m) => [m.file, m.sha256]));
+    expect(load("ok01-basic.json").pdfHash).toBe(sha["OK-01-basic.pdf"]);
+    expect(load("ok02-unequal-installments.json").pdfHash).toBe(sha["OK-02-unequal-installments.pdf"]);
+  });
+});

@@ -74,7 +74,9 @@ File mentah keluaran vitest ada di [`raw/`](raw/).
 
 ## 5. Keputuan
 
-**Default: `google/gemini-2.5-flash-lite`** — lulus 3/3, tercepat, dan termurah di
+> **Diganti 15 Nov:** default sekarang `Qwen/Qwen3.6-35B-A3B-FP8` (private TEE), lihat §7.
+
+**Default (14 Nov): `google/gemini-2.5-flash-lite`** — lulus 3/3, tercepat, dan termurah di
 kelasnya (flash-lite). Cocok dengan kebutuhan menekan cost tanpa mengorbankan
 keandalan demo. `NEARAI_MODEL` tetap tersedia sebagai override tanpa ubah kode.
 
@@ -86,7 +88,8 @@ keandalan demo. `NEARAI_MODEL` tetap tersedia sebagai override tanpa ubah kode.
 
 ```bash
 # uji satu model tertentu
-LIVE_TEST=1 NEARAI_MODEL="<vendor/model>" npm test -w agent -- tests/reader-live.test.ts
+$env:LIVE_TEST='1'; $env:NEARAI_MODEL='<vendor/model>'; npm test -w agent -- tests/reader-live.test.ts
+# bash: LIVE_TEST=1 NEARAI_MODEL="<vendor/model>" npm test -w agent -- tests/reader-live.test.ts
 
 # daftar model yang tersedia (perlu NEARAI_API_KEY di .env)
 curl -s https://cloud-api.near.ai/v1/models -H "Authorization: Bearer $NEARAI_API_KEY"

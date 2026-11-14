@@ -107,6 +107,27 @@
   gagal "Failed to parse URL". Diperbaiki di `agent/config.ts` (env kosong =
   tidak disetel), `collector/index.ts`, `collector/illegal-attempt.ts`;
   tes regresi baru `tests/config.test.ts` (7 tes). Total **56 tes lulus**.
+- **Sinkronisasi dokumen instruksi agent (15 Nov):** `agent/README.md` —
+  akun master sudah konkret (`<master>` tidak dipakai lagi), ditambah seksi
+  baru **"Penagih (Collector) & demo kunci terbatas"** (env, disiplin
+  allowance, bentuk `IllegalAttemptResult` untuk web Fase 2, status bukti
+  on-chain); jumlah tes tanpa angka kaku. `agent/fixtures/README.md` —
+  konvensi akun diperbarui. `docs/PANDUAN-PEMULA.md` §8 — perintah Reader
+  memakai `tests/OK-01` (live) atau restore PDF demo dari `f741c98` (demo);
+  seksi Collector tidak lagi "belum diimplementasikan"; prioritas Orang 2
+  diperbarui. `docs/libraries.md` — baris reportlab → `tests/make_tests.py`.
+  Path PDF di `agent/tests/reader-http.test.ts` (WIP Reader HTTP) disamakan
+  ke blob `f741c98` — tesnya lulus 6/6. Total tes kini **62 lulus**.
+- **Migrasi fixture ke PDF `tests/` (15 Nov, sesuai arahan user):** fixture
+  kini `{ pdfHash, output }` yang memetakan `tests/OK-01-basic.pdf` (deal1,
+  Daniel Okoro 6M = 3×2M) dan `tests/OK-02-unequal-installments.pdf` (deal2,
+  10M = 4+3+3). Yang disesuaikan: `reader/index.ts` (peta hash → `fixture.output`),
+  `reader-live.test.ts` (menguji OK-01 via pipeline live, lulus 60 dtk,
+  `warnings=[]`), `reader.test.ts` + `schema.test.ts` + `reader-http.test.ts`
+  (angka & hash baru), `fixtures/README.md` ditulis ulang. **Hash fixture =
+  hash manifest = hash commit** (byte PDF dinormalkan ulang ke LF; ternyata
+  `.gitattributes` `*.pdf binary` sudah ada sejak PR #14 — tidak perlu ditambah).
+  Total tes **71 lulus** termasuk 1 live.
 
 ## Selesai
 
@@ -211,3 +232,27 @@ attestation OK) dengan thinking dimatikan. Hasilnya 15/15 PDF tes ×4 run, Deal 
 
 **Untuk Orang 3 / Vercel:** tidak ada env baru yang wajib. `NEARAI_MODEL`
 dikosongkan saja, supaya default dari kode yang dipakai.
+
+## Sabtu 14 Nov 18:20–18:36 UTC — cek cerita penuh di testnet
+
+- `npm run demo` lulus (exit 0, "All balances match the agreement"): Deal 9 →
+  cicilan 2 dibayar dari jaminan oleh `settle_due` (jaminan 0, "harus top up") →
+  `ft_transfer` dari keeper ditolak (`AccessKeyReceiverMismatchActionError`) →
+  top up → lunas → Deal 10 resale 20.000.000. Saldo: Nordvik +12,5 jt, Kota FC
+  +1,2 jt, Akademi Desa +0,3 jt, Porto Alegre +6 jt, Club Z −20 jt, kontrak +0.
+- Penagih milik `agent/` juga dites langsung: `illegal-attempt.ts` → rejected
+  oleh chain, `collector/index.ts` → tick jalan ("no overdue installments").
+- Catatan: `agent/collector` hanya membaca `.env` root. Di laptop Orang 2,
+  `CONTRACT_ID`/`KEEPER_*` di `.env` root masih kosong (nilainya ada di
+  `scripts/.env.demo`), jadi `npm run collector` lokal perlu diisi dulu.
+- **Untuk Orang 3:** `web/app/api/reader/route.ts` belum ada. Di Vercel, rewrite
+  ke `127.0.0.1:3001` tidak jalan. Potongan route + env (`READER_ALLOWED_ORIGINS`
+  wajib) sudah dikirim lewat grup.
+- **Merge branch Rio `roi/Ngetest-ai-agent` + perbaikan:** dokumentasi Rio
+  masuk. Migrasi fixture-nya dibuat tidak merusak: `deal1.json`/`deal2.json`
+  tetap data Lucas R2/R4 (angka terkunci, format lama yang dibaca tes web),
+  sedangkan OK-01/OK-02 pindah ke `ok01-basic.json` dan
+  `ok02-unequal-installments.json`. `DEMO_MODE` kini menerima keempat PDF.
+  Tes: agent 77 lulus, live OK-01 lulus, `web/tests/ai-review.test.mjs` 2/2
+  (sebelumnya gagal 1 di branch Rio). Baris checklist Rio yang menyebut
+  default Gemini tidak ikut di-merge karena sudah usang.

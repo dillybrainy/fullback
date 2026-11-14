@@ -169,6 +169,14 @@ describe("DEMO_MODE (fixtures, no API key)", () => {
     expect(deal2.collateral).toBeUndefined();
   });
 
+  it("also maps the neutral test PDFs OK-01 and OK-02", () => {
+    const ok01 = DEMO_FIXTURES_BY_HASH["1340d083678a312547b454050f3d4d5246f34deacc641c428ee36bb2c1d3bf88"];
+    const ok02 = DEMO_FIXTURES_BY_HASH["dc12f270a006a194ffa00e7dcc955b93ed3c9c3abb5c1a5944af1ee3d5bb816f"];
+    expect(ok01.fee.amount).toBe(6000000);
+    expect(ok02.fee.amount).toBe(10000000);
+    expect(ok02.collateral?.amount).toBe(3000000);
+  });
+
   it("rejects an unknown PDF in demo mode with a helpful message", async () => {
     process.env.DEMO_MODE = "true";
     await expect(readPdf(new Uint8Array([1, 2, 3]))).rejects.toThrow(/not one of the demo agreements/);

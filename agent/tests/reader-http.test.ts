@@ -6,6 +6,7 @@ import { createReaderHandler, MAX_READER_BYTES } from "../reader/http.js";
 import type { ReaderOutput } from "../schema.js";
 import type { ReadPdfResult } from "../reader/index.js";
 const output = JSON.parse(readFileSync(new URL("../fixtures/deal1.json", import.meta.url), "utf8")) as ReaderOutput;
+const ok01 = (JSON.parse(readFileSync(new URL("../fixtures/ok01-basic.json", import.meta.url), "utf8")) as { output: ReaderOutput }).output;
 const bytes = Buffer.from("%PDF-1.7\ntransport fixture");
 const result = { output, pdfHash: createHash("sha256").update(bytes).digest("hex") };
 const origin = "http://localhost:3000";
@@ -15,13 +16,14 @@ afterEach(() => vi.unstubAllEnvs());
 describe("Reader HTTP boundary", () => {
   it("runs the existing real Reader on an exact demo PDF without network or credentials", async () => {
     vi.stubEnv("DEMO_MODE", "true");
-    // Deal 1 PDF left the working tree on 15 Nov; read the committed LF blob from git history.
-    const pdf = execFileSync("git", ["cat-file", "blob", "f741c98:sample-agreements/deal1-nordvik-portoalegre.pdf"]);
+    // Demo PDF = tests/OK-01-basic.pdf; read the committed LF blob from git so
+    // the hash matches the fixture key regardless of checkout line endings.
+    const pdf = execFileSync("git", ["cat-file", "blob", "HEAD:sample-agreements/tests/OK-01-basic.pdf"]);
     const response = await createReaderHandler()(request(pdf));
     expect(response.status).toBe(200);
     const data = await response.json();
     expect(data.mode).toBe("demo"); expect(data.pdfHash).toBe(createHash("sha256").update(pdf).digest("hex"));
-    expect(data.output.player.name).toBe(output.player.name);
+    expect(data.output.player.name).toBe(ok01.player.name);
   });
   it("reports missing configuration instead of sending an unconfigured paid request", async () => {
     const read = vi.fn();
