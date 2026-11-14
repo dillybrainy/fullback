@@ -13,7 +13,7 @@ config({ path: resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", ".en
 
 const path = process.argv[2];
 if (!path) {
-  console.error('Usage: npm run reader -- <path-to-pdf>\nExample: npm run reader -- sample-agreements/deal1-nordvik-portoalegre.pdf');
+  console.error('Usage: npm run reader -- <path-to-pdf>\nExample: npm run reader -- sample-agreements/tests/OK-01-basic.pdf');
   process.exit(1);
 }
 

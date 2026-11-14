@@ -1,7 +1,7 @@
 /**
  * agent/usage/read-live.ts — Baca 1 PDF secara live dan tampilkan BIAYA NYATA.
  *
- *   npm run usage:read -w agent -- ../sample-agreements/deal1-nordvik-portoalegre.pdf
+ *   npm run usage:read -w agent -- ../sample-agreements/tests/OK-01-basic.pdf
  *
  * Berbeda dengan `usage/cli.ts` (yang menampilkan perkiraan + status), tool ini
  * menjalankan Reader sungguhan lalu menampilkan pemakaian token NYATA yang

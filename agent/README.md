@@ -90,7 +90,7 @@ LLM_MODEL=llama3.1
 ### Cek cepat setelah ganti
 
 ```bash
-npm run usage:read -w agent -- ../sample-agreements/deal1-nordvik-portoalegre.pdf
+npm run usage:read -w agent -- ../sample-agreements/tests/OK-01-basic.pdf
 # -> harus memanggil provider baru & menampilkan pemakaian token NYATA + inference-id
 ```
 
@@ -123,10 +123,13 @@ npm run reader -w agent -- <file.pdf>  # cetak hasil Pembaca (DEMO_MODE dari .en
 
 - **Library PDF:** `pdfjs-dist` v4 (legacy build untuk Node/Vercel). `pdf-parse`
   (pdf.js v1.10, 2016) salah membaca `deal2-portoalegre-clubz.pdf` — jangan dipakai.
-- **Hash PDF sensitif line ending.** PDF di folder `sample-agreements/` yang
-  di-checkout di Windows (CRLF) punya SHA-256 berbeda dari versi commit (LF).
-  Selalu pakai versi commit: `git checkout -- sample-agreements`. Sudah diteruskan
-  ke Orang 4 (perlu `.gitattributes` `*.pdf -text`).
+  (PDF demo Lucas kini hanya di git history, commit `f741c98`.)
+- **Hash PDF sensitif line ending.** PDF yang di-checkout di Windows (CRLF)
+  punya SHA-256 berbeda dari versi commit (LF). Selalu pakai versi commit:
+  `git checkout f741c98 -- sample-agreements/deal1-nordvik-portoalegre.pdf`.
+  Sejak 15 Nov `sample-agreements/` hanya berisi `tests/` (hash versi commit ada
+  di `tests/manifest.json`). `.gitattributes` `*.pdf -text` di root masih perlu
+  (sudah diteruskan ke Orang 4).
 - **Penjual/pembeli bukan output Pembaca.** Pembeli = akun yang login; penjual
   dipilih di UI / dari `clubs.json` / env demo. Schema tidak diubah (sesuai PLAN.md).
 - `schema.ts` **dibekukan Rabu 11 Nov malam**. Perubahan butuh persetujuan 4 orang.

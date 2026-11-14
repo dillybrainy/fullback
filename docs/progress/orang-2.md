@@ -69,6 +69,25 @@
   `npm run typecheck -w agent` lulus. `schema.ts` tidak diubah (tetap beku;
   `TickEntry` memang bukan bagian schema Pembaca).
 
+**Beres-beres `sample-agreements/` (diarahkan user, folder Orang 4)**
+- Isi root `sample-agreements/` dihapus semua — hanya `tests/` (19 PDF uji
+  Pembaca + `make_tests.py` + `manifest.json` + README) yang dipertahankan
+  sebagai kontrak PDF yang dipakai. Terhapus: deal0/deal1/deal2 (.pdf/.md),
+  dua PDF TAMPERED, `make_agreements.py`, `make_santos.py`, README root +
+  README-deal0, `.gitkeep`. Semua masih bisa dipulihkan dari git history
+  (commit `f741c98`/`dc03e4d`) sebelum di-commit.
+- `npm test -w agent` tetap 49 lulus (tes tidak membaca PDF root saat runtime).
+- **Tindak lanjut (15 Nov):** referensi di `agent/` sudah dirapikan —
+  `reader-live.test.ts` kini membaca blob dari commit `f741c98` (dipin, hash
+  terverifikasi `eab47557…`), pesan DEMO_MODE + `fixtures/README.md` +
+  `agent/README.md` + contoh CLI menunjuk cara restore dari git history, dan
+  contoh perintah memakai `sample-agreements/tests/OK-01-basic.pdf`.
+  Issue untuk pemilik folder lain: **#16** (Orang 1 — `scripts/run-demo.ts`
+  membaca deal1 yang terhapus) dan **#15** (Orang 4 — README root, PLAN.md
+  AE3/U6, `docs/submit-checklist.md`, `docs/PANDUAN-PEMULA.md`,
+  `docs/libraries.md`, baris usang di `tests/README.md`, plus todo
+  `.gitattributes *.pdf -text`).
+
 ## Selesai
 
 ### Rabu 11 Nov — Interface dibekukan + Pembaca inti
