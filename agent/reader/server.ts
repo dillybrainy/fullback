@@ -37,5 +37,5 @@ const server = createServer(async (incoming, outgoing) => {
     outgoing.end(JSON.stringify({ error: "Unable to read this PDF request." }));
   }
 });
-server.requestTimeout = 75000;
+server.requestTimeout = 80000;
 server.listen(port, host, () => console.log(`FULLBACK AI Reader listening on http://${host}:${port}/api/reader`));

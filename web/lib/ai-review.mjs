@@ -4,7 +4,7 @@ export async function requestAiReview({ file, pdfHash, url = "/api/reader", sign
   const cancel = () => controller.abort(signal?.reason);
   if (signal?.aborted) cancel();
   signal?.addEventListener("abort", cancel, { once: true });
-  const timeout = setTimeout(() => controller.abort(new DOMException("AI review timed out. Please retry.", "TimeoutError")), 70000);
+  const timeout = setTimeout(() => controller.abort(new DOMException("The AI review timed out before the Reader finished. Reviews rarely exceed a minute — please try again.", "TimeoutError")), 78000);
   try {
     const response = await fetchImpl(url, { method: "POST", headers: { "Content-Type": "application/pdf" }, body: file, signal: controller.signal });
     let result;

@@ -132,6 +132,19 @@
   jatuh tempo bebas (`npm run make:deal -- --due 45 --count 1`) untuk menguji
   Penagih tanpa `npm run demo` penuh. Diuji live: deal #15 dibuat → `Completed`
   oleh `npm run collector` dalam ±1 menit. Diberitahukan ke Orang 1 di #16.
+- **UI AI review di /verify (15 Nov, malam — user memberi otorisasi commit/PR/merge):**
+  tombol + status memakai ikon `lucide-react`; state sibuk menampilkan operasi
+  nyata + estimasi jujur ("usually takes about a minute") + penghitung waktu
+  berjalan (tabular numerals, di luar live region agar screen reader tidak
+  membaca tiap detik); error menampilkan ikon + pesan yang menyebut masalah dan
+  cara pulih; heading sukses berikon centang. Spinner hanya di tombol (satu
+  momen gerakan; `prefers-reduced-motion` dihormati). **Bug timeout
+  diperbaiki:** service Reader menyerah di 60 s padahal model butuh 40–72 s
+  (sumber 504 "timed out or was cancelled") — budget diselaraskan: handler
+  70 s, klien 78 s, server 80 s; pesan 504 kini menyebut pemulihan. Verified:
+  51 tes web + 79 tes agent hijau, lint/typecheck/build bersih, QA Playwright
+  (`test:verify`) lulus 390 & 1440, screenshot state busy/error/timeout/sukses
+  diperiksa visual, detector impeccable 1 temuan (border kutipan 2px → 1px).
 
 ## Selesai
 
