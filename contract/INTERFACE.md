@@ -9,8 +9,10 @@ Status: **draft v1, menunggu persetujuan grup** (ditulis Kamis 12 Nov; seharusny
 
 | Kontrak | Akun | Catatan |
 |---|---|---|
-| FULLBACK | `fullback.<master>.testnet` | diisi setelah deploy |
-| fEUR (NEP-141) | `feur.<master>.testnet` | diisi setelah deploy |
+| FULLBACK | `fullback.fullback-team.testnet` | deploy 14 Nov, https://testnet.nearblocks.io/address/fullback.fullback-team.testnet |
+| fEUR (NEP-141) | `feur.fullback-team.testnet` | pemilik (bisa `mint`) = akun itu sendiri |
+| Penagih | `keeper.fullback-team.testnet` | kunci terbatas: hanya `settle_due` di FULLBACK |
+| Akun demo | `nordvik.`, `portoalegre.`, `clubz.`, `kotafc.`, `akademidesa.` + `fullback-team.testnet` | kunci di `scripts/.env.demo` (tidak di git) |
 
 Explorer: `https://testnet.nearblocks.io/txns/<tx_hash>` dan `https://testnet.nearblocks.io/address/<account_id>`.
 

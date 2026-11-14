@@ -13,21 +13,23 @@ Catatan teknis:
 - `contract/.cargo/config.toml` memakai NASM bawaan, jadi `cargo test` di Windows tidak perlu memasang NASM.
 - Build: `contract/build.sh` (butuh cargo-near; ABI dimatikan karena gagal di Windows).
 
+**Sabtu 14 Nov**
+- Akun master `fullback-team.testnet` dibuat lewat faucet (10 NEAR). Dana per akun di `setup-demo.ts` disesuaikan agar muat 10 NEAR (kontrak 5 NEAR ≈ 50 deal demo; top up kalau menipis).
+- `npm run setup:demo` sukses: kontrak `fullback.fullback-team.testnet`, token `feur.fullback-team.testnet`, Penagih `keeper.fullback-team.testnet` dengan kunci terbatas `settle_due`. Alamat sudah di `INTERFACE.md`.
+- `npm run demo` sukses **dua kali berturut-turut**: cicilan, jaminan dipakai oleh Penagih, agen curang ditolak (`AccessKeyReceiverMismatchActionError`), top up, lunas, resale Deal 2. Saldo akhir sama persis dengan R3 + R4, kontrak tersisa 0 fEUR.
+- Perbaikan `run-demo.ts`: percobaan agen curang dikirim tanpa deposit (deposit membuat chain menolak dengan alasan lain) dan dikenali dari jenis error `AccessKey...`. Transaksi ini ditolak sebelum masuk blok, jadi tidak punya link explorer.
+- Deal 0 di testnet tersisa sebagai deal `Active` dengan jaminan 0 dari putaran pertama yang berhenti di langkah agen curang; tidak memengaruhi demo berikutnya.
+
 ## Belum
 
-- Deploy testnet dan `npm run demo` dua kali berturut-turut (butuh akun master).
 - Audit `near-contract-audit` sebelum deploy final.
-- Isi alamat testnet di `INTERFACE.md`.
-
-## Macet
-
-- Butuh akun master testnet (≈12 NEAR) + kuncinya di `.env` sebagai `MASTER_ACCOUNT_ID` dan `MASTER_PRIVATE_KEY`.
 
 ## Butuh dari orang lain
 
 - **Semua:** setujui `contract/INTERFACE.md` supaya bisa dibekukan.
 - **Orang 4:** tambah variabel baru ke `.env.example`: `MASTER_PRIVATE_KEY`, `CONTRACT_PRIVATE_KEY`, `DEMO_ACADEMY_1_ACCOUNT_ID`, `DEMO_ACADEMY_1_PRIVATE_KEY`, `DEMO_ACADEMY_2_ACCOUNT_ID`, `DEMO_ACADEMY_2_PRIVATE_KEY`, `KEEPER_FULL_ACCESS_PRIVATE_KEY`.
-- **Orang 4:** `package-lock.json` root berubah karena dependensi `scripts/` (near-api-js, tsx, dotenv).
+- **Orang 2 dan 3:** isi `scripts/.env.demo` (akun + kunci demo) dibagikan langsung oleh Orang 1, bukan lewat git atau chat grup. Untuk Vercel, isi environment-nya dari file itu.
+- **Orang 2:** `agent/collector/illegal-attempt.ts` mengirim `deposit: 1n`; chain menolaknya dengan `AccessKeyDepositWithFunctionCallActionError`. Tanpa deposit, alasannya `AccessKeyReceiverMismatchActionError` (kunci hanya untuk kontrak FULLBACK), yang lebih jelas untuk juri.
 - **Orang 2:** Penagih memakai `settle_due` yang tidak pernah panic dan mengembalikan `{ result, installment_index }`; lihat INTERFACE. **Penting:** setiap `settle_due` memotong allowance kunci terbatas (±0,015 NEAR di 150 TGas) walau hasilnya `NotDue`. Jadi `tick()` harus membaca `get_deal`/`list_deals` (gratis) dan hanya mengirim `settle_due` kalau `status == "Active"` dan `next_due_at_ns` sudah lewat. Kalau tidak, allowance 2 NEAR habis dalam ±30 menit polling 15 detik.
 
 ## Hasil code review (Kamis 12 Nov)
