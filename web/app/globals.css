@@ -249,6 +249,7 @@ td strong{font-weight:500}
 .role-option strong{display:block;font-size:16px;font-weight:500}
 .role-option small{display:block;color:var(--muted);font-size:13px;line-height:20px}
 .signin-form .preview-note{margin-top:24px}
+.wallet-connected{display:flex;flex-direction:column;gap:4px;margin:0 0 12px}.wallet-connected .help{margin:0}.wallet-connected a{color:var(--ink);overflow-wrap:anywhere}
 .stepper{display:flex;gap:6px;padding:0;list-style:none;margin:0;font-size:14px;color:var(--muted)}
 .stepper li{display:flex;align-items:center;gap:8px;padding:6px 14px 6px 8px}
 .stepper li:first-child{background:white;border-radius:999px;color:var(--ink)}
