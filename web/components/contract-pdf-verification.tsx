@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { Search } from "lucide-react";
 import { CONTRACT_ID, explorerAccountUrl, viewFunction } from "@/lib/near";
 import { listAgreements, verifyAgreement } from "@/lib/contract-verification.mjs";
 import type { Agreement } from "@/lib/contract-verification.mjs";
@@ -17,6 +18,7 @@ export function ContractPdfVerification({ pdfHash }: { pdfHash: string }) {
   const [agreements, setAgreements] = useState<Agreement[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
+  const [query, setQuery] = useState("");
   const [selected, setSelected] = useState("");
   const [result, setResult] = useState<Verification | null>(null);
   const [checking, setChecking] = useState(false);
@@ -24,6 +26,16 @@ export function ContractPdfVerification({ pdfHash }: { pdfHash: string }) {
   const [page, setPage] = useState({ nextIndex: 0, hasMore: false });
   const listing = useRef<AbortController | null>(null);
   const verification = useRef<AbortController | null>(null);
+  // Client-side filter across the fields an agreement is known by. The selected
+  // agreement always stays visible so a search can never discard the result.
+  const needle = query.trim().toLowerCase();
+  const visible = needle
+    ? agreements.filter(deal => String(deal.deal_id).includes(needle) || [deal.player_name, deal.seller_id, deal.buyer_id].some(value => value.toLowerCase().includes(needle)))
+    : agreements.slice();
+  if (selected) {
+    const current = agreements.find(deal => String(deal.deal_id) === selected);
+    if (current && !visible.includes(current)) visible.unshift(current);
+  }
   async function load(from = 0) {
     listing.current?.abort();
     const controller = new AbortController(); listing.current = controller;
@@ -64,12 +76,18 @@ export function ContractPdfVerification({ pdfHash }: { pdfHash: string }) {
   return <section className="pdf-check-panel" aria-labelledby="contract-check-title">
     <h3 id="contract-check-title">Compare with a recorded agreement</h3>
     <p className="help">Choose a NEAR testnet agreement. Only the fingerprint is sent; your PDF stays in this browser.</p>
+    <label className="field-label" htmlFor="agreement-search">Search</label>
+    <div className="agreement-search">
+      <Search size={16} aria-hidden="true" />
+      <input id="agreement-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Number, player, or club" disabled={!agreements.length} />
+    </div>
     <label className="field-label" htmlFor="verification-agreement">Agreement</label>
     <select id="verification-agreement" value={selected} onChange={event => void verify(event.target.value)} disabled={!agreements.length}>
-      <option value="">{loading ? "Loading agreements…" : "Choose an agreement"}</option>
-      {agreements.map(deal => <option key={deal.deal_id} value={deal.deal_id}>#{deal.deal_id} · {deal.player_name} · {deal.seller_id} → {deal.buyer_id}</option>)}
+      <option value="">{loading ? "Loading agreements…" : visible.length ? "Choose an agreement" : "No matches"}</option>
+      {visible.map(deal => <option key={deal.deal_id} value={deal.deal_id}>#{deal.deal_id} · {deal.player_name} · {deal.seller_id} → {deal.buyer_id}{deal.pdf_hash ? "" : " · no fingerprint"}</option>)}
     </select>
     {loading && <p className="help" role="status">Loading recorded agreements…</p>}
+    {!loading && !loadError && !!agreements.length && !visible.length && <p role="status">No agreements match your search.</p>}
     {!loading && !loadError && !agreements.length && <p role="status">No agreements have been recorded on this testnet contract yet.</p>}
     {loadError && <p className="error-message" role="alert">{loadError}</p>}
     {(loadError || page.hasMore) && <button type="button" className="button soft" disabled={loading} onClick={() => void load(loadError && !agreements.length ? 0 : page.nextIndex)}>{loadError ? "Retry loading agreements" : "Load more agreements"}</button>}
