@@ -120,7 +120,8 @@ export async function tryIllegalTransfer(opts?: {
   rpcUrl?: string;
 }): Promise<IllegalAttemptResult> {
   const rpcUrl =
-    opts?.rpcUrl ?? process.env.NEAR_RPC_URL ?? "https://test.rpc.fastnear.com";
+    opts?.rpcUrl ??
+    (process.env.NEAR_RPC_URL?.trim() || "https://test.rpc.fastnear.com");
   const ftId = opts?.ftId ?? requireEnv("FT_ID");
   const keeperAccountId = opts?.keeperAccountId ?? requireEnv("KEEPER_ACCOUNT_ID");
   const keeperPrivateKey = opts?.keeperPrivateKey ?? requireEnv("KEEPER_PRIVATE_KEY");

@@ -88,6 +88,26 @@
   `docs/libraries.md`, baris usang di `tests/README.md`, plus todo
   `.gitattributes *.pdf -text`).
 
+**Issue #4 — uji on-chain testnet (15 Nov, setelah deploy Orang 1)**
+- ✅ `<master>` sudah diganti di `clubs.json` + `fixtures/*.json` (→
+  `*.fullback-team.testnet`) — sudah benar sebelum dicek, tidak diubah.
+- ✅ `illegal-attempt` live: **ditolak chain** dengan
+  `AccessKeyReceiverMismatchActionError` (receiver mismatch, sesuai desain #10;
+  tanpa link explorer karena ditolak sebelum masuk blok).
+- ✅ `tick()` Collector live: `settle_due` deal #0 cicilan #2 → `Defaulted`
+  (tx `HG53tgp9dNP2zif4Ma5bd3eC4hUmrChCDURAwuJjjthM`), tick lanjutan bersih —
+  margin 5 dtk + cooldown NotDue bekerja tanpa panggilan sia-sia. Skenario
+  persis "cicilan 2 Deal 1 dibayar dari jaminan" masih menunggu Deal 1 dibuat
+  (cerita `npm run demo`).
+- ✅ Tes live Reader lulus (R2/R3 + `warnings=[]`, blob `f741c98`).
+- ✅ Tidak ada kunci privat di repo (`.env` ter-gitignore, file lain placeholder).
+- **Bug ditemukan + diperbaiki:** env dengan nilai string kosong (mis.
+  `LLM_API_KEY=` / `NEAR_RPC_URL=` dari `.env.example`) mematikan fallback
+  `??` → tes live salah lapor "API key tidak disetel" dan `illegal-attempt`
+  gagal "Failed to parse URL". Diperbaiki di `agent/config.ts` (env kosong =
+  tidak disetel), `collector/index.ts`, `collector/illegal-attempt.ts`;
+  tes regresi baru `tests/config.test.ts` (7 tes). Total **56 tes lulus**.
+
 ## Selesai
 
 ### Rabu 11 Nov — Interface dibekukan + Pembaca inti
