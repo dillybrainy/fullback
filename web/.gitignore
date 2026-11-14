@@ -2,3 +2,4 @@
 .next/
 tsconfig.tsbuildinfo
 out/
+.impeccable/review/

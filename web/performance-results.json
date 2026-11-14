@@ -1,7 +1,7 @@
 {
   "current": {
-    "emittedJsFiles": 15,
-    "emittedJsGzipBytes": 233976,
+    "emittedJsFiles": 19,
+    "emittedJsGzipBytes": 307845,
     "prerenderedRoutes": [
       "/",
       "/dashboard",
@@ -13,7 +13,7 @@
       "/verify"
     ]
   },
-  "measuredAt": "2026-11-14T10:48:33.529Z",
+  "measuredAt": "2026-11-14T15:50:38.787Z",
   "note": "All emitted JS chunks, gzipped separately; not initial-page transfer or throughput.",
   "baseline": {
     "emittedJsFiles": 16,
@@ -70,5 +70,36 @@
       "/verify"
     ],
     "privateRoutes": "Closed at page entry, no workspace children rendered."
+  },
+  "beforeNavbarRevision": {
+    "emittedJsGzipBytes": 234409,
+    "emittedJsFiles": 15,
+    "prerenderedRoutes": 8
+  },
+  "navbarRevision": {
+    "netAddedGzipBytes": 55586,
+    "registry": "@shadcn/base-nova",
+    "runtime": "Base UI Button, link-only Navigation Menu, Popover; local Lucide icons",
+    "newRasterBytes": 0
+  },
+  "beforeWalletMerge": {
+    "emittedJsFiles": 16,
+    "emittedJsGzipBytes": 289995,
+    "prerenderedRoutes": [
+      "/",
+      "/dashboard",
+      "/deals/new",
+      "/deals/riverside-kingsport",
+      "/deals/riverside-kingsport/resale",
+      "/federation",
+      "/signin",
+      "/verify"
+    ],
+    "measuredAt": "2026-11-14T15:05:49.367Z"
+  },
+  "walletMerge": {
+    "network": "testnet",
+    "connector": "@hot-labs/near-connect@0.12.0",
+    "loading": "Dynamic import on connect or restoring a prior connection; private workspace remains closed."
   }
 }

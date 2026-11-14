@@ -24,6 +24,7 @@ test("public raster assets stay within a 1.5 MB budget across all variants", () 
 });
 test("mobile hero has a small source and original PNGs are not publicly served", () => {
   assert.ok(photos.imgHero.variants[0].bytes < 30_000);
+  assert.ok(photos.imgPhotoStadiumStandsAtNightUnderFloodlights.variants[0].bytes < 30_000);
   assert.equal(existsSync(new URL("../public/images/imgHero.png", import.meta.url)), false);
 });
 test("production pages have a prerendered artifact after a build", { skip: !existsSync(new URL("../.next/prerender-manifest.json", import.meta.url)) }, () => {

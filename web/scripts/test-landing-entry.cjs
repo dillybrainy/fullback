@@ -33,7 +33,7 @@ const { chromium, origin, offlineContext } = require("./offline-browser.cjs");
     await context.addInitScript(() => Object.defineProperty(document, "cookie", { get: () => "", set: () => {} }));
     const page = await context.newPage();
     await page.goto(origin);
-    await page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: "Verify PDF" }).click();
+    await page.locator("header").getByRole("link", { name: "Verify PDF" }).click();
     await page.waitForURL(origin + "/verify");
     await page.getByRole("heading", { name: "Is this the agreement both clubs signed?" }).waitFor();
     assert.deepEqual(errors, []);
