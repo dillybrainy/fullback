@@ -2,9 +2,11 @@
 import { StaticIcon as Image } from "@/components/static-icon";
 import { useRef, useState, type DragEvent } from "react";
 import { createPdfFingerprint } from "@/lib/pdf-fingerprint.mjs";
+import { ContractPdfVerification } from "./contract-pdf-verification";
+import { PdfAiReview } from "./pdf-ai-review";
 
 export function PdfFingerprint({ mode = "verify" }: { mode?: "verify" | "upload" }) {
-  const [result, setResult] = useState<{ name: string; hash: string } | null>(null);
+  const [result, setResult] = useState<{ name: string; hash: string; file: File } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [dragging, setDragging] = useState(false);
@@ -16,7 +18,7 @@ export function PdfFingerprint({ mode = "verify" }: { mode?: "verify" | "upload"
     setResult(null); setError(""); setBusy(true);
     try {
       const hash = await createPdfFingerprint(file);
-      if (current === request.current) setResult({ name: file.name, hash });
+      if (current === request.current) setResult({ name: file.name, hash, file });
     } catch (cause) {
       if (current === request.current) setError(cause instanceof Error ? cause.message : "Unable to read this file. Please choose it again.");
     } finally {
@@ -30,8 +32,9 @@ export function PdfFingerprint({ mode = "verify" }: { mode?: "verify" | "upload"
     {mode === "upload" && <p>PDF only, up to 20 MB. Its SHA-256 fingerprint is computed in your browser, then the AI reads it and fills in every term with the clause it came from.</p>}
     <input ref={picker} id="agreement-pdf" className="sr-only" type="file" accept=".pdf,application/pdf" disabled={busy} onChange={event => { void readFile(event.currentTarget.files?.[0]); event.currentTarget.value = ""; }} aria-label="Choose an agreement PDF" />
     <button className={"button" + (mode === "verify" ? " soft" : "")} onClick={() => picker.current?.click()} disabled={busy}>{busy ? "Calculating fingerprint…" : "Choose PDF"}</button>
-    <p className="help">{mode === "upload" ? "No signed agreement yet? FULLBACK only works from a PDF both clubs already signed." : "Compare with: R. Santos · Riverside SC → Kingsport FC"}</p>
-    <div role="status" aria-live="polite" aria-busy={busy}>{busy && <div className="fingerprint-skeleton"><span /><span /></div>}{result && <div className="fingerprint-result"><p>Fingerprint calculated for <strong className="file-name">{result.name}</strong></p><label className="field-label" htmlFor="sha256-result">SHA-256 fingerprint</label><textarea id="sha256-result" className="fingerprint-value" readOnly value={result.hash} rows={3} spellCheck={false} /><p className="help"><strong>Not yet verified against the contract.</strong> On-chain comparison and AI reading are not connected. Your file stays in this browser.</p></div>}</div>
+    <p className="help">{mode === "upload" ? "No signed agreement yet? FULLBACK only works from a PDF both clubs already signed." : "Calculate the fingerprint, then compare it with NEAR or ask AI to review the contents."}</p>
+    <div role="status" aria-live="polite" aria-busy={busy}>{busy && <div className="fingerprint-skeleton"><span /><span /></div>}{result && <div className="fingerprint-result"><p>Fingerprint calculated for <strong className="file-name">{result.name}</strong></p><label className="field-label" htmlFor="sha256-result">SHA-256 fingerprint</label><textarea id="sha256-result" className="fingerprint-value" readOnly value={result.hash} rows={3} spellCheck={false} /></div>}</div>
+    {result && <div key={result.hash}><ContractPdfVerification pdfHash={result.hash} /><PdfAiReview file={result.file} pdfHash={result.hash} /></div>}
     {error && <p className="error-message" role="alert">{error}</p>}
   </section>;
 }

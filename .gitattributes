@@ -1,0 +1,2 @@
+# Agreement fingerprints depend on exact bytes, including line endings.
+*.pdf binary

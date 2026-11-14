@@ -14,14 +14,14 @@ Animasi beranda mengadaptasi inspirasi HelloNear ke tema FULLBACK: kick-off hero
 
 Frontend Next.js App Router dengan TypeScript dan CSS, mengikuti [desain FULLBACK](https://www.figma.com/design/554rVc9k58NLyfZ1ygdDIY?node-id=0-1). Beranda, sign in, dashboard, detail deal, unggah PDF, verifikasi, resale, dan federation memakai foto, logo, font Schibsted Grotesk, warna, dan struktur dari Figma. Font dan gambar disimpan lokal di `public/`.
 
-Navigasi publik, menu mobile, koneksi wallet testnet, FAQ, drag-and-drop PDF di Verify, dan fingerprint SHA-256 berfungsi. Pilihan peran nonaktif selama workspace belum tersedia. Prototype tab/filter/pencarian workspace disimpan untuk integrasi berikutnya. Ilustrasi notifikasi royalti mengikuti ketukan akhir proses. Semua animasi menghormati `prefers-reduced-motion`.
+Navigasi publik, menu mobile, koneksi wallet testnet, FAQ, drag-and-drop PDF di Verify, dan fingerprint SHA-256 berfungsi. Pilihan Club, Academy, dan Federation aktif setelah wallet terhubung; disconnect/pergantian akun mereset pilihan. Pilihan ini belum membuka workspace. Prototype tab/filter/pencarian workspace disimpan untuk integrasi berikutnya. Ilustrasi notifikasi royalti mengikuti ketukan akhir proses. Semua animasi menghormati `prefers-reduced-motion`.
 
 Komponen dashboard dan detail deal yang belum dibuka memakai data contoh netral dari `lib/mock.ts`. Pembaca AI, verifikasi PDF on-chain, dan alur transaksi produk belum tersedia di frontend; kontrol terkait menampilkan batasan tersebut. Koneksi dompet testnet dimuat saat diminta atau saat memulihkan koneksi sebelumnya. Fase 2 belum ditambahkan.
 
 ## Halaman yang bisa dicoba
 
 - `/`: beranda.
-- `/signin`: koneksi/pemutusan wallet NEAR testnet; pilihan peran tetap nonaktif. Home dan Verify dapat diakses; workspace belum dibuka.
+- `/signin`: koneksi/pemutusan wallet NEAR testnet dan pilihan peran setelah terhubung. Home dan Verify dapat diakses; workspace belum dibuka.
 - `/dashboard`, `/deals/new`, `/deals/riverside-kingsport`: sementara ditutup.
 - `/verify`: pilih PDF dan hitung SHA-256 di browser tanpa mengunggah file. Hasil belum dibandingkan dengan kontrak testnet.
 - `/deals/riverside-kingsport/resale`, `/federation`: sementara ditutup.

@@ -8,6 +8,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "reader": "tsx reader/cli.ts",
+    "reader:serve": "tsx reader/server.ts",
     "collector": "tsx collector/index.ts",
     "usage": "tsx usage/cli.ts",
     "usage:read": "tsx usage/read-live.ts"
