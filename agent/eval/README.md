@@ -95,3 +95,41 @@ curl -s https://cloud-api.near.ai/v1/models -H "Authorization: Bearer $NEARAI_AP
 Catatan: harga per token tidak dicatat di sini karena katalog NEAR AI Cloud tidak
 mengekspos harga lewat `/v1/models`; pemilihan "termurah" berdasar kelas model
 (flash-lite/nano/haiku = entry tier) + durasi sebagai proksi.
+
+## 7. Pembaruan 15 Nov — pindah ke model private TEE
+
+**Default baru: `Qwen/Qwen3.6-35B-A3B-FP8` dengan thinking dimatikan.**
+
+Alasan pindah: `google/gemini-2.5-flash-lite` adalah *external provider*. API
+attestation NEAR AI menjawab "TEE attestation is not supported for external
+providers", jadi teks PDF dikirim ke Google. Di katalog, model itu juga sudah
+ditandai `is_ready: false`. Model `owned_by: nearai` jalan di TEE (Intel TDX + GPU
+NVIDIA) dan `/v1/attestation/report?model=...` mengembalikan `intel_quote`,
+`nvidia_payload`, dan `signing_address`.
+
+Kriteria diperketat: 19 PDF di `sample-agreements/tests/` (7 OK harus bersih dan
+angkanya benar, 7 BAD harus ketahuan, file VERIFY harus terbaca 5%) ditambah
+Deal 1 Lucas 3×. Batas waktu 90 dtk per request (web timeout 70 dtk).
+
+| Model (private TEE) | Thinking | Skor 15 PDF | Lucas | Waktu/PDF | Keputusan |
+|---|---|---|---|---|---|
+| `Qwen/Qwen3.6-35B-A3B-FP8` | off | **15/15 ×4 run** | **12/12** | **±2 dtk** | **Dipilih** |
+| `Qwen/Qwen3.6-35B-A3B-FP8` | on | 14/15 (BAD-04 timeout 3 dari 4) | 3/3 | 10–90 dtk | Ditolak (macet) |
+| `z-ai/glm-5.3-flash` | on | benar, tapi | — | 30–87 dtk | Ditolak (lambat) |
+| `Qwen/Qwen3.8-27B` | on | timeout di OK-02 | — | 64–90 dtk | Ditolak (lambat) |
+
+Perubahan pendukung (tanpa ubah `schema.ts`):
+- `config.ts`: model Qwen3 otomatis mendapat `chat_template_kwargs.enable_thinking=false`.
+  Override lewat env `LLM_EXTRA_BODY` (JSON object; `{}` = tanpa tambahan).
+- `llm.ts`: `"collateral": null` dianggap sama dengan field tidak ada (Qwen
+  menjawab null untuk PDF tanpa pasal jaminan).
+- Prompt: contoh eksplisit bahwa semua cicilan dalam satu kalimat memakai kutipan
+  yang sama, tanpa tanggal (tanpa ini Qwen menulis "... due on ... 1 July 2026").
+
+Biaya nyata (`npm run usage:read`): OK-01 = 1.929 token input + 657 token output
+= **$0,00105 per PDF**. Gemini tetap lulus 15/15 dengan prompt baru, jadi masih
+bisa jadi cadangan lewat `LLM_MODEL=google/gemini-2.5-flash-lite` (bukan TEE).
+
+Catatan: Reader belum memverifikasi attestation atau tanda tangan respons sendiri.
+Jaminan TEE saat ini berasal dari NEAR AI Cloud. Verifikasi di sisi kita adalah
+langkah berikutnya.

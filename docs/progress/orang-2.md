@@ -200,3 +200,14 @@ menyuruh mengambil semua baris. Diperbaiki:
 Hasil: 7/7 OK tanpa warning, 7/7 BAD ketahuan (warning atau error validasi),
 4 GAP lolos sesuai perkiraan, Deal 1 Lucas live 3/3 lulus. Unit test 69 lulus.
 `tests/reader-http.test.ts` kini membaca PDF Deal 1 dari git history.
+
+## Minggu 15 Nov (lanjutan) — Reader pindah ke model private TEE
+
+Default Reader sekarang `Qwen/Qwen3.6-35B-A3B-FP8` (private, TEE NEAR AI Cloud,
+attestation OK) dengan thinking dimatikan. Hasilnya 15/15 PDF tes ×4 run, Deal 1
+12/12, ±2 dtk per PDF, $0,001 per PDF. Gemini lama ternyata external provider
+(bukan TEE). GLM-5.3-flash dan Qwen3.8-27B ditolak karena terlalu lambat
+(30–90 dtk). Detail di `agent/eval/README.md` §7.
+
+**Untuk Orang 3 / Vercel:** tidak ada env baru yang wajib. `NEARAI_MODEL`
+dikosongkan saja, supaya default dari kode yang dipakai.

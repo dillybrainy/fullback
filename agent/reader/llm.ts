@@ -12,11 +12,11 @@
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { ReaderLLMSchema, type ReaderLLM } from "../schema.js";
 import { recordInference } from "../usage/tracker.js";
-import { chatBaseUrl, getApiKey, getModel } from "../config.js";
+import { chatBaseUrl, getApiKey, getExtraBody, getModel } from "../config.js";
 
 // Base URL, API key, dan model kini dari `agent/config.ts` (dinormalisasi, jadi
 // konsisten untuk chat maupun monitoring, dan mendukung provider non-NEAR).
-// Pemilihan model DEFAULT (google/gemini-2.5-flash-lite) berdasar pengukuran —
+// Pemilihan model DEFAULT (Qwen/Qwen3.6-35B-A3B-FP8, private TEE) berdasar pengukuran —
 // lihat `agent/eval/README.md`. Model lama (deepseek-ai/DeepSeek-V3.1) sempat
 // membuat Reader crash karena dihapus dari katalog NEAR AI Cloud.
 
@@ -43,7 +43,10 @@ Rules:
   e.g. "installments of EUR 2,000,000". Installments that share one sentence
   use the same quote. Do NOT add the due date to the quote and never join
   pieces from different places into one quote; due dates are checked
-  separately by code.
+  separately by code. Example: for "3 equal installments of EUR 2,000,000
+  each, due on 1 April 2026, 1 July 2026 and 1 October 2026", ALL THREE
+  installments get exactly the quote "3 equal installments of EUR 2,000,000"
+  (never "... due on 1 July 2026", never "...").
 - If a later clause overrides an earlier one (e.g. "Notwithstanding Clause
   3.2, ..."), extract the terms of the overriding clause, even when they do
   not add up.
@@ -99,6 +102,7 @@ export async function readAgreementWithLlm(pdfText: string, signal?: AbortSignal
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
+      ...getExtraBody(model),
       model,
       temperature: 0,
       response_format: { type: "json_object" },
@@ -143,6 +147,12 @@ export async function readAgreementWithLlm(pdfText: string, signal?: AbortSignal
     parsed = JSON.parse(content);
   } catch {
     throw new ReaderValidationError("the answer is not valid JSON", content);
+  }
+
+  // Some models answer `"collateral": null` instead of omitting the field.
+  // Both mean "no security clause", so treat null as absent.
+  if (parsed && typeof parsed === "object" && (parsed as Record<string, unknown>).collateral === null) {
+    delete (parsed as Record<string, unknown>).collateral;
   }
 
   const result = ReaderLLMSchema.safeParse(parsed);

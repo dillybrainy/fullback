@@ -51,13 +51,41 @@ export function getApiKey(): string | undefined {
   return env("LLM_API_KEY") ?? env("NEARAI_API_KEY");
 }
 
-/** Model default pembaca (bisa dioverride via env). */
+/**
+ * Model default pembaca: Qwen3.6 35B, model PRIVATE di NEAR AI Cloud (jalan di
+ * TEE Intel TDX + GPU NVIDIA, punya attestation). Dipilih 15 Nov lewat eval
+ * 19 PDF tes + Deal 1 (lihat eval/README.md). Bisa dioverride via env.
+ */
+export const DEFAULT_MODEL = "Qwen/Qwen3.6-35B-A3B-FP8";
+
 export function getModel(): string {
-  return (
-    env("LLM_MODEL") ??
-    env("NEARAI_MODEL") ??
-    "google/gemini-2.5-flash-lite"
-  );
+  return env("LLM_MODEL") ?? env("NEARAI_MODEL") ?? DEFAULT_MODEL;
+}
+
+/**
+ * Field tambahan untuk body chat request.
+ *
+ * - Env `LLM_EXTRA_BODY` (JSON object) menang kalau disetel; `{}` mematikan default.
+ * - Tanpa env: model Qwen3 mendapat `chat_template_kwargs.enable_thinking=false`.
+ *   Dengan "thinking" menyala, Qwen3.6 butuh 10–90 dtk per PDF dan sering macet
+ *   (timeout) pada PDF yang bertentangan dengan schema; tanpa thinking ±2 dtk
+ *   dan lulus semua tes. JSON rusak → error jelas.
+ */
+export function getExtraBody(model: string = getModel()): Record<string, unknown> {
+  const raw = env("LLM_EXTRA_BODY");
+  if (!raw) {
+    return /^qwen\/qwen3/i.test(model) ? { chat_template_kwargs: { enable_thinking: false } } : {};
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error("LLM_EXTRA_BODY must be a JSON object, e.g. {\"chat_template_kwargs\":{\"enable_thinking\":false}}");
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("LLM_EXTRA_BODY must be a JSON object.");
+  }
+  return parsed as Record<string, unknown>;
 }
 
 /** Nama env yang dipakai (untuk pesan error/diagnostik). */
