@@ -13,17 +13,19 @@ Target tim: form terkirim **Sabtu malam WIB**. Hanya manusia yang mengerjakan la
 
 ## Definition of Done (dari PLAN.md)
 
-- [ ] Repo jalan dengan `cp .env.example .env && npm install && npm run dev` di clone baru (diuji orang yang tidak membangunnya)
-- [ ] Demo online bisa diklik dari upload PDF sampai pembagian penjualan ulang, tanpa dompet
-- [ ] Setiap transaksi di UI punya link nearblocks yang bisa dibuka
-- [ ] Verifikasi: `deal1-nordvik-portoalegre.pdf` ✓, `deal1-TAMPERED.pdf` ✗
-- [ ] Agen curang ditolak blockchain, terlihat di UI dan video
-- [ ] Saldo akhir semua pihak sama persis dengan R3 dan R4
-- [ ] README menyebut semua tools NEAR dan library; kode lama: tidak ada; LICENSE MIT ada
-- [ ] Tidak ada `.env`, kunci privat, atau seed phrase di riwayat git
-- [ ] Kode percobaan yang tidak terpakai sudah dihapus
-- [ ] Video dan post X sudah tayang, repo publik, form diisi sekali
-- [ ] Demo online tetap hidup sampai 18 Nov (jangan matikan Vercel atau hapus akun testnet)
+Status 15 Nov 05.2x WIB oleh Orang 2 (mesin) + bukti; yang bertanda 👤 tetap manusia.
+
+- [ ] Repo jalan dengan `cp .env.example .env && npm install && npm run dev` di clone baru (diuji orang yang tidak membangunnya) — *uji clone segar otomatis berjalan 15 Nov*
+- [ ] Demo online bisa diklik dari upload PDF sampai pembagian penjualan ulang, tanpa dompet — *menunggu deploy Vercel 👤 (kode route `/demo` + `/api/demo/*` sudah siap & teruji)*
+- [ ] Setiap transaksi di UI punya link nearblocks yang bisa dibuka — *✅ diverifikasi: QA `test:verify` + demo live 14 Nov (14 langkah berlink)*
+- [ ] Verifikasi: `deal1-nordvik-portoalegre.pdf` ✓, `deal1-TAMPERED.pdf` ✗ — *✅ mekanisme teruji (QA match/mismatch lulus). Catatan: pasangan demo kini `tests/OK-01-basic.pdf` + `tests/VERIFY-OK-01-TAMPERED.pdf`; PDF lama hanya di git history `f741c98`*
+- [ ] Agen curang ditolak blockchain, terlihat di UI dan video — *✅ on-chain + UI `/demo` (langkah "cheat") teruji; video 👤*
+- [ ] Saldo akhir semua pihak sama persis dengan R3 dan R4 — *✅ `npm run demo` 15 Nov: "All balances match the agreement" (Nordvik +12.500.000, Kota FC +1.200.000, Akademi Desa +300.000, Porto Alegre +6.000.000, Club Z −20.000.000, kontrak ±0)*
+- [ ] README menyebut semua tools NEAR dan library; kode lama: tidak ada; LICENSE MIT ada — *✅ dicek 15 Nov: 11 baris tools lengkap (near-sdk, near-workspaces, near-cli-rs, function-call access keys, NEP-141, NEP-297, near-api-js, near-connect, NEAR AI Cloud, nearblocks), LICENSE MIT ada*
+- [ ] Tidak ada `.env`, kunci privat, atau seed phrase di riwayat git — *✅ scan `git log -p` 15 Nov bersih (tidak ada `ed25519:` nilai asli / `PRIVATE_KEY=` berisi); `.env` dan `scripts/.env.demo` ter-gitignore*
+- [ ] Kode percobaan yang tidak terpakai sudah dihapus — *✅ dicek 15 Nov: tidak ada sisa; scratch QA di `web/.qa` ter-gitignore*
+- [ ] Video dan post X sudah tayang, repo publik, form diisi sekali 👤
+- [ ] Demo online tetap hidup sampai 18 Nov (jangan matikan Vercel atau hapus akun testnet) 👤
 
 ## Draft post X 👤
 
