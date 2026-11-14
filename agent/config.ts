@@ -20,9 +20,19 @@
 
 const DEFAULT_BASE_URL = "https://cloud-api.near.ai/v1";
 
+/**
+ * Nilai env yang sudah di-trim; string kosong dianggap TIDAK disetel.
+ * Tanpa ini, baris kosong di .env (mis. `LLM_API_KEY=`) mematikan fallback
+ * ke NEARAI_* karena `"" ?? x` menghasilkan `""`, bukan `x`.
+ */
+function env(name: string): string | undefined {
+  const v = process.env[name]?.trim();
+  return v === "" ? undefined : v;
+}
+
 /** Base URL mentah dari env (belum dinormalisasi). */
 export function getRawBaseUrl(): string {
-  return process.env.LLM_API_BASE_URL ?? process.env.NEARAI_API_BASE_URL ?? DEFAULT_BASE_URL;
+  return env("LLM_API_BASE_URL") ?? env("NEARAI_API_BASE_URL") ?? DEFAULT_BASE_URL;
 }
 
 /** Origin saja: tanpa `/v1` dan tanpa slash akhir. Contoh: `https://cloud-api.near.ai`. */
@@ -38,14 +48,14 @@ export function chatBaseUrl(baseUrl?: string): string {
 
 /** API key. HANYA dari env — tidak pernah di-hardcode. */
 export function getApiKey(): string | undefined {
-  return process.env.LLM_API_KEY ?? process.env.NEARAI_API_KEY;
+  return env("LLM_API_KEY") ?? env("NEARAI_API_KEY");
 }
 
 /** Model default pembaca (bisa dioverride via env). */
 export function getModel(): string {
   return (
-    process.env.LLM_MODEL ??
-    process.env.NEARAI_MODEL ??
+    env("LLM_MODEL") ??
+    env("NEARAI_MODEL") ??
     "google/gemini-2.5-flash-lite"
   );
 }

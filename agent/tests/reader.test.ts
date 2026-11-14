@@ -5,7 +5,8 @@ import { collectQuotes, findUnmatchedQuotes, normalizeWs } from "../reader/quote
 import { DEMO_FIXTURES_BY_HASH, readPdf } from "../reader/index.js";
 
 // A faithful Deal 1 LLM answer (before code fills bps/accounts), from the real
-// PDF text of sample-agreements/deal1-nordvik-portoalegre.pdf.
+// PDF text of deal1-nordvik-portoalegre.pdf (demo PDF, now only in git
+// history at commit f741c98 — kept inline so this test reads no files).
 const DEAL1_PDF_TEXT = normalizeWs(`
 PERMANENT TRANSFER AGREEMENT Agreement No. FB-DEMO-001 Signed on 1 April 2027
 1. Parties 1.1 Nordvik IF (the "Seller"). 1.2 Porto Alegre FC (the "Buyer").

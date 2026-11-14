@@ -10,8 +10,7 @@
 // Needs the accounts written by `npm run setup:demo` (scripts/.env.demo or .env).
 
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { execFileSync } from "node:child_process";
 import { Account, type KeyPairString } from "near-api-js";
 import {
   GAS_SETTLE,
@@ -58,11 +57,17 @@ function log(text: string, hash?: string) {
   console.log(`${String(step).padStart(2)}. ${text}${hash ? `\n    ${txLink(hash)}` : ""}`);
 }
 
+// The Deal 1 PDF left sample-agreements/ on 15 Nov (only tests/ remains). Its bytes
+// are read from git history, pinned to f741c98 like agent/tests/reader-live.test.ts,
+// so the fingerprint always matches the reader's hash regardless of the working tree.
+const AGREEMENT_BLOB = "f741c98:sample-agreements/deal1-nordvik-portoalegre.pdf";
+const AGREEMENT_SHA256 = "eab475572d0bf6ce627ac7b0160e5a34ef3c2ebc49cbdd8c75b76aa54d0d1832";
+
 function agreementHash(): string {
-  const dir = resolve(REPO_DIR, "sample-agreements");
-  const pdf = resolve(dir, "deal1-nordvik-portoalegre.pdf");
-  const file = existsSync(pdf) ? pdf : resolve(dir, "deal1-nordvik-portoalegre.md");
-  return createHash("sha256").update(readFileSync(file)).digest("hex");
+  const pdf = execFileSync("git", ["cat-file", "blob", AGREEMENT_BLOB], { cwd: REPO_DIR, maxBuffer: 32 * 1024 * 1024 });
+  const hash = createHash("sha256").update(pdf).digest("hex");
+  if (hash !== AGREEMENT_SHA256) throw new Error(`Deal 1 PDF hash ${hash} does not match ${AGREEMENT_SHA256}`);
+  return hash;
 }
 
 async function getDeal(id: number): Promise<DealView> {

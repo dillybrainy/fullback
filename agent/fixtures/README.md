@@ -26,8 +26,8 @@ oleh Pembaca saat `DEMO_MODE=true` (tanpa API key) dan sebagai acuan tes.
 
 | File | Sumber PDF | Isi |
 |---|---|---|
-| `deal1.json` | `sample-agreements/deal1-nordvik-portoalegre.pdf` | Deal 1: Nordvik IF → Porto Alegre FC, 10.000.000, 4 × 2.500.000, jaminan 2.500.000, sell-on 15% gross, pembinaan Kota FC 400 bps + Akademi Desa 100 bps |
-| `deal2.json` | `sample-agreements/deal2-portoalegre-clubz.pdf` | Deal 2 (penjualan ulang): Porto Alegre FC → Club Z, 20.000.000 sekali bayar, **tanpa `collateral`** (resale tidak punya jaminan), sell-on 15% gross diakui dari Deal 1 |
+| `deal1.json` | `deal1-nordvik-portoalegre.pdf` (kini hanya di git history, commit `f741c98`) | Deal 1: Nordvik IF → Porto Alegre FC, 10.000.000, 4 × 2.500.000, jaminan 2.500.000, sell-on 15% gross, pembinaan Kota FC 400 bps + Akademi Desa 100 bps |
+| `deal2.json` | `deal2-portoalegre-clubz.pdf` (kini hanya di git history, commit `f741c98`) | Deal 2 (penjualan ulang): Porto Alegre FC → Club Z, 20.000.000 sekali bayar, **tanpa `collateral`** (resale tidak punya jaminan), sell-on 15% gross diakui dari Deal 1 |
 
 Keputusan bentuk Deal 2 (Rabu 11 Nov): `collateral` **opsional** di
 `ReaderOutputSchema` — deal penjualan ulang tidak punya jaminan. Sell-on dan
@@ -36,15 +36,21 @@ yang tersimpan on-chain dari Deal 1 (`record_resale` tidak menerima keduanya).
 
 ## Pencocokan hash di DEMO_MODE
 
-`reader/index.ts` mencocokkan SHA-256 PDF dengan fixture. Hash yang dipakai
-adalah hash **versi commit** (lihat tabel di `sample-agreements/README.md`):
+`reader/index.ts` mencocokkan SHA-256 PDF dengan fixture. Sejak 15 Nov,
+`sample-agreements/` hanya berisi `tests/`; PDF demo Lucas ada di git history
+(commit `f741c98`). Kembalikan satu file bila perlu:
+
+```bash
+git checkout f741c98 -- sample-agreements/deal1-nordvik-portoalegre.pdf
+```
 
 | PDF | SHA-256 |
 |---|---|
 | `deal1-nordvik-portoalegre.pdf` | `eab475572d0bf6ce627ac7b0160e5a34ef3c2ebc49cbdd8c75b76aa54d0d1832` |
 | `deal2-portoalegre-clubz.pdf` | `2d72a5235790ff650eedec20de6c1e61b6efb25fa1b38852da295a4abe60737e` |
 
-**Perhatian:** checkout Windows (CRLF) atau regenerasi `make_agreements.py` di
-Windows mengubah byte PDF dan hash-nya. Kalau DEMO_MODE menolak PDF demo,
-jalankan `git checkout -- sample-agreements`. Masalah ini sudah diteruskan ke
-Orang 4 (butuh `.gitattributes` `*.pdf -text` di root).
+**Perhatian:** checkout Windows (CRLF) atau regenerasi PDF di Windows mengubah
+byte PDF dan hash-nya. Kalau DEMO_MODE menolak PDF demo, pastikan memakai versi
+commit (`git checkout f741c98 -- sample-agreements/...`), bukan hasil generate
+lokal. (Untuk PDF di `sample-agreements/tests/`, hash versi commit ada di
+`tests/manifest.json`.)

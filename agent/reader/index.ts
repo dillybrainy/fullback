@@ -30,10 +30,11 @@ const deal1Fixture = loadJson<ReaderOutput>("fixtures", "deal1.json");
 const deal2Fixture = loadJson<ReaderOutput>("fixtures", "deal2.json");
 
 /**
- * SHA-256 of each demo PDF (see sample-agreements/README.md). The demo PDFs
- * must be the committed versions: regenerating them on Windows can change the
- * bytes (CRLF) and therefore the hash. If you see "not a demo agreement",
- * restore the PDFs with `git checkout -- sample-agreements`.
+ * SHA-256 of each demo PDF (PLAN.md R1–R4). The demo PDFs were removed from
+ * sample-agreements/ on 15 Nov (only tests/ remains there); the committed LF
+ * bytes live on in git history at commit f741c98. Restore one with:
+ *   git checkout f741c98 -- sample-agreements/deal1-nordvik-portoalegre.pdf
+ * Regenerating the PDF can change the bytes (CRLF) and therefore the hash.
  */
 export const DEMO_FIXTURES_BY_HASH: Record<string, ReaderOutput> = {
   // deal1-nordvik-portoalegre.pdf
@@ -61,9 +62,10 @@ export async function readPdf(data: Uint8Array, options: { signal?: AbortSignal;
     if (!fixture) {
       throw new Error(
         `DEMO_MODE is on and this PDF (sha256 ${pdfHash}) is not one of the demo agreements. ` +
-          "Upload sample-agreements/deal1-nordvik-portoalegre.pdf (or deal2). " +
-          "If you regenerated the PDFs locally, restore the committed versions with " +
-          "`git checkout -- sample-agreements` (Windows line endings change the hash).",
+          "Restore the demo PDF from git history and upload it: " +
+          "`git checkout f741c98 -- sample-agreements/deal1-nordvik-portoalegre.pdf`. " +
+          "Or turn DEMO_MODE off (with an API key) to read any agreement, " +
+          "e.g. sample-agreements/tests/OK-01-basic.pdf.",
       );
     }
     return { output: fixture, pdfHash };
