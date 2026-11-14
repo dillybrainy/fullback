@@ -46,7 +46,10 @@ export function createReaderHandler(options: Options = {}) {
     const cancel = () => controller.abort(request.signal.reason);
     request.signal.addEventListener("abort", cancel, { once: true });
     if (request.signal.aborted) cancel();
-    const timer = setTimeout(() => controller.abort(new DOMException("AI review timed out. Please retry.", "TimeoutError")), options.timeoutMs ?? 60000);
+    // Give live inference real headroom: the default model can need 40–70 s.
+    // The Next.js client backstop sits above this (78 s), so the caller always
+    // receives this JSON error instead of an unexplained abort.
+    const timer = setTimeout(() => controller.abort(new DOMException("AI review timed out. Please retry.", "TimeoutError")), options.timeoutMs ?? 70000);
     try {
       const bytes = new Uint8Array(await request.arrayBuffer());
       controller.signal.throwIfAborted();
@@ -63,7 +66,7 @@ export function createReaderHandler(options: Options = {}) {
       const output = ReaderOutputSchema.parse(result.output);
       return json(200, { pdfHash: result.pdfHash, output, mode: mode() });
     } catch (error) {
-      if (controller.signal.aborted) return json(504, { error: "AI review timed out or was cancelled. Please retry." });
+      if (controller.signal.aborted) return json(504, { error: "The AI review timed out before the Reader finished. Please retry." });
       const message = error instanceof Error ? error.message : "";
       // Server log only (never sent to the browser): helps debug a failed review.
       console.error("[reader] review failed:", message.slice(0, 500));

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { AlertTriangle, CheckCircle2, Clock, Loader2, RefreshCw, ScanText } from "lucide-react";
 import { requestAiReview } from "@/lib/ai-review.mjs";
 
 // Only fields rendered by this view. The backend validates the full frozen schema.
@@ -15,9 +16,24 @@ type ReviewedTerms = {
 };
 
 const money = (amount: number, currency: string) => `${amount.toLocaleString("en-US")} ${currency}`;
+const clock = (totalSeconds: number) => `${Math.floor(totalSeconds / 60)}:${String(totalSeconds % 60).padStart(2, "0")}`;
+
 function Source({ term }: { term: { quote: string; clause: string } }) {
   return <details className="reader-source"><summary>Clause {term.clause}</summary><blockquote>{term.quote}</blockquote></details>;
 }
+
+/** Seconds since the running review started. Ticks outside any live region, so
+ * screen readers hear the operation once, not every second. */
+function ElapsedTimer() {
+  const [seconds, setSeconds] = useState(0);
+  useEffect(() => {
+    const startedAt = Date.now();
+    const timer = window.setInterval(() => setSeconds(Math.floor((Date.now() - startedAt) / 1000)), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+  return <span className="ai-review-elapsed">Elapsed {clock(seconds)}</span>;
+}
+
 export function PdfAiReview({ file, pdfHash }: { file: File; pdfHash: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -38,11 +54,26 @@ export function PdfAiReview({ file, pdfHash }: { file: File; pdfHash: string }) 
   return <section className="pdf-check-panel" aria-labelledby="ai-review-title">
     <h3 id="ai-review-title">Review the agreement’s contents</h3>
     <p className="help">Send this PDF for AI review of its terms, amounts, and supporting clauses. This does not register or sign an agreement.</p>
-    <button type="button" className="button" disabled={busy} onClick={() => void examine()}>{busy ? "Reviewing agreement…" : error ? "Retry AI review" : review ? "Review again with AI" : "Review agreement with AI"}</button>
-    {busy && <p role="status">Reading the PDF and checking its terms…</p>}
-    {error && <p className="error-message" role="alert">{error}</p>}
-    {output && <div className="reader-result" aria-live="polite">
-      <h4>{review?.mode === "demo" ? "Demo fixture review" : "AI review complete"}</h4>
+    <button type="button" className="button" disabled={busy} onClick={() => void examine()}>
+      {busy ? <Loader2 className="ai-review-spin" size={18} aria-hidden="true" /> : error ? <RefreshCw size={18} aria-hidden="true" /> : <ScanText size={18} aria-hidden="true" />}
+      <span>{busy ? "Reviewing agreement…" : error ? "Retry AI review" : review ? "Review again with AI" : "Review agreement with AI"}</span>
+    </button>
+    {busy ? (
+      <div className="ai-review-status">
+        <p className="ai-review-status-line" role="status">
+          <ScanText size={18} aria-hidden="true" />
+          <span>The AI is reading clauses, amounts, and quotes in this agreement.</span>
+        </p>
+        <p className="ai-review-status-line help">
+          <Clock size={15} aria-hidden="true" />
+          <span>This usually takes about a minute.</span>
+          <ElapsedTimer />
+        </p>
+      </div>
+    ) : null}
+    {error ? <p className="error-message" role="alert"><AlertTriangle size={16} aria-hidden="true" /><span>{error}</span></p> : null}
+    {output ? <div className="reader-result" aria-live="polite">
+      <h4><CheckCircle2 size={18} aria-hidden="true" />{review?.mode === "demo" ? "Demo fixture review" : "AI review complete"}</h4>
       <p className="help">{output.warnings.length ? "Review the warnings and source clauses before relying on these terms." : "No warnings were raised by the Reader’s current checks. Review the source clauses; this is not proof that every term is correct."}</p>
       {!!output.warnings.length && <ul className="reader-warnings">{output.warnings.map((warning, i) => <li key={i}><strong>{warning.field}</strong>: {warning.message}</li>)}</ul>}
       <dl className="reader-terms">
@@ -55,6 +86,6 @@ export function PdfAiReview({ file, pdfHash }: { file: File; pdfHash: string }) 
       <ol className="reader-payments">{output.installments.map((item, i) => <li key={i}>{money(item.amount, output.fee.currency)} · {item.dueDate}<Source term={item} /></li>)}</ol>
       <h4>Academy royalties</h4>
       {output.trainingClubs.length ? <ul className="reader-payments">{output.trainingClubs.map((club, i) => <li key={i}>{club.name}: {club.bps / 100}%<Source term={club} /></li>)}</ul> : <p className="help">No academy royalty recipients extracted.</p>}
-    </div>}
+    </div> : null}
   </section>;
 }
