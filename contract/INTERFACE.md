@@ -54,7 +54,7 @@ Semua fungsi ubah tidak butuh deposit NEAR, kecuali disebut lain.
 {
   "player_id": "lucas-1731400000",
   "player_name": "Lucas",
-  "seller_id": "nordvik.<master>.testnet",
+  "seller_id": "nordvik.fullback-team.testnet",
   "price": "10000000000000",
   "installments": [
     { "amount": "2500000000000", "due_offset_sec": 120 },
@@ -66,8 +66,8 @@ Semua fungsi ubah tidak butuh deposit NEAR, kecuali disebut lain.
   "sell_on_bps": 1500,
   "sell_on_basis": "gross",
   "training_clubs": [
-    { "account_id": "kotafc.<master>.testnet", "name": "Kota FC", "bps": 400 },
-    { "account_id": "akademidesa.<master>.testnet", "name": "Akademi Desa", "bps": 100 }
+    { "account_id": "kotafc.fullback-team.testnet", "name": "Kota FC", "bps": 400 },
+    { "account_id": "akademidesa.fullback-team.testnet", "name": "Akademi Desa", "bps": 100 }
   ],
   "pdf_hash": "<64 hex>"
 }

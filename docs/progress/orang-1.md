@@ -22,9 +22,28 @@ Catatan teknis:
 
 - Wallet NEAR testnet di web (branch `orang-1/web-wallet`, dengan izin Orang 3): `@hot-labs/near-connect` 0.12.0, tombol Connect di `/signin` dan nav menampilkan akun yang tersambung serta saldo fEUR. Konektor hanya dimuat saat dipakai, tanpa kunci terbatas (setiap transaksi dikonfirmasi di wallet). Workspace tetap tertutup sampai membaca data kontrak. `useWallet().callFunction` siap dipakai Orang 3. Lint, typecheck, 42 unit test, `test:access`, `test:entry` lulus.
 
+**Sabtu 14 Nov (malam), issue #3 selesai**
+- `cargo test` 34/34 lulus. Audit `near-contract-audit` disimpan di `contract/AUDIT.md`.
+- `<master>` terakhir di contoh `create_deal` di `INTERFACE.md` diganti `fullback-team.testnet`.
+- `npm run demo` sukses lagi (putaran ke-3, pemain `lucas-1794674036388`, Deal 7 + resale Deal 8). Semua saldo cocok dengan R3 + R4, kontrak tersisa 0 fEUR. Link explorer:
+  1. Mint 12.500.000 fEUR ke Porto Alegre FC: https://testnet.nearblocks.io/txns/35mJvfWJdEg1oXKcQnke8Aw3kpJA2dcv592Jsjkh6tjq
+  2. `create_deal` Deal 7: https://testnet.nearblocks.io/txns/2Wz8ns64teRkdYnHKpTtTaNkvn9CyjQ3w5XsuEEyXMXe
+  3. `approve_deal` oleh Nordvik IF: https://testnet.nearblocks.io/txns/BCeF1VfqSgckLhGXm9GPum4LcPrTRPGbjkT7SAnDuDvf
+  4. Setor jaminan 2.500.000 fEUR, deal Active: https://testnet.nearblocks.io/txns/FbXgzYNU6wAXLbPKS4aQ5TL9C4EesLYUgjL6giCi12JU
+  5. Bayar cicilan 1: https://testnet.nearblocks.io/txns/2FKr74boXddtnNTCYLMk5eZ4jjnum5oDZz9cgVhava2b
+  6. Penagih `settle_due`: cicilan 2 dibayar dari jaminan: https://testnet.nearblocks.io/txns/EYGSqf4XyH1bcKBuFgnDFP8EKVvGhzS12v6a8L73vWsr
+  7. Top up jaminan: https://testnet.nearblocks.io/txns/CUVfUFptAAP9wVwfbGXnUwDPSnr8txqxeXpcS6zSY1Uq
+  8. Bayar cicilan 3: https://testnet.nearblocks.io/txns/Bp2GQZJa1k496LaRYZzE23esRGDARFje8PeGj3DPUwGE
+  9. Bayar cicilan 4, deal Completed: https://testnet.nearblocks.io/txns/5WUqX3xxAC9dv9XdW7rMmtu41SC641AVJocxCBLzA1Pw
+  10. `release_collateral`: https://testnet.nearblocks.io/txns/CFHgRacQ6US71D26dBNzSmMvZzYPPKkb3Vqe4BNBYNpr
+  11. `record_resale` ke Club Z (Deal 8): https://testnet.nearblocks.io/txns/5KEar47NakmDYjoGKrxJYh5tWDc8Gfk7vh8zoTML7Vi4
+  12. Mint 20.000.000 fEUR ke Club Z: https://testnet.nearblocks.io/txns/6pzdDkkmvt1sbxJhVSVLNAPoCcj8p5AKbMALuFBAUTAS
+  13. `pay_resale` 20.000.000 fEUR, dibagi dalam satu transaksi: https://testnet.nearblocks.io/txns/HNiELFYUoyzWBWCvZacVfSSEwh6vtPQ2zt8UoXfPyNcW
+  - Agen curang (`ft_transfer` ke fEUR dengan kunci Penagih) ditolak chain: `AccessKeyReceiverMismatchActionError`. Ditolak sebelum masuk blok, jadi tanpa link.
+
 ## Belum
 
-- Audit `near-contract-audit` sebelum deploy final.
+- Perbaikan temuan audit A-1 (`assert_one_yocto` di `approve_deal`/`record_resale`) dan A-2 (batas `due_offset_sec`): butuh persetujuan grup karena menyentuh INTERFACE. Lihat `contract/AUDIT.md`.
 
 ## Butuh dari orang lain
 
