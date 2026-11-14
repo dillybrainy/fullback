@@ -11,6 +11,9 @@
 //   npm run make:deal -w scripts -- --due 60 --count 3 --interval 1800
 //   npm run make:deal -w scripts -- --due 120 --pay-first  # cicilan 1 dibayar sendiri,
 //                                                          # collector menagih cicilan 2
+//   npm run make:deal -w scripts -- --pdf ../sample-agreements/tests/OK-01-basic.pdf \
+//     --name "Daniel Okoro" --due 86400 --amount 2000000 --count 3
+//     # deal yang sidik jarinya = PDF itu, untuk demo halaman Verify
 //
 // Opsi:
 //   --due <detik>       jatuh tempo cicilan 1, dihitung dari sekarang (default 120;
@@ -23,10 +26,15 @@
 //   --pay-first         pembeli langsung membayar cicilan 1 (uji collector pada
 //                       cicilan berikutnya)
 //   --player <teks>     akhiran player_id (default: collector-test-<timestamp>)
+//   --name <teks>       nama pemain yang tampil di UI (default: Collector Test)
+//   --pdf <path>        sidik jari deal = SHA-256 file PDF ini (default: sidik
+//                       jari perjanjian demo). Untuk demo halaman Verify.
 //
 // Semua transaksi ditandatangani kunci demo testnet dari .env (penjual =
 // nordvik, pembeli = portoalegre). Token fEUR = uang mainan.
 
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import {
   account,
   call,
@@ -71,6 +79,11 @@ const amountF = intArg("amount", 2_000_000);
 const collateralF = intArg("collateral", amountF);
 const payFirst = process.argv.includes("--pay-first");
 const playerId = arg("player", `collector-test-${Date.now()}`);
+const playerName = arg("name", "Collector Test");
+const pdfPath = arg("pdf", "");
+const pdfHash = pdfPath
+  ? createHash("sha256").update(readFileSync(pdfPath)).digest("hex")
+  : PDF_HASH;
 
 if (count < 1) {
   console.error("--count minimal 1");
@@ -104,7 +117,7 @@ async function main() {
 
   const created = await call<number>(buyer, CONTRACT, "create_deal", {
     player_id: playerId,
-    player_name: "Collector Test",
+    player_name: playerName,
     seller_id: seller.accountId,
     price: (INSTALLMENT * BigInt(count)).toString(),
     installments: Array.from({ length: count }, (_, i) => ({
@@ -118,7 +131,7 @@ async function main() {
       { account_id: kota, name: "Kota FC", bps: 400 },
       { account_id: desa, name: "Akademi Desa", bps: 100 },
     ],
-    pdf_hash: PDF_HASH,
+    pdf_hash: pdfHash,
   });
   const dealId = created.value;
   console.log(`2. Deal ${dealId} dibuat (${fmt(INSTALLMENT * BigInt(count))})\n    ${txLink(created.hash)}`);
