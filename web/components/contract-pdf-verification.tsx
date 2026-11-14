@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Check, Minus, Search } from "lucide-react";
+import { ArrowRight, Check, ChevronLeft, ChevronRight, Minus, Search } from "lucide-react";
 import { CONTRACT_ID, explorerAccountUrl, viewFunction } from "@/lib/near";
 import { listAgreements, verifyAgreement } from "@/lib/contract-verification.mjs";
 import type { Agreement } from "@/lib/contract-verification.mjs";
@@ -20,6 +20,8 @@ export function ContractPdfVerification({ pdfHash }: { pdfHash: string }) {
   const [loadError, setLoadError] = useState("");
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<"" | "recorded" | "missing">("");
+  const [perPage, setPerPage] = useState(10);
+  const [pageNo, setPageNo] = useState(1);
   const [selected, setSelected] = useState("");
   const [result, setResult] = useState<Verification | null>(null);
   const [checking, setChecking] = useState(false);
@@ -39,6 +41,11 @@ export function ContractPdfVerification({ pdfHash }: { pdfHash: string }) {
     const current = agreements.find(deal => String(deal.deal_id) === selected);
     if (current && !visible.includes(current)) visible.unshift(current);
   }
+  // Display pagination over the filtered list; the "Load more" button below
+  // still fetches further batches from the chain.
+  const pageCount = Math.max(1, Math.ceil(visible.length / perPage));
+  const pageNow = Math.min(pageNo, pageCount);
+  const rows = visible.slice((pageNow - 1) * perPage, pageNow * perPage);
   async function load(from = 0) {
     listing.current?.abort();
     const controller = new AbortController(); listing.current = controller;
@@ -82,17 +89,17 @@ export function ContractPdfVerification({ pdfHash }: { pdfHash: string }) {
     <label className="field-label" htmlFor="agreement-search">Search</label>
     <div className="agreement-search">
       <Search size={16} aria-hidden="true" />
-      <input id="agreement-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Number, player, or club" disabled={!agreements.length} />
+      <input id="agreement-search" type="search" value={query} onChange={event => { setQuery(event.target.value); setPageNo(1); }} placeholder="Number, player, or club" disabled={!agreements.length} />
     </div>
     <div className="agreement-filters" role="group" aria-label="Filter agreements">
-      <button type="button" aria-pressed={filter === ""} className={filter === "" ? "is-active" : ""} onClick={() => setFilter("")}>All</button>
-      <button type="button" aria-pressed={filter === "recorded"} className={filter === "recorded" ? "is-active" : ""} onClick={() => setFilter("recorded")}>Fingerprint recorded</button>
-      <button type="button" aria-pressed={filter === "missing"} className={filter === "missing" ? "is-active" : ""} onClick={() => setFilter("missing")}>No fingerprint</button>
+      <button type="button" aria-pressed={filter === ""} className={filter === "" ? "is-active" : ""} onClick={() => { setFilter(""); setPageNo(1); }}>All</button>
+      <button type="button" aria-pressed={filter === "recorded"} className={filter === "recorded" ? "is-active" : ""} onClick={() => { setFilter("recorded"); setPageNo(1); }}>Fingerprint recorded</button>
+      <button type="button" aria-pressed={filter === "missing"} className={filter === "missing" ? "is-active" : ""} onClick={() => { setFilter("missing"); setPageNo(1); }}>No fingerprint</button>
     </div>
     <div className="agreement-table" role="radiogroup" aria-label="Agreement">
       <div className="agreement-table-head" aria-hidden="true"><span>#</span><span>Player</span><span>Transfer</span><span>Fingerprint</span></div>
       {loading && <p className="help" role="status">Loading recorded agreements…</p>}
-      {visible.map(deal => {
+      {rows.map(deal => {
         const isCurrent = String(deal.deal_id) === selected;
         return (
           <button key={deal.deal_id} type="button" role="radio" aria-checked={isCurrent} className={"agreement-row" + (isCurrent ? " is-selected" : "")} onClick={() => void verify(String(deal.deal_id))}>
@@ -106,6 +113,25 @@ export function ContractPdfVerification({ pdfHash }: { pdfHash: string }) {
       {!loading && !loadError && !!agreements.length && !visible.length && <p role="status">No agreements match your search.</p>}
       {!loading && !loadError && !agreements.length && <p role="status">No agreements have been recorded on this testnet contract yet.</p>}
     </div>
+    {visible.length > perPage && (
+      <div className="agreement-pagination">
+        <label className="agreement-page-size">Rows per page
+          <select value={perPage} onChange={event => { setPerPage(Number(event.target.value)); setPageNo(1); }}>
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+          </select>
+        </label>
+        <span className="agreement-count">Showing {(pageNow - 1) * perPage + 1}–{Math.min(pageNow * perPage, visible.length)} of {visible.length}</span>
+        <nav className="agreement-pages" aria-label="Agreement pages">
+          <button type="button" aria-label="Previous page" disabled={pageNow <= 1} onClick={() => setPageNo(pageNow - 1)}><ChevronLeft size={16} aria-hidden="true" /></button>
+          {Array.from({ length: pageCount }, (_, index) => index + 1).map(number => (
+            <button key={number} type="button" aria-label={`Page ${number}`} aria-current={number === pageNow ? "page" : undefined} className={number === pageNow ? "is-current" : ""} onClick={() => setPageNo(number)}>{number}</button>
+          ))}
+          <button type="button" aria-label="Next page" disabled={pageNow >= pageCount} onClick={() => setPageNo(pageNow + 1)}><ChevronRight size={16} aria-hidden="true" /></button>
+        </nav>
+      </div>
+    )}
     {loadError && <p className="error-message" role="alert">{loadError}</p>}
     {(loadError || page.hasMore) && <button type="button" className="button soft" disabled={loading} onClick={() => void load(loadError && !agreements.length ? 0 : page.nextIndex)}>{loadError ? "Retry loading agreements" : "Load more agreements"}</button>}
     <div aria-live="polite" aria-busy={checking}>
