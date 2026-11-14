@@ -1,7 +1,7 @@
 {
-  "Nordvik IF": "nordvik.<master>.testnet",
-  "Porto Alegre FC": "portoalegre.<master>.testnet",
-  "Club Z": "clubz.<master>.testnet",
-  "Kota FC": "kotafc.<master>.testnet",
-  "Akademi Desa": "akademidesa.<master>.testnet"
+  "Nordvik IF": "nordvik.fullback-team.testnet",
+  "Porto Alegre FC": "portoalegre.fullback-team.testnet",
+  "Club Z": "clubz.fullback-team.testnet",
+  "Kota FC": "kotafc.fullback-team.testnet",
+  "Akademi Desa": "akademidesa.fullback-team.testnet"
 }
