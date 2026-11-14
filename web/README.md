@@ -6,7 +6,7 @@ Panduan lengkap development, unit test, preview production, dan deploy Vercel: [
 
 Review performa, hasil pengukuran, static export/CDN dan load test: [PERFORMANCE.md](PERFORMANCE.md). Seluruh route contoh kini diprerender; foto responsif WebP disiapkan sebelum deployment.
 
-**Akses saat ini:** hanya `/`, `/signin`, dan `/verify` yang publik. Dashboard, deal, resale, dan federation ditutup sampai login wallet tersedia; URL langsung diarahkan ke Sign in tanpa merender isi workspace. Aturan akses, perbaikan preview, dan tes Chrome: [ACCESS-AND-PREVIEW.md](ACCESS-AND-PREVIEW.md).
+**Akses saat ini:** hanya `/`, `/signin`, dan `/verify` yang publik. Sign in menyediakan koneksi wallet NEAR testnet. Dashboard, deal, resale, dan federation tetap ditutup sampai membaca data kontrak langsung; URL langsung diarahkan ke Sign in tanpa merender isi workspace. Koneksi wallet tidak membuka akses privat. Aturan akses, perbaikan preview, dan tes Chrome: [ACCESS-AND-PREVIEW.md](ACCESS-AND-PREVIEW.md).
 
 Kunjungan pertama ke URL halaman apa pun masuk ke landing `/` terlebih dahulu, sekali per sesi browser. Sesudahnya halaman publik dapat digunakan; penanda kunjungan tidak memberikan akses login.
 
@@ -14,14 +14,14 @@ Animasi beranda mengadaptasi inspirasi HelloNear ke tema FULLBACK: kick-off hero
 
 Frontend Next.js App Router dengan TypeScript dan CSS, mengikuti [desain FULLBACK](https://www.figma.com/design/554rVc9k58NLyfZ1ygdDIY?node-id=0-1). Beranda, sign in, dashboard, detail deal, unggah PDF, verifikasi, resale, dan federation memakai foto, logo, font Schibsted Grotesk, warna, dan struktur dari Figma. Font dan gambar disimpan lokal di `public/`.
 
-Navigasi publik, menu mobile, FAQ, drag-and-drop PDF di Verify, dan fingerprint SHA-256 berfungsi. Pilihan peran nonaktif selama login belum tersedia. Prototype tab/filter/pencarian workspace disimpan untuk integrasi berikutnya. Ilustrasi notifikasi royalti mengikuti ketukan akhir proses. Semua animasi menghormati `prefers-reduced-motion`.
+Navigasi publik, menu mobile, koneksi wallet testnet, FAQ, drag-and-drop PDF di Verify, dan fingerprint SHA-256 berfungsi. Pilihan peran nonaktif selama workspace belum tersedia. Prototype tab/filter/pencarian workspace disimpan untuk integrasi berikutnya. Ilustrasi notifikasi royalti mengikuti ketukan akhir proses. Semua animasi menghormati `prefers-reduced-motion`.
 
-Dashboard dan detail deal memakai data contoh netral dari `lib/mock.ts`. Koneksi dompet, Pembaca AI, verifikasi on-chain, dan transaksi belum tersedia; kontrol terkait menampilkan batasan tersebut. Fase 2 belum ditambahkan.
+Komponen dashboard dan detail deal yang belum dibuka memakai data contoh netral dari `lib/mock.ts`. Pembaca AI, verifikasi PDF on-chain, dan alur transaksi produk belum tersedia di frontend; kontrol terkait menampilkan batasan tersebut. Koneksi dompet testnet dimuat saat diminta atau saat memulihkan koneksi sebelumnya. Fase 2 belum ditambahkan.
 
 ## Halaman yang bisa dicoba
 
 - `/`: beranda.
-- `/signin`: login belum tersedia; Home dan Verify dapat diakses. Tidak ada jalur Explore tanpa login.
+- `/signin`: koneksi/pemutusan wallet NEAR testnet; pilihan peran tetap nonaktif. Home dan Verify dapat diakses; workspace belum dibuka.
 - `/dashboard`, `/deals/new`, `/deals/riverside-kingsport`: sementara ditutup.
 - `/verify`: pilih PDF dan hitung SHA-256 di browser tanpa mengunggah file. Hasil belum dibandingkan dengan kontrak testnet.
 - `/deals/riverside-kingsport/resale`, `/federation`: sementara ditutup.

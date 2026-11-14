@@ -20,6 +20,8 @@ Catatan teknis:
 - Perbaikan `run-demo.ts`: percobaan agen curang dikirim tanpa deposit (deposit membuat chain menolak dengan alasan lain) dan dikenali dari jenis error `AccessKey...`. Transaksi ini ditolak sebelum masuk blok, jadi tidak punya link explorer.
 - Deal 0 di testnet tersisa sebagai deal `Active` dengan jaminan 0 dari putaran pertama yang berhenti di langkah agen curang; tidak memengaruhi demo berikutnya.
 
+- Wallet NEAR testnet di web (branch `orang-1/web-wallet`, dengan izin Orang 3): `@hot-labs/near-connect` 0.12.0, tombol Connect di `/signin` dan nav menampilkan akun yang tersambung serta saldo fEUR. Konektor hanya dimuat saat dipakai, tanpa kunci terbatas (setiap transaksi dikonfirmasi di wallet). Workspace tetap tertutup sampai membaca data kontrak. `useWallet().callFunction` siap dipakai Orang 3. Lint, typecheck, 42 unit test, `test:access`, `test:entry` lulus.
+
 ## Belum
 
 - Audit `near-contract-audit` sebelum deploy final.

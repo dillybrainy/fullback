@@ -12,7 +12,7 @@ Baseline dibangun ulang dari snapshot Git HEAD sebelum optimasi dalam direktori 
 | Route produk yang dirender per request | 3 | 0 |
 | Foto PNG di public | 18.512 MB | 0 |
 | Seluruh varian foto WebP di public | — | 1.003 MB |
-| Seluruh chunk JavaScript, gzip per file | 194,255 byte | 289,995 byte |
+| Seluruh chunk JavaScript, gzip per file | 194,255 byte | 307,845 byte |
 
 Perbandingan foto adalah ukuran berkas sumber/deployment. Sebelum optimasi, Next Image juga mengompresi gambar saat request, sehingga angka ini **bukan** bukti pengurangan bandwidth kunjungan sebesar 94.6%. Sesudah optimasi, format/ukuran dipilih browser dari varian yang sudah dibuat, tanpa image optimizer pada origin. Hero mobile 480px berukuran 6,152 byte. Kualitas WebP 82 mempertahankan foto yang sama, dengan kompresi lossy.
 
@@ -23,6 +23,8 @@ Angka GSAP di atas adalah checkpoint historis. Sesudah penutupan workspace dan r
 Checkpoint terbaru sebelum navbar 234,409 byte setelah penambahan first-entry gate. Revisi shadcn/navbar/hero menghasilkan **289,995 byte gzip dalam 16 file**, tambahan bersih 55,586 byte (+23.7%). Tidak ada raster baru; hero memakai ulang WebP stadion yang sudah ada. Seluruh delapan route tetap diprerender. Rincian dan batas pengukuran: [NAVBAR.md](NAVBAR.md). Checkpoint sebelumnya dipertahankan sebagai riwayat, bukan klaim ukuran build yang sekarang.
 
 ## Perubahan
+
+Setelah rekonsiliasi merge wallet, build normal menghasilkan **307,845 byte gzip dalam 19 file JS**; delapan route produk tetap diprerender. Ini seluruh chunk termasuk connector wallet yang diimpor dinamis saat Connect atau pemulihan koneksi, bukan transfer awal Home. Checkpoint navbar sebelumnya 289,995 byte disimpan sebagai `beforeWalletMerge` di JSON. Tidak ada pengukuran koneksi wallet nyata atau transaksi live dalam tes offline ini.
 
 - Dashboard membaca query peran/tab di client dalam Suspense. Query tidak lagi menyebabkan HTML dirender per request.
 - Detail deal dan resale menggunakan generateStaticParams dan dynamicParams=false. ID yang tidak dikenal tidak memicu pembuatan halaman contoh baru.

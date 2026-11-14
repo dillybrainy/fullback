@@ -1,13 +1,13 @@
 # Akses publik dan konsistensi preview
 
-Keputusan pengguna: hanya Home, Sign in, dan Verify PDF yang publik. Halaman aplikasi **ditutup sementara**, sampai integrasi login wallet tersedia. Tidak ditambahkan login contoh, cookie autentikasi buatan, atau jalur Explore yang melewati login.
+Keputusan pengguna: hanya Home, Sign in, dan Verify PDF yang publik. Integrasi wallet testnet tersedia di Sign in, tetapi halaman aplikasi **tetap ditutup** sampai membaca data kontrak langsung. Tidak ditambahkan login contoh, cookie autentikasi buatan, atau jalur Explore yang melewati login.
 
 Aturan masuk terbaru: **kunjungan pertama ke URL halaman apa pun harus melalui landing `/`, sekali per sesi browser**. Sesudah landing terbuka, aturan publik/privat pada tabel berlaku seperti biasa. Ini penanda kunjungan, bukan sesi login.
 
 | Route | Perilaku sekarang |
 |---|---|
 | `/` | Landing kanonis; menu Home, logo, serta Back to Home kembali ke sini |
-| `/signin` | Informasi login belum tersedia; wallet dan pilihan peran nonaktif; Home/Verify tetap tersedia |
+| `/signin` | Koneksi/pemutusan wallet NEAR testnet; pilihan peran nonaktif; Home/Verify tetap tersedia |
 | `/verify` | Fingerprint PDF lokal, tanpa login atau pengiriman file |
 | `/dashboard` | Akses ditutup; diarahkan ke `/signin?next=%2Fdashboard` |
 | `/deals/new` | Akses ditutup; diarahkan ke Sign in |
@@ -21,7 +21,7 @@ Entry page privat hanya merender `ClosedWorkspace`, tanpa memanggil atau menerus
 
 `next.config.ts` memberi redirect HTTP 307 untuk request dokumen halaman yang belum memiliki cookie `fullback_landing_seen=1`. Root, API, aset, HMR, RSC, prefetch, serta Server Actions dikecualikan. Cookie ditulis hanya setelah landing terbuka, tanpa tanggal kedaluwarsa sehingga mengikuti sesi browser; tidak berisi identitas/peran dan tidak membuka workspace. Static export menggunakan `LandingEntry` pada layout sebagai fallback browser, karena static host tidak menjalankan hook redirects Next. Jika cookie diblokir, navigasi client setelah Home tetap bisa berjalan menggunakan penanda dalam memori. Root selalu bisa dibuka sehingga tidak terjadi redirect loop.
 
-Nilai localStorage, cookie, query role, dan query `authenticated=true` tidak membuka akses. `next` hanya menyimpan tujuan internal; tidak ada proses login atau redirect ke nilai `next` dari pengguna. Menu publik tidak menampilkan akun contoh. Tautan produk privat pada footer langsung menuju Sign in, tanpa mengundang pengguna masuk ke workspace contoh.
+Nilai localStorage, cookie, query role, dan query `authenticated=true` tidak membuka akses. Penanda `fullback-wallet-connected` hanya meminta pemulihan koneksi; akun harus dibaca dari wallet dan tidak memberi akses workspace. `next` hanya menyimpan tujuan internal; koneksi wallet tidak mengalihkan pengguna ke nilai tersebut. Menu publik menampilkan akun wallet yang terhubung, bukan akun contoh. Tautan produk privat pada footer langsung menuju Sign in, tanpa mengundang pengguna masuk ke workspace contoh.
 
 Kode tampilan lama disimpan di `components/workspaces/`, serta komponen dashboard yang sudah ada. Kode tersebut tidak diimpor oleh route privat yang ditutup. Jangan mengaktifkannya dengan sebuah boolean localStorage. Integrasi berikutnya harus menyediakan autentikasi/otorisasi nyata sebelum melayani data privat atau menerima aksi. Static export tetap tersedia untuk keadaan tertutup ini.
 

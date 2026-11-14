@@ -66,6 +66,8 @@ Hasil: 42 unit test, lint tanpa warning, TypeScript, build normal, dan static ex
 
 ## Dampak ukuran
 
+Tabel ini adalah checkpoint revisi navbar sebelum integrasi wallet. Pengukuran setelah merge wallet ada di [PERFORMANCE.md](PERFORMANCE.md); identitas visual dan perilaku scroll navbar tetap dipertahankan.
+
 | Ukuran | Sebelum | Sesudah |
 |---|---:|---:|
 | Seluruh output JS, gzip per file | 234,409 byte | 289,995 byte |

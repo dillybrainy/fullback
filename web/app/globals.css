@@ -443,6 +443,7 @@ html{--navigation-scroll-offset:112px;scroll-padding-top:var(--navigation-scroll
 .verify-page .page-heading{max-width:940px}
 .verify-page .page-heading h1{font-size:clamp(36px,4.2vw,60px);line-height:1.08;letter-spacing:-.035em;color:var(--primary-deep)}
 .signin-form{border-radius:20px}
+.wallet-connected{display:flex;flex-direction:column;gap:4px;margin:0 0 12px}.wallet-connected .help{margin:0}.wallet-connected a{color:var(--ink);overflow-wrap:anywhere}
 @media(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){[data-slot=button] svg[data-icon=inline-end]{transition:transform 150ms var(--ease)}[data-slot=button]:hover svg[data-icon=inline-end]{transform:translateX(2px)}}
 @media(max-width:1440px){.hero-playbook{margin-inline:80px}}
 @media(max-width:1100px){

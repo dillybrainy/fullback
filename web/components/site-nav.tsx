@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { ArrowUpRight, FileCheck2, Menu, Wallet, X } from "lucide-react";
 import { Brand } from "./brand";
+import { useWallet } from "./wallet-provider";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu";
 import { Popover, PopoverContent, PopoverHeader, PopoverTitle, PopoverTrigger } from "@/components/ui/popover";
@@ -26,6 +27,8 @@ export function SiteNav() {
 }
 
 function PublicNavigation({ pathname }: { pathname: string }) {
+  const { accountId } = useWallet();
+  const walletLabel = accountId ? (accountId.length <= 22 ? accountId : accountId.slice(0, 13) + "…" + accountId.slice(-7)) : "Connect wallet";
   const [open, setOpen] = useState(false);
   const [instant, setInstant] = useState(false);
   useEffect(() => {
@@ -46,10 +49,10 @@ function PublicNavigation({ pathname }: { pathname: string }) {
     </NavigationMenu>
     <div className="navbar-actions">
       <Button variant="inverse" render={<Link href="/verify" />} nativeButton={false}><FileCheck2 data-icon="inline-start" />Verify PDF</Button>
-      <Button variant="accent" render={<Link href="/signin" />} nativeButton={false}>Connect wallet<ArrowUpRight data-icon="inline-end" /></Button>
+      <Button variant="accent" render={<Link href="/signin" title={accountId ?? undefined} />} nativeButton={false}>{walletLabel}<ArrowUpRight data-icon="inline-end" /></Button>
     </div>
     <div className="navbar-mobile-actions">
-      <Button variant="accent" size="icon" render={<Link href="/signin" />} nativeButton={false} aria-label="Connect wallet"><Wallet /></Button>
+      <Button variant="accent" size="icon" render={<Link href="/signin" />} nativeButton={false} aria-label={accountId ? "Connected wallet: " + accountId : "Connect wallet"}><Wallet /></Button>
       <Popover open={open} onOpenChange={(value, details) => {
         const event = details.event;
         setInstant(event.type.startsWith("key") || (event.type === "click" && "detail" in event && event.detail === 0));
@@ -63,7 +66,7 @@ function PublicNavigation({ pathname }: { pathname: string }) {
           <nav className="mobile-navigation" aria-label="Main navigation">{links.map(([href, label]) => <MobileLink href={pathname === "/" && href === "/" ? "#" : href} key={href} aria-current={current === href ? "page" : undefined} onClick={() => setOpen(false)}>{label}<ArrowUpRight aria-hidden="true" /></MobileLink>)}</nav>
           <div className="mobile-navigation-actions">
             <Button variant="inverse" render={<Link href="/verify" />} nativeButton={false} onClick={() => setOpen(false)}><FileCheck2 data-icon="inline-start" />Verify PDF</Button>
-            <Button variant="accent" render={<Link href="/signin" />} nativeButton={false} onClick={() => setOpen(false)}>Connect wallet<ArrowUpRight data-icon="inline-end" /></Button>
+            <Button variant="accent" render={<Link href="/signin" title={accountId ?? undefined} />} nativeButton={false} onClick={() => setOpen(false)}>{walletLabel}<ArrowUpRight data-icon="inline-end" /></Button>
           </div>
         </PopoverContent>
       </Popover>

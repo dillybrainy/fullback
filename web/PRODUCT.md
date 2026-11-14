@@ -11,8 +11,8 @@ FULLBACK serves selling clubs, buying clubs, academies and sell-on holders. The 
 ## Current capabilities and constraints
 
 - Public pages are Home, Sign in, and local PDF fingerprint verification. A new browser session visits Home first.
-- Workspace routes are closed until real wallet sign-in is integrated. No preview-session switch grants access.
-- Wallet connection, AI reading, on-chain verification and transactions are not available in this frontend. Do not present simulated success or invent receipts.
+- NEAR testnet wallet connection is available on Sign in. Workspace routes remain closed until they read live contract data; connecting a wallet grants no workspace access.
+- AI reading, on-chain PDF verification and product transaction flows are not available in this frontend. Do not present simulated success or invent receipts.
 - NEAR testnet only; fEUR is play money. Existing neutral example data and numeric shares must be preserved.
 - PDF hashing happens in the browser. Static export, local image/font assets, keyboard navigation and reduced motion remain supported.
 - All product-facing copy is English. Use the term Academy royalties.
