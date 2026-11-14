@@ -62,7 +62,7 @@ Sesuaikan dengan kolom form yang sebenarnya.
 - **Tagline (≤ 80 karakter):** Transfer fees that collect and split themselves, on NEAR.
 - **Short description:**
   > Clubs that sell players on installments often never get paid, and the only remedy is a FIFA claim that takes years. FULLBACK turns the transfer agreement into a NEAR contract: an AI reader extracts the terms with clause quotes, the contract holds the buyer's collateral, a collector agent with a restricted key settles late installments from collateral, and every payment is split between the seller, the academies that trained the player, and any sell-on holder. The agreement's SHA-256 fingerprint is stored on-chain, and federations get a read-only view of every deal.
-- **NEAR tools used:** near-sdk (Rust), NEP-141 fEUR token, function-call access keys, NEP-297 events, near-workspaces, near-cli-rs, `[near-api-js / near-kit]`, @hot-labs/near-connect, NEAR AI Cloud, testnet.nearblocks.io
+- **NEAR tools used:** near-sdk (Rust), NEP-141 fEUR token, function-call access keys, NEP-297 events, near-workspaces, near-cli-rs, `near-api-js`, @hot-labs/near-connect, NEAR AI Cloud, testnet.nearblocks.io
 - **Live demo:** `[VERCEL_URL]`
 - **Repository:** `[GITHUB_URL]`
 - **Video:** `[VIDEO_URL]`

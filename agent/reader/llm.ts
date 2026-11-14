@@ -13,8 +13,20 @@ import { zodToJsonSchema } from "zod-to-json-schema";
 import { ReaderLLMSchema, type ReaderLLM } from "../schema.js";
 
 const DEFAULT_BASE_URL = "https://cloud-api.near.ai/v1";
-// Model is configurable; the default is the model used in the NEAR AI Cloud docs.
-const DEFAULT_MODEL = "deepseek-ai/DeepSeek-V3.1";
+// Model is configurable via NEARAI_MODEL. The original default (the one in the
+// NEAR AI Cloud docs, deepseek-ai/DeepSeek-V3.1) was removed from the catalogue
+// (400 "Model not found"), so the Reader crashed on live PDFs until 14 Nov.
+//
+// DEFAULT_MODEL is chosen by measurement, not by size — see agent/eval/README.md.
+// We require a model that (a) copies clause quotes VERBATIM (R14), (b) keeps
+// every schema field, and (c) does so consistently across runs. Several "bigger"
+// models failed: deepseek-v3.2 paraphrased quotes, gpt-5.4-mini dropped the
+// collateral field, gpt-5.4-nano passed only 1 of 3 runs.
+//
+// google/gemini-2.5-flash-lite passed 3/3 runs on the deal1 sample (asserting the
+// R2/R3 numbers + empty warnings[]) and is the cheapest/fastest tier tested.
+// Override with NEARAI_MODEL to switch without a code change.
+const DEFAULT_MODEL = "google/gemini-2.5-flash-lite";
 
 const JSON_SCHEMA = JSON.stringify(zodToJsonSchema(ReaderLLMSchema, { name: "AgreementTerms" }));
 

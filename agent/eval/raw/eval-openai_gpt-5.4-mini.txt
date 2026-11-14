@@ -1,0 +1,44 @@
+
+> agent@0.1.0 test
+> vitest run tests/reader-live.test.ts
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mD:/3_Coding/3_Project/fullback/agent[39m
+
+ [31m❯[39m tests/reader-live.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 3695[2mms[22m[39m
+[31m   [31m×[31m live NEAR AI Cloud reader (LIVE_TEST=1)[2m > [22mreads deal1 PDF and returns the Deal 1 terms with no warnings[33m 3694[2mms[22m[31m[39m
+[31m     → expected undefined to be 2500000 // Object.is equality[39m
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/reader-live.test.ts > live NEAR AI Cloud reader (LIVE_TEST=1) > reads deal1 PDF and returns the Deal 1 terms with no warnings
+AssertionError: expected undefined to be 2500000 // Object.is equality
+
+- Expected: 
+2500000
+
++ Received: 
+undefined
+
+ ❯ tests/reader-live.test.ts:34:39
+     32|     expect(pdfHash).toBe("eab475572d0bf6ce627ac7b0160e5a34ef3c2ebc49cb…
+     33|     expect(output.fee.amount).toBe(10000000);
+     34|     expect(output.collateral?.amount).toBe(2500000);
+       |                                       ^
+     35|     expect(output.sellOn.bps).toBe(1500);
+     36|     expect(output.sellOn.basis).toBe("gross");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m   Start at [22m 12:18:25
+[2m   Duration [22m 4.40s[2m (transform 79ms, setup 0ms, collect 279ms, tests 3.70s, environment 0ms, prepare 127ms)[22m
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path D:\3_Coding\3_Project\fullback\agent
+npm error workspace agent@0.1.0
+npm error location D:\3_Coding\3_Project\fullback\agent
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c vitest run tests/reader-live.test.ts
