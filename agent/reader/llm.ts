@@ -39,10 +39,22 @@ Rules:
   document, not a computed date.
 - "sellOn.percent" is the percentage number exactly as written (15 means 15%).
   "sellOn.basis" is "gross" or "net" depending on what the document says.
-- "trainingClubs" lists EVERY club in the player's registration history table
+- Each installment "quote" is the continuous text that states its AMOUNT,
+  e.g. "installments of EUR 2,000,000". Installments that share one sentence
+  use the same quote. Do NOT add the due date to the quote and never join
+  pieces from different places into one quote; due dates are checked
+  separately by code.
+- If a later clause overrides an earlier one (e.g. "Notwithstanding Clause
+  3.2, ..."), extract the terms of the overriding clause, even when they do
+  not add up.
+- Never invent a value the document does not state (for example a birth date
+  or a due date). If a required value is missing, still return the field but
+  quote the text that is actually there; the value is checked by code.
+- "trainingClubs" lists every club in the player's registration history table
   (usually "Annex A"), including clubs that trained the player from age 24
-  onwards. "ageFrom"/"ageTo" are the inclusive ages from that table; for a row
-  like "24 onwards" use the player's current age as "ageTo". Never compute
+  onwards, EXCEPT the Seller and the Buyer of this agreement. "ageFrom"/"ageTo"
+  are the inclusive player AGES from that table, never calendar years; for a
+  row like "24 onwards" use the player's current age as "ageTo". Never compute
   percentages or bps yourself.
 - If the document has no security/collateral clause (e.g. a resale agreement
   between clubs), omit the "collateral" field entirely.

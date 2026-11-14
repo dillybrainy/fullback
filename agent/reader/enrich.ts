@@ -19,7 +19,13 @@ import {
   type Warning,
 } from "../schema.js";
 import { trainingBps } from "../training.js";
-import { collectQuotes, findUnmatchedQuotes, normalizeWs } from "./quotes.js";
+import {
+  collectQuotes,
+  findUnmatchedQuotes,
+  findUnsupportedValues,
+  isPartyName,
+  normalizeWs,
+} from "./quotes.js";
 
 export interface EnrichOptions {
   /** Club name → NEAR testnet account id (from `clubs.json`). */
@@ -53,9 +59,17 @@ export function enrichReaderOutput(
     });
   }
 
+  // The extracted values must be written in the document, not only the quotes.
+  for (const check of findUnsupportedValues(pdfNormalized, llm)) {
+    warnings.push({ code: "quote_not_found", field: check.field, message: check.message });
+  }
+
   // Training clubs: compute bps from the age history, map accounts, drop 0 bps.
+  // The Seller and the Buyer are skipped even if they appear in Annex A: they
+  // are parties to the transfer, not training clubs (the contract rejects them).
   const trainingClubs = [];
   for (const club of llm.trainingClubs) {
+    if (isPartyName(pdfNormalized, club.name)) continue;
     const bps = trainingBps(club.ageFrom, club.ageTo);
     if (bps === 0) continue;
     const account = opts.clubs[club.name];

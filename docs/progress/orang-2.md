@@ -180,3 +180,23 @@
   `agent/README.md`), tampilkan `warnings` dan blokir "Buat deal" saat ada
   `quote_not_found` (R14). `transpilePackages: ["agent"]` mungkin perlu di
   konfigurasi Next.js.
+
+## Minggu 15 Nov — uji live Reader pada 19 PDF tes
+
+Uji live (NEAR AI Cloud, `google/gemini-2.5-flash-lite`) ke semua PDF di
+`sample-agreements/tests/`. Sebelum perbaikan, 15/19 gagal dengan
+`Unknown training club "Harbour City FC"`: penjual ada di Annex A dan prompt
+menyuruh mengambil semua baris. Diperbaiki:
+
+- Penjual/pembeli tidak pernah masuk `trainingClubs` (prompt + cek kode
+  `isPartyName`; kontrak juga menolaknya).
+- Cek nilai baru (`findUnsupportedValues`): nominal & persen harus tertulis di
+  kutipannya, tanggal harus tertulis di PDF. Menangkap tanggal lahir karangan
+  (BAD-05) walau kutipannya asli. Kode warning tetap `quote_not_found`
+  (schema tidak berubah).
+- Prompt: pasal "Notwithstanding" diikuti, nilai yang tidak ada tidak dikarang,
+  kutipan cicilan tanpa tanggal (model selalu menyambung "each, due on <tgl>").
+
+Hasil: 7/7 OK tanpa warning, 7/7 BAD ketahuan (warning atau error validasi),
+4 GAP lolos sesuai perkiraan, Deal 1 Lucas live 3/3 lulus. Unit test 69 lulus.
+`tests/reader-http.test.ts` kini membaca PDF Deal 1 dari git history.

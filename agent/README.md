@@ -114,7 +114,7 @@ npm run usage:read -w agent -- ../sample-agreements/tests/OK-01-basic.pdf
 ## Cara cek lokal
 
 ```bash
-npm test -w agent                      # 38 tes: schema, training, reader, collector
+npm test -w agent                      # 69 tes: schema, training, reader, collector, http
 LIVE_TEST=1 npm test -w agent -- tests/reader-live.test.ts   # tes live (butuh API key)
 npm run reader -w agent -- <file.pdf>  # cetak hasil Pembaca (DEMO_MODE dari .env)
 ```

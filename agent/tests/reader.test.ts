@@ -1,7 +1,16 @@
 import { describe, expect, it } from "vitest";
 import type { ReaderLLM } from "../schema.js";
 import { enrichReaderOutput } from "../reader/enrich.js";
-import { collectQuotes, findUnmatchedQuotes, normalizeWs } from "../reader/quotes.js";
+import {
+  collectQuotes,
+  containsAmount,
+  containsDate,
+  containsPercent,
+  findUnmatchedQuotes,
+  findUnsupportedValues,
+  isPartyName,
+  normalizeWs,
+} from "../reader/quotes.js";
 import { DEMO_FIXTURES_BY_HASH, readPdf } from "../reader/index.js";
 
 // A faithful Deal 1 LLM answer (before code fills bps/accounts), from the real
@@ -163,5 +172,65 @@ describe("DEMO_MODE (fixtures, no API key)", () => {
   it("rejects an unknown PDF in demo mode with a helpful message", async () => {
     process.env.DEMO_MODE = "true";
     await expect(readPdf(new Uint8Array([1, 2, 3]))).rejects.toThrow(/not one of the demo agreements/);
+  });
+});
+
+describe("value checks (the value must be written, not only the quote)", () => {
+  it("accepts the faithful Deal 1 answer", () => {
+    expect(findUnsupportedValues(DEAL1_PDF_TEXT, DEAL1_LLM)).toEqual([]);
+  });
+
+  it("flags an invented birth date behind a real quote", () => {
+    const llm = structuredClone(DEAL1_LLM);
+    llm.player.birthDate = "2000-01-01";
+    const out = enrichReaderOutput(llm, DEAL1_PDF_TEXT, { clubs: CLUBS });
+    expect(out.warnings).toContainEqual(
+      expect.objectContaining({ code: "quote_not_found", field: "player.birthDate" }),
+    );
+  });
+
+  it("flags an amount or percentage that is not in its quote", () => {
+    const llm = structuredClone(DEAL1_LLM);
+    llm.fee.amount = 9000000;
+    llm.sellOn.percent = 10;
+    const fields = findUnsupportedValues(DEAL1_PDF_TEXT, llm).map((c) => c.field);
+    expect(fields).toEqual(expect.arrayContaining(["fee", "sellOn"]));
+  });
+
+  it("flags a due date the PDF never states", () => {
+    const llm = structuredClone(DEAL1_LLM);
+    llm.installments[2].dueDate = "2027-11-30";
+    const fields = findUnsupportedValues(DEAL1_PDF_TEXT, llm).map((c) => c.field);
+    expect(fields).toEqual(["installments[2].dueDate"]);
+  });
+
+  it("reads amounts and dates in common written forms", () => {
+    expect(containsAmount("EUR 2.500.000", 2500000)).toBe(true);
+    expect(containsAmount("EUR 25,000,000", 2500000)).toBe(false);
+    expect(containsDate("born on August 9, 2004", "2004-08-09")).toBe(true);
+    expect(containsDate("due on 9th of August 2004", "2004-08-09")).toBe(true);
+    expect(containsDate("due on 19 August 2004", "2004-08-09")).toBe(false);
+    expect(containsPercent("ten percent (10%)", 10)).toBe(true);
+    expect(containsPercent("twelve and a half percent (12.5%)", 5)).toBe(false);
+  });
+});
+
+describe("Seller and Buyer are not training clubs", () => {
+  const text = normalizeWs(
+    `1.1 Harbour City FC, a football club (the "Seller"). 1.2 Lakeside Athletic (the "Buyer"). ` +
+      `Annex A Akademi Desa 12 to 15; Kota FC 16 to 20; Harbour City FC 21 onwards`,
+  );
+
+  it("recognises the parties by their definition", () => {
+    expect(isPartyName(text, "Harbour City FC")).toBe(true);
+    expect(isPartyName(text, "Lakeside Athletic")).toBe(true);
+    expect(isPartyName(text, "Kota FC")).toBe(false);
+  });
+
+  it("drops the seller's Annex A row instead of failing on an unknown club", () => {
+    const llm = structuredClone(DEAL1_LLM);
+    llm.trainingClubs[2] = { name: "Harbour City FC", ageFrom: 21, ageTo: 22, quote: "21 onwards", clause: "Annex A" };
+    const out = enrichReaderOutput(llm, `${DEAL1_PDF_TEXT} ${text}`, { clubs: CLUBS });
+    expect(out.trainingClubs.map((c) => c.name)).toEqual(["Akademi Desa", "Kota FC"]);
   });
 });
