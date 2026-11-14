@@ -24,8 +24,8 @@ Kalau isi file lain bertentangan dengan file ini, file ini yang menang, lalu tan
 - **Means:** Smart contract Rust di NEAR testnet yang memegang token mock fEUR (KTD1, KTD2), agen AI Pembaca + Penagih (KTD6, KTD7), dan web Next.js berbahasa Inggris dengan Dashboard klub dan Judge demo mode (KTD8, KTD14).
 - **Authority:** PLAN.md > `contract/INTERFACE.md` > `agent/schema.ts` > kode. Angka cerita demo Lucas (R1–R4) terkunci dan tidak boleh diubah oleh AI. Lucas hanya mengisi demo; copy produk di web tidak boleh bercerita tentang Lucas.
 - **Execution profile:** 4 orang, masing-masing menjalankan Claude Code di folder miliknya sendiri. Setiap orang bekerja di branch sendiri sesuai `orang-<N>/<pekerjaan>` lalu membuka Pull Request ke `main` (KTD10). Aturan folder tetap berlaku: tiap orang hanya mengubah foldernya.
-- **Siapa yang menyelesaikan dan mengirim:** Orang 4 (koordinator) yang menekan tombol submit. Hanya manusia yang boleh membuat repo publik, posting di X, dan mengisi form.
-- **Stop conditions:** Berhenti dan tanya manusia jika (a) perlu mengubah file di luar folder sendiri, (b) perlu mengubah `INTERFACE.md`, `schema.ts`, atau angka terkunci, (c) diminta memakai mainnet atau uang asli, (d) `git pull` menghasilkan konflik, (e) tes kontrak gagal dan penyebabnya ada di folder orang lain.
+- **Siapa yang menyelesaikan dan mengirim:** Orang 4 (koordinator) yang menekan tombol submit. Hanya manusia yang boleh menjalankan `git commit`/`git push`, membuat Pull Request, membuat repo publik, posting di X, dan mengisi form. AI tidak boleh commit atau membuat PR.
+- **Stop conditions:** Berhenti dan tanya manusia jika (a) perlu mengubah file di luar folder sendiri, (b) perlu mengubah `INTERFACE.md`, `schema.ts`, atau angka terkunci, (c) diminta memakai mainnet atau uang asli, (d) `git pull` menghasilkan konflik, (e) tes kontrak gagal dan penyebabnya ada di folder orang lain, (f) diminta/diperlukan menjalankan `git commit`, `git push`, `git merge`, atau membuat Pull Request — siapkan perintahnya, tapi manusia yang mengeksekusi.
 - **Deadline:** Submit ditutup Sabtu 14 Nov 2026 23:59 UTC = Minggu 15 Nov 06:59 WIB. Target tim: submit Sabtu 14 Nov malam WIB.
 
 ---
@@ -295,11 +295,12 @@ Setiap orang menulis catatan hariannya di `docs/progress/orang-N.md` (file sendi
 3. Semua orang meng-clone repo, membuka Claude Code di folder repo, dan mengetik: "Saya Orang N. Baca PLAN.md dan CLAUDE.md, lalu jelaskan tugas saya hari ini."
 
 **Setiap mulai kerja:** minta Claude Code "tarik perubahan terbaru" (`git checkout main && git pull && git checkout -b orang-<N>/<pekerjaan>`). Nama branch = `orang-<N>/<ringkasan-pekerjaan>`, mis. `orang-2/agent-collector` atau `orang-3/web-dashboard`.
-**Setiap selesai satu bagian:** minta Claude Code "commit pekerjaanku, push branch ini, lalu buatkan PR ke `main`". Sertakan ringkasan isi perubahan di deskripsi PR.
+**Setiap selesai satu bagian:** AI **hanya menyiapkan** — menyusun pesan commit, menyusun isi PR, dan menampilkan perintah `git` yang perlu dijalankan. **Manusia yang mengetik sendiri** `git commit`, `git push`, dan membuka Pull Request. Sertakan ringkasan isi perubahan di deskripsi PR.
+**AI DILARANG menjalankan `git commit`, `git push`, `git merge`, dan membuat/mengubah Pull Request.** AI boleh membaca status git, menyiapkan perubahan, dan memberi teks perintah siap salin — tapi tombol/eksekusi commit, push, dan PR harus oleh manusia.
 **Kalau muncul konflik saat pull/rebase:** berhenti, jangan diselesaikan sendiri oleh AI, kabari grup.
 **Kalau muncul konflik saat PR:** koordinator (Orang 4) yang memutuskan; jangan force-push menimpa pekerjaan orang lain.
 
-**Hanya manusia yang boleh:** mengeluarkan uang asli, deploy ke mainnet, membuat repo publik, posting di X, mengisi form submit (sekali, tidak bisa diedit).
+**Hanya manusia yang boleh:** menjalankan `git commit` / `git push` / `git merge`, membuat atau mengubah Pull Request, mengeluarkan uang asli, deploy ke mainnet, membuat repo publik, posting di X, mengisi form submit (sekali, tidak bisa diedit).
 
 ---
 
