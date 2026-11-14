@@ -128,6 +128,10 @@
   hash manifest = hash commit** (byte PDF dinormalkan ulang ke LF; ternyata
   `.gitattributes` `*.pdf binary` sudah ada sejak PR #14 — tidak perlu ditambah).
   Total tes **71 lulus** termasuk 1 live.
+- **`scripts/make-deal.ts` (15 Nov):** skrip baru pembuat deal uji dengan
+  jatuh tempo bebas (`npm run make:deal -- --due 45 --count 1`) untuk menguji
+  Penagih tanpa `npm run demo` penuh. Diuji live: deal #15 dibuat → `Completed`
+  oleh `npm run collector` dalam ±1 menit. Diberitahukan ke Orang 1 di #16.
 
 ## Selesai
 

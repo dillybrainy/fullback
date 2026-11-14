@@ -7,6 +7,7 @@
   "scripts": {
     "setup:demo": "tsx setup-demo.ts",
     "demo": "tsx run-demo.ts",
+    "make:deal": "tsx make-deal.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
