@@ -14,6 +14,7 @@
     "test:access": "node scripts/test-public-access.cjs",
     "test:entry": "node scripts/test-landing-entry.cjs",
     "test:navbar": "node scripts/test-navbar.cjs",
+    "test:roles": "node scripts/test-signin-roles.cjs",
     "assets:prepare": "node scripts/prepare-images.cjs",
     "perf:report": "node scripts/performance-report.cjs"
   },
