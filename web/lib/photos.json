@@ -1,0 +1,161 @@
+{
+  "imgHero": {
+    "width": 1536,
+    "height": 864,
+    "variants": [
+      {
+        "width": 480,
+        "src": "/media/imgHero-480-1d61c81363af.webp",
+        "bytes": 6152
+      },
+      {
+        "width": 960,
+        "src": "/media/imgHero-960-20b6cdadd4d5.webp",
+        "bytes": 22876
+      },
+      {
+        "width": 1440,
+        "src": "/media/imgHero-1440-052e14a3ddc3.webp",
+        "bytes": 47244
+      }
+    ]
+  },
+  "imgPhotoClubDirectorInAnEmptyStadium": {
+    "width": 1280,
+    "height": 960,
+    "variants": [
+      {
+        "width": 480,
+        "src": "/media/imgPhotoClubDirectorInAnEmptyStadium-480-8167524e001f.webp",
+        "bytes": 20136
+      },
+      {
+        "width": 960,
+        "src": "/media/imgPhotoClubDirectorInAnEmptyStadium-960-c915b3a7108a.webp",
+        "bytes": 52374
+      }
+    ]
+  },
+  "imgPhotoGrassrootsAcademyKidsTraining": {
+    "width": 1280,
+    "height": 960,
+    "variants": [
+      {
+        "width": 480,
+        "src": "/media/imgPhotoGrassrootsAcademyKidsTraining-480-3f028983fa95.webp",
+        "bytes": 42410
+      },
+      {
+        "width": 960,
+        "src": "/media/imgPhotoGrassrootsAcademyKidsTraining-960-c6f46d5ffa0e.webp",
+        "bytes": 129458
+      }
+    ]
+  },
+  "imgPhotoKidsCelebratingAGoalAtALocalAcademyGoldenHour": {
+    "width": 1792,
+    "height": 768,
+    "variants": [
+      {
+        "width": 480,
+        "src": "/media/imgPhotoKidsCelebratingAGoalAtALocalAcademyGoldenHour-480-b31fdcce7a97.webp",
+        "bytes": 8628
+      },
+      {
+        "width": 960,
+        "src": "/media/imgPhotoKidsCelebratingAGoalAtALocalAcademyGoldenHour-960-65a652a2f428.webp",
+        "bytes": 22414
+      },
+      {
+        "width": 1440,
+        "src": "/media/imgPhotoKidsCelebratingAGoalAtALocalAcademyGoldenHour-1440-38a0c9818536.webp",
+        "bytes": 38644
+      }
+    ]
+  },
+  "imgPhotoNewSigningHoldingAScarf": {
+    "width": 1280,
+    "height": 960,
+    "variants": [
+      {
+        "width": 480,
+        "src": "/media/imgPhotoNewSigningHoldingAScarf-480-0ab3f84e82f4.webp",
+        "bytes": 14146
+      },
+      {
+        "width": 960,
+        "src": "/media/imgPhotoNewSigningHoldingAScarf-960-48f2289cc9e2.webp",
+        "bytes": 36418
+      }
+    ]
+  },
+  "imgPhotoPackedStadiumOnMatchDay": {
+    "width": 1280,
+    "height": 960,
+    "variants": [
+      {
+        "width": 480,
+        "src": "/media/imgPhotoPackedStadiumOnMatchDay-480-4d34a22c33c2.webp",
+        "bytes": 54704
+      },
+      {
+        "width": 960,
+        "src": "/media/imgPhotoPackedStadiumOnMatchDay-960-1a11305e77af.webp",
+        "bytes": 187924
+      }
+    ]
+  },
+  "imgPhotoStadiumStandsAtNightUnderFloodlights": {
+    "width": 1024,
+    "height": 1024,
+    "variants": [
+      {
+        "width": 480,
+        "src": "/media/imgPhotoStadiumStandsAtNightUnderFloodlights-480-bdf0a20932fa.webp",
+        "bytes": 22410
+      },
+      {
+        "width": 960,
+        "src": "/media/imgPhotoStadiumStandsAtNightUnderFloodlights-960-f8516af7b1a0.webp",
+        "bytes": 70894
+      }
+    ]
+  },
+  "imgPhotoTwoClubOfficialsSigningATransferContract": {
+    "width": 1536,
+    "height": 1024,
+    "variants": [
+      {
+        "width": 480,
+        "src": "/media/imgPhotoTwoClubOfficialsSigningATransferContract-480-212cd4488ff3.webp",
+        "bytes": 12970
+      },
+      {
+        "width": 960,
+        "src": "/media/imgPhotoTwoClubOfficialsSigningATransferContract-960-22cd50385e4f.webp",
+        "bytes": 31884
+      },
+      {
+        "width": 1440,
+        "src": "/media/imgPhotoTwoClubOfficialsSigningATransferContract-1440-29adb20d4f39.webp",
+        "bytes": 53302
+      }
+    ]
+  },
+  "imgPhotoYouthAcademyTrainingKidsInBibsOnAMuddyPitch": {
+    "width": 1280,
+    "height": 960,
+    "variants": [
+      {
+        "width": 480,
+        "src": "/media/imgPhotoYouthAcademyTrainingKidsInBibsOnAMuddyPitch-480-c836eb5ab5eb.webp",
+        "bytes": 33602
+      },
+      {
+        "width": 960,
+        "src": "/media/imgPhotoYouthAcademyTrainingKidsInBibsOnAMuddyPitch-960-3824f2edc8c6.webp",
+        "bytes": 94280
+      }
+    ]
+  }
+}
