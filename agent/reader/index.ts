@@ -23,7 +23,7 @@ function loadJson<T>(...segments: string[]): T {
   return JSON.parse(readFileSync(resolve(AGENT_DIR, "..", ...segments), "utf8")) as T;
 }
 
-/** Club name → testnet account (placeholder `<master>` resolved by the web). */
+/** Club name → testnet account (concrete `*.fullback-team.testnet`, see clubs.json). */
 export const clubs = loadJson<Record<string, string>>("clubs.json");
 
 const deal1Fixture = loadJson<ReaderOutput>("fixtures", "deal1.json");

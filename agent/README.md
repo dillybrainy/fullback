@@ -15,9 +15,10 @@ const { output, pdfHash } = await readPdf(pdfBytes);
 - `pdfHash` — SHA-256 hex (huruf kecil) dari byte PDF persis, untuk `create_deal`
   (`pdf_hash`) dan halaman Verifikasi (R12). **Jangan hash ulang di web**; pakai
   nilai ini supaya sidik jari yang tersimpan on-chain pasti cocok.
-- Akun di `trainingClubs[].account` memakai placeholder `<master>`; web mengganti
-  `<master>` dengan nama akun master asli (bisa diambil dari `CONTRACT_ID`:
-  `fullback.<master>.testnet` → strip prefix `fullback.`).
+- Akun di `trainingClubs[].account` sudah konkret: `*.fullback-team.testnet`
+  (nama master deploy testnet; placeholder `<master>` diganti sejak issue #4).
+  Web tidak perlu mengganti apa pun. Bila proyek pindah akun master, ganti
+  di `agent/clubs.json` + `agent/fixtures/*.json` sekaligus.
 
 ## Mode
 
@@ -53,6 +54,10 @@ sudah dinormalisasi (tulis dengan atau tanpa `/v1` hasilnya sama).
 | `LLM_API_BASE_URL` | `NEARAI_API_BASE_URL` | Base URL provider (tanpa/dengan `/v1` bebas) |
 | `LLM_API_KEY` | `NEARAI_API_KEY` | API key provider |
 | `LLM_MODEL` | `NEARAI_MODEL` | Model ID, mis. `meta/llama-3.3-70b-instruct` |
+
+Nilai env yang **kosong** di `.env` (mis. `LLM_API_KEY=`) dianggap tidak
+disetel dan tetap jatuh ke fallback/default — jadi aman menyalin `.env.example`
+apa adanya.
 
 ### Contoh siap salin: NVIDIA NIM
 
@@ -111,12 +116,57 @@ npm run usage:read -w agent -- ../sample-agreements/tests/OK-01-basic.pdf
   Setelah ganti model, jalankan `LIVE_TEST=1 npm test -w agent -- tests/reader-live.test.ts`
   untuk memastikan angka R2/R3 + `warnings=[]` tetap terpenuhi.
 
+## Penagih (Collector) & demo kunci terbatas
+
+`agent/collector/` berisi Penagih (`tick()`, dijalankan `npm run collector`) dan
+demo agen curang (`illegal-attempt.ts`, dipakai tombol "Coba agen curang"
+Fase 2 lewat route server web).
+
+**Env:** `CONTRACT_ID`, `KEEPER_ACCOUNT_ID`, `KEEPER_PRIVATE_KEY` (wajib),
+`NEAR_RPC_URL` (opsional; default `https://test.rpc.fastnear.com`). Kunci
+Penagih = function-call access key yang **hanya** boleh memanggil `settle_due`
+di kontrak FULLBACK, allowance 2 NEAR (±130 panggilan).
+
+**Disiplin allowance (issue #10):**
+
+- `tick()` membaca `list_deals` (view, gratis) lebih dulu; `settle_due` hanya
+  untuk deal `Active` yang `next_due_at_ns` sudah lewat **+ margin 5 detik**
+  (`DUE_SAFETY_MARGIN_NS` — jam lokal bisa lebih cepat dari waktu blok).
+- Setelah hasil `NotDue`, deal itu diistirahatkan ±10 detik
+  (`NOT_DUE_COOLDOWN_NS`, state lintas tick via `createTickState()`).
+- Satu `settle_due` yang gagal **tidak** menghentikan tick: dicatat sebagai
+  `TickEntry.result: "Error"` (+ field `error`, `tx_hash`/`explorer_link`
+  `null`), deal lain tetap diproses.
+
+**Bentuk hasil `tryIllegalTransfer()` (untuk web Fase 2):**
+
+```ts
+outcome: "rejected" | "accepted" | "error";
+rejected_by_chain: boolean;   // true hanya untuk "rejected"
+error: string;                // pesan mentah RPC
+error_kind: string | null;    // mis. "AccessKeyReceiverMismatchActionError"
+explorer_link: string | null; // SELALU null untuk "rejected"
+```
+
+Hanya `outcome: "rejected"` (error ber-prefix `AccessKey` dari
+`near-api-js/rpc-errors`) yang boleh ditampilkan sebagai "agen curang ditolak".
+Transaksi ditolak **sebelum masuk blok** → tidak ada tx hash / link explorer;
+web jangan menunggu link untuk langkah ini. `outcome: "error"` (jaringan/env)
+bukan penolakan — jangan tampilkan centang.
+
+**Status bukti on-chain (15 Nov, testnet `fullback-team`):** `illegal-attempt`
+ditolak chain dengan `AccessKeyReceiverMismatchActionError`; `tick()` live
+memanggil `settle_due` deal #0 (tx `HG53tgp9…`) → `Defaulted`, tick lanjutan
+bersih tanpa panggilan sia-sia.
+
 ## Cara cek lokal
 
 ```bash
-npm test -w agent                      # 38 tes: schema, training, reader, collector
+npm test -w agent                      # semua tes unit (62): schema, training, reader, reader-http, collector, illegal-attempt, config
 LIVE_TEST=1 npm test -w agent -- tests/reader-live.test.ts   # tes live (butuh API key)
 npm run reader -w agent -- <file.pdf>  # cetak hasil Pembaca (DEMO_MODE dari .env)
+npm run collector                      # Penagih live, tick tiap 15 dtk (Ctrl+C berhenti)
+npx tsx agent/collector/illegal-attempt.ts  # demo kunci terbatas: wajib ditolak chain
 ```
 
 ## Catatan penting

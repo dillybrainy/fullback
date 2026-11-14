@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { createReaderHandler, MAX_READER_BYTES } from "../reader/http.js";
 import type { ReaderOutput } from "../schema.js";
@@ -14,7 +15,9 @@ afterEach(() => vi.unstubAllEnvs());
 describe("Reader HTTP boundary", () => {
   it("runs the existing real Reader on an exact demo PDF without network or credentials", async () => {
     vi.stubEnv("DEMO_MODE", "true");
-    const pdf = readFileSync(new URL("../../sample-agreements/deal1-nordvik-portoalegre.pdf", import.meta.url));
+    // Demo PDF left sample-agreements/ on 15 Nov; read the committed LF blob
+    // from git history (pinned) so the hash matches the demo fixture.
+    const pdf = execFileSync("git", ["cat-file", "blob", "f741c98:sample-agreements/deal1-nordvik-portoalegre.pdf"]);
     const response = await createReaderHandler()(request(pdf));
     expect(response.status).toBe(200);
     const data = await response.json();

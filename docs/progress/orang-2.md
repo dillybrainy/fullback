@@ -107,6 +107,17 @@
   gagal "Failed to parse URL". Diperbaiki di `agent/config.ts` (env kosong =
   tidak disetel), `collector/index.ts`, `collector/illegal-attempt.ts`;
   tes regresi baru `tests/config.test.ts` (7 tes). Total **56 tes lulus**.
+- **Sinkronisasi dokumen instruksi agent (15 Nov):** `agent/README.md` —
+  akun master sudah konkret (`<master>` tidak dipakai lagi), ditambah seksi
+  baru **"Penagih (Collector) & demo kunci terbatas"** (env, disiplin
+  allowance, bentuk `IllegalAttemptResult` untuk web Fase 2, status bukti
+  on-chain); jumlah tes tanpa angka kaku. `agent/fixtures/README.md` —
+  konvensi akun diperbarui. `docs/PANDUAN-PEMULA.md` §8 — perintah Reader
+  memakai `tests/OK-01` (live) atau restore PDF demo dari `f741c98` (demo);
+  seksi Collector tidak lagi "belum diimplementasikan"; prioritas Orang 2
+  diperbarui. `docs/libraries.md` — baris reportlab → `tests/make_tests.py`.
+  Path PDF di `agent/tests/reader-http.test.ts` (WIP Reader HTTP) disamakan
+  ke blob `f741c98` — tesnya lulus 6/6. Total tes kini **62 lulus**.
 
 ## Selesai
 

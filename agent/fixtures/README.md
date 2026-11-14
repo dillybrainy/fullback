@@ -14,10 +14,10 @@ oleh Pembaca saat `DEMO_MODE=true` (tanpa API key) dan sebagai acuan tes.
   0 bps, sekaligus penjual) **tidak** masuk `trainingClubs`, karena kontrak menolak
   klub pembina yang sama dengan penjual/pembeli. Penyaringan ini dilakukan
   Pembaca (`enrich.ts`), bukan oleh web.
-- `account` memakai placeholder `<master>` (mis. `kotafc.<master>.testnet`).
-  Nama akun asli diganti web saat runtime (lihat `agent/README.md`), mengikuti
-  `scripts/setup-demo.ts` (prefix `nordvik`, `portoalegre`, `clubz`, `kotafc`,
-  `akademidesa`).
+- `account` sudah konkret: `*.fullback-team.testnet` (placeholder `<master>`
+  diganti sejak issue #4, mengikuti `scripts/setup-demo.ts` — prefix `nordvik`,
+  `portoalegre`, `clubz`, `kotafc`, `akademidesa`). Web tidak perlu mengganti
+  apa pun saat runtime.
 - `quote` adalah teks persis dari PDF (ASCII, spasi dinormalisasi). Semua kutipan
   di bawah **sudah diuji cocok** terhadap PDF asli dengan `pdfjs-dist` v4
   (Rabu 11 Nov).

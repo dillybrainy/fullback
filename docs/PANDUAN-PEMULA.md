@@ -235,9 +235,18 @@ Arti penting hasil ini:
 
 ## 8. Mencoba Reader lewat terminal
 
-Perintah Reader dijalankan oleh npm dari folder `agent/`. Karena itu path PDF dari root perlu diawali `../`:
+Perintah Reader dijalankan oleh npm dari folder `agent/`. Karena itu path PDF dari root perlu diawali `../`.
+
+Sejak 15 Nov `sample-agreements/` hanya berisi `tests/` (19 PDF uji Pembaca, lihat `tests/README.md`). PDF demo Lucas hanya ada di git history (commit `f741c98`).
 
 ```powershell
+# Opsi A — PDF uji apa pun, mode live (butuh API key di .env)
+$env:DEMO_MODE = "false"
+npm run reader -w agent -- "../sample-agreements/tests/OK-01-basic.pdf"
+Remove-Item Env:\DEMO_MODE
+
+# Opsi B — PDF demo Lucas, mode demo (tanpa API key). Pulihkan dulu dari git history:
+git checkout f741c98 -- sample-agreements/deal1-nordvik-portoalegre.pdf
 $env:DEMO_MODE = "true"
 npm run reader -w agent -- "../sample-agreements/deal1-nordvik-portoalegre.pdf"
 Remove-Item Env:\DEMO_MODE
@@ -278,7 +287,7 @@ git ls-files --eol "sample-agreements/*.pdf"
 
 Targetnya `w/lf`, bukan `w/crlf`, lalu ulangi perintah Reader.
 
-**Catatan:** instruksi lama yang menyarankan `git checkout -- sample-agreements` akan menimpa perubahan lokal. Jangan gunakan tanpa memastikan tidak ada pekerjaan lokal yang akan hilang.
+**Catatan:** instruksi lama yang menyarankan `git checkout -- sample-agreements` akan menimpa perubahan lokal. Untuk PDF demo yang sudah dihapus dari working tree, pulihkan per file dari commit `f741c98` (byte LF commit, hash pasti cocok); jangan menjalankan perintah restore secara membabi buta bila ada PDF lokal yang masih dikerjakan.
 
 ## 9. Tes live NEAR AI Cloud
 
@@ -392,24 +401,24 @@ Untuk setiap langkah, periksa:
 - Resale menghasilkan pembagian Deal 2 yang tepat.
 - Kunci terbatas Collector ditolak saat mencoba transfer fEUR.
 
-### Menjalankan Collector nanti
+### Menjalankan Collector
 
-Collector belum diimplementasikan saat audit. Setelah Orang 2 menyelesaikannya:
+Collector sudah diimplementasikan dan diuji live di testnet (15 Nov):
 
 ```powershell
 npm run collector
 ```
 
-Program dimaksudkan berjalan setiap 15 detik. Biarkan terminal terbuka dan hentikan dengan `Ctrl+C`.
+Program berjalan setiap 15 detik. Biarkan terminal terbuka dan hentikan dengan `Ctrl+C`.
 
-Collector tidak boleh memanggil `settle_due` setiap 15 detik untuk semua deal tanpa membaca status dahulu. Kunci terbatas memiliki allowance terbatas; bahkan hasil `NotDue` dapat memakai biaya/allowance. Ia harus membaca view gratis dan hanya mengirim transaksi bila deal `Active` dan `next_due_at_ns` sudah lewat.
+Kunci terbatas memiliki allowance terbatas (2 NEAR, ±130 panggilan); bahkan hasil `NotDue` memakai allowance. Implementasi memenuhi disiplin itu: `tick()` membaca view gratis (`list_deals`) dahulu, hanya mengirim `settle_due` bila deal `Active` dan `next_due_at_ns` sudah lewat **ditambah margin 5 detik** (jam lokal bisa lebih cepat dari waktu blok), mengistirahatkan deal yang `NotDue` ±10 detik, dan mencatat kegagalan per deal tanpa menghentikan tick (`TickEntry.result: "Error"`). Detail di `agent/README.md`.
 
 ---
 
 # 12. Urutan prioritas supaya proyek benar-benar bisa dipakai
 
 1. **Orang 1:** dapatkan akun master testnet, selesaikan audit kontrak, deploy, isi alamat kontrak, lalu uji `npm run demo` dua kali.
-2. **Orang 2:** pertahankan Reader yang sudah lulus; implementasikan Collector dan demo kunci terbatas setelah deploy tersedia.
+2. **Orang 2:** Reader dan Collector sudah lulus uji live testnet (15 Nov), demo kunci terbatas terbukti ditolak chain; sisa: verifikasi skenario Deal 1 penuh (cicilan dibayar dari jaminan) lewat `npm run demo`.
 3. **Orang 3:** bangun `web/`; ini jalur kritis karena saat ini pengguna tidak punya antarmuka apa pun.
 4. **Orang 4:** perbaiki pelestarian byte PDF (`.gitattributes`), lengkapi env example, dokumentasi, video script, dan bahan submit.
 5. **Semua:** baru uji alur dari browser dan demo online. Jangan menyebut “selesai” hanya karena unit test lulus.
