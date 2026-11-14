@@ -15,7 +15,7 @@ Target tim: form terkirim **Sabtu malam WIB**. Hanya manusia yang mengerjakan la
 
 Status 15 Nov 05.2x WIB oleh Orang 2 (mesin) + bukti; yang bertanda 👤 tetap manusia.
 
-- [ ] Repo jalan dengan `cp .env.example .env && npm install && npm run dev` di clone baru (diuji orang yang tidak membangunnya) — *uji clone segar otomatis berjalan 15 Nov*
+- [x] Repo jalan dengan `cp .env.example .env && npm install && npm run dev` di clone baru (diuji orang yang tidak membangunnya) — *✅ uji clone segar 15 Nov 05.3x WIB: clone → install → predev build agent → `next dev` → HTTP 200*
 - [ ] Demo online bisa diklik dari upload PDF sampai pembagian penjualan ulang, tanpa dompet — *menunggu deploy Vercel 👤 (kode route `/demo` + `/api/demo/*` sudah siap & teruji)*
 - [ ] Setiap transaksi di UI punya link nearblocks yang bisa dibuka — *✅ diverifikasi: QA `test:verify` + demo live 14 Nov (14 langkah berlink)*
 - [ ] Verifikasi: `deal1-nordvik-portoalegre.pdf` ✓, `deal1-TAMPERED.pdf` ✗ — *✅ mekanisme teruji (QA match/mismatch lulus). Catatan: pasangan demo kini `tests/OK-01-basic.pdf` + `tests/VERIFY-OK-01-TAMPERED.pdf`; PDF lama hanya di git history `f741c98`*
