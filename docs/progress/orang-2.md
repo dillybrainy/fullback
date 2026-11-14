@@ -42,6 +42,33 @@
   (kita `fetch` langsung ke NEAR AI Cloud, OpenAI-compatible). Versi library
   untuk `docs/libraries.md` sudah disiapkan (lihat di bawah).
 
+**Issue #10 dari Orang 1 — hemat allowance kunci Penagih + perbaiki uji agen curang**
+- **Margin jam lokal vs waktu blok** (`agent/collector/index.ts`): `tick()` kini
+  hanya memanggil `settle_due` kalau `next_due_at_ns + 5 detik < now`
+  (`DUE_SAFETY_MARGIN_NS`), dan setelah hasil `NotDue` deal itu diistirahatkan
+  ±10 detik (`NOT_DUE_COOLDOWN_NS`, state lintas tick via `createTickState()`).
+  Kedua nilai mencegah allowance 2 NEAR terbakar untuk panggilan `NotDue`.
+- **Isolasi error per deal**: satu `settle_due` yang gagal (RPC timeout,
+  `NotEnoughAllowance`, dll) kini dicatat sebagai `TickEntry.result = "Error"`
+  (+ field `error`, `tx_hash`/`explorer_link` null) dan **tidak lagi
+  menghentikan deal lain** dalam tick yang sama.
+- **`illegal-attempt.ts` tanpa deposit**: `deposit: 1n` dihapus → chain kini
+  menolak dengan `AccessKeyReceiverMismatchActionError` ("kunci ini hanya untuk
+  kontrak FULLBACK") yang lebih jelas untuk juri, bukan
+  `AccessKeyDepositWithFunctionCallActionError`. Sama seperti `run-demo.ts`.
+- **Klasifikasi penolakan** (`classifyAttemptError`): hanya error ber-prefix
+  `AccessKey` (kelas `near-api-js/rpc-errors`) yang dihitung `outcome:
+  "rejected"` / `rejected_by_chain: true`. Error jaringan/env → `outcome:
+  "error"` dan CLI sekarang **exit 1** (dulu mencetak ✓ untuk semua error).
+  Transaksi ditolak sebelum masuk blok → `explorer_link` selalu null untuk
+  hasil "rejected"; web (Orang 3, langkah "Coba agen curang") **jangan menunggu
+  link explorer** untuk langkah ini.
+- **Bukti:** `npm test -w agent` → **49 lulus, 0 gagal (6 file)** — 12 tes baru
+  (margin, cooldown NotDue, isolasi error, entri Error, klasifikasi
+  `illegal-attempt` memakai kelas error asli `near-api-js/rpc-errors`).
+  `npm run typecheck -w agent` lulus. `schema.ts` tidak diubah (tetap beku;
+  `TickEntry` memang bukan bagian schema Pembaca).
+
 ## Selesai
 
 ### Rabu 11 Nov — Interface dibekukan + Pembaca inti

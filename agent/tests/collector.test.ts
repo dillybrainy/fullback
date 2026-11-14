@@ -10,7 +10,10 @@
 import { describe, it, expect } from "vitest";
 import {
   tick,
+  createTickState,
   EXPLORER_BASE,
+  DUE_SAFETY_MARGIN_NS,
+  NOT_DUE_COOLDOWN_NS,
   type CollectorDeps,
   type DealView,
   type SettleResult,
@@ -23,12 +26,15 @@ import {
 /** Fixed "now" in nanoseconds for all tests. */
 const NOW_NS = 1_000_000_000_000_000_000n;
 
-/** An Active deal whose next installment is overdue (due_ns < NOW_NS). */
+/**
+ * An Active deal whose next installment is safely overdue: past the local
+ * clock by more than the DUE_SAFETY_MARGIN_NS (due_ns + margin < NOW_NS).
+ */
 function overdueDeal(deal_id: number): DealView {
   return {
     deal_id,
     status: "Active",
-    next_due_at_ns: (NOW_NS - 1n).toString(),
+    next_due_at_ns: (NOW_NS - DUE_SAFETY_MARGIN_NS - 1n).toString(),
   };
 }
 
@@ -203,5 +209,131 @@ describe("tick()", () => {
     expect(deps.settleDueCalls).toEqual([149]);
     expect(results).toHaveLength(1);
     expect(results[0].deal_id).toBe(149);
+  });
+
+  it("waits for the safety margin before calling settle_due (local clock can run ahead of block time)", async () => {
+    // Overdue by 1 ns only — inside the margin, must NOT be called yet.
+    const deal: DealView = {
+      deal_id: 4,
+      status: "Active",
+      next_due_at_ns: (NOW_NS - 1n).toString(),
+    };
+    const deps = makeDeps([deal]);
+    const results = await tick(deps);
+
+    expect(deps.settleDueCalls).toEqual([]);
+    expect(results).toEqual([]);
+  });
+
+  it("calls settle_due once the due time is past the safety margin", async () => {
+    const deal: DealView = {
+      deal_id: 4,
+      status: "Active",
+      next_due_at_ns: (NOW_NS - DUE_SAFETY_MARGIN_NS - 1n).toString(),
+    };
+    const deps = makeDeps([deal]);
+    const results = await tick(deps);
+
+    expect(deps.settleDueCalls).toEqual([4]);
+    expect(results).toHaveLength(1);
+  });
+
+  it("after a NotDue result, does not retry the deal until the cooldown elapses", async () => {
+    let now = NOW_NS;
+    const settleDueCalls: number[] = [];
+    const deps: CollectorDeps & { settleDueCalls: number[] } = {
+      settleDueCalls,
+      async listDeals(from = 0, limit = 100) {
+        return [overdueDeal(1)].slice(from, from + limit);
+      },
+      async settleDue(deal_id: number) {
+        settleDueCalls.push(deal_id);
+        return {
+          hash: `fakehash${deal_id}`,
+          value: { result: "NotDue", installment_index: null },
+        };
+      },
+      nowNs: () => now,
+    };
+    const state = createTickState();
+
+    await tick(deps, state);
+    await tick(deps, state); // still inside the cooldown window
+    expect(settleDueCalls).toEqual([1]);
+
+    now += NOT_DUE_COOLDOWN_NS + 1n; // cooldown over — retry allowed
+    await tick(deps, state);
+    expect(settleDueCalls).toEqual([1, 1]);
+  });
+
+  it("still records the NotDue result in the tick entries", async () => {
+    const deps = makeDeps(
+      [overdueDeal(6)],
+      { result: "NotDue", installment_index: null },
+    );
+    const results = await tick(deps);
+
+    expect(results[0]).toMatchObject({
+      deal_id: 6,
+      result: "NotDue",
+      tx_hash: "fakehash6",
+    });
+  });
+
+  it("one failing settle_due does not stop the rest of the tick", async () => {
+    const settleDueCalls: number[] = [];
+    const deps: CollectorDeps & { settleDueCalls: number[] } = {
+      settleDueCalls,
+      async listDeals(from = 0, limit = 100) {
+        return [overdueDeal(1), overdueDeal(2), overdueDeal(3)].slice(
+          from,
+          from + limit,
+        );
+      },
+      async settleDue(deal_id: number) {
+        settleDueCalls.push(deal_id);
+        if (deal_id === 2) throw new Error("NotEnoughAllowance");
+        return {
+          hash: `fakehash${deal_id}`,
+          value: {
+            result: "PaidFromCollateral",
+            installment_index: 0,
+          },
+        };
+      },
+      nowNs: () => NOW_NS,
+    };
+    const results = await tick(deps);
+
+    // All three deals were attempted and the two healthy ones were settled.
+    expect(settleDueCalls).toEqual([1, 2, 3]);
+    expect(results.map((r) => r.deal_id)).toEqual([1, 2, 3]);
+    expect(results.map((r) => r.result)).toEqual([
+      "PaidFromCollateral",
+      "Error",
+      "PaidFromCollateral",
+    ]);
+  });
+
+  it("records the error message and has no tx link for a failed settle_due", async () => {
+    const deps: CollectorDeps = {
+      async listDeals(from = 0, limit = 100) {
+        return [overdueDeal(2)].slice(from, from + limit);
+      },
+      async settleDue() {
+        throw new Error("NotEnoughAllowance");
+      },
+      nowNs: () => NOW_NS,
+    };
+    const results = await tick(deps);
+
+    expect(results[0]).toEqual({
+      deal_id: 2,
+      result: "Error",
+      installment_index: null,
+      tx_hash: null,
+      explorer_link: null,
+      error: "NotEnoughAllowance",
+    });
   });
 });
