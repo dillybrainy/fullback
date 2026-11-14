@@ -15,6 +15,7 @@
     "test:entry": "node scripts/test-landing-entry.cjs",
     "test:navbar": "node scripts/test-navbar.cjs",
     "test:roles": "node scripts/test-signin-roles.cjs",
+    "test:verify": "node --import tsx scripts/test-pdf-verification.mjs",
     "assets:prepare": "node scripts/prepare-images.cjs",
     "perf:report": "node scripts/performance-report.cjs"
   },
