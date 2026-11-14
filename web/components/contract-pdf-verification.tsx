@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Search } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import { CONTRACT_ID, explorerAccountUrl, viewFunction } from "@/lib/near";
 import { listAgreements, verifyAgreement } from "@/lib/contract-verification.mjs";
 import type { Agreement } from "@/lib/contract-verification.mjs";
@@ -82,10 +82,13 @@ export function ContractPdfVerification({ pdfHash }: { pdfHash: string }) {
       <input id="agreement-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Number, player, or club" disabled={!agreements.length} />
     </div>
     <label className="field-label" htmlFor="verification-agreement">Agreement</label>
-    <select id="verification-agreement" value={selected} onChange={event => void verify(event.target.value)} disabled={!agreements.length}>
-      <option value="">{loading ? "Loading agreements…" : visible.length ? "Choose an agreement" : "No matches"}</option>
-      {visible.map(deal => <option key={deal.deal_id} value={deal.deal_id}>#{deal.deal_id} · {deal.player_name} · {deal.seller_id} → {deal.buyer_id}{deal.pdf_hash ? "" : " · no fingerprint"}</option>)}
-    </select>
+    <div className="agreement-select">
+      <select id="verification-agreement" value={selected} onChange={event => void verify(event.target.value)} disabled={!agreements.length}>
+        <option value="">{loading ? "Loading agreements…" : visible.length ? "Choose an agreement" : "No matches"}</option>
+        {visible.map(deal => <option key={deal.deal_id} value={deal.deal_id}>#{deal.deal_id} · {deal.player_name} · {deal.seller_id} → {deal.buyer_id}{deal.pdf_hash ? "" : " · no fingerprint"}</option>)}
+      </select>
+      <ChevronDown size={18} aria-hidden="true" />
+    </div>
     {loading && <p className="help" role="status">Loading recorded agreements…</p>}
     {!loading && !loadError && !!agreements.length && !visible.length && <p role="status">No agreements match your search.</p>}
     {!loading && !loadError && !agreements.length && <p role="status">No agreements have been recorded on this testnet contract yet.</p>}
