@@ -208,7 +208,7 @@ function requireEnv(name: string): string {
 /** Build a live CollectorDeps that talks to NEAR testnet. */
 export function createLiveDeps(): CollectorDeps {
   const rpcUrl =
-    process.env.NEAR_RPC_URL ?? "https://test.rpc.fastnear.com";
+    process.env.NEAR_RPC_URL?.trim() || "https://test.rpc.fastnear.com";
   const contractId = requireEnv("CONTRACT_ID");
   const keeperAccountId = requireEnv("KEEPER_ACCOUNT_ID");
   const keeperPrivateKey = requireEnv("KEEPER_PRIVATE_KEY");
@@ -260,7 +260,7 @@ async function run() {
   const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
   loadEnv({ path: resolve(ROOT, ".env") });
 
-  const network = process.env.NEAR_NETWORK ?? "testnet";
+  const network = process.env.NEAR_NETWORK?.trim() || "testnet";
   if (network !== "testnet") {
     throw new Error(
       `NEAR_NETWORK is "${network}". Collector only runs on testnet.`,
