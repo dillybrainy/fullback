@@ -85,7 +85,7 @@ async function checkGeometry(page, width) {
       await page.waitForFunction(() => document.documentElement.scrollWidth <= innerWidth + 1);
 
       await page.evaluate(() => { window.previousHome = document.querySelector(".home"); });
-      await page.locator(".hero .button").first().click();
+      await page.locator(".hero").getByRole("link", { name: "Create a deal", exact: true }).click();
       await page.waitForURL(origin + "/signin");
       await page.waitForFunction(() => !document.querySelector(".home"));
       assert.equal(await page.evaluate(() => window.previousHome.querySelector(".split-replay").hidden), true);

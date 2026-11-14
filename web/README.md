@@ -1,5 +1,7 @@
 # FULLBACK frontend
 
+Navbar/landing terbaru memakai komponen resmi shadcn dengan tema FULLBACK: kontrol navy, CTA kuning, menu mobile berjangkar, dan hero stadion malam. Pengguna sudah mengizinkan komposisi berbeda dari Figma. Implementasi dan pengujian: [NAVBAR.md](NAVBAR.md).
+
 Panduan lengkap development, unit test, preview production, dan deploy Vercel: [DEPLOYMENT.md](DEPLOYMENT.md).
 
 Review performa, hasil pengukuran, static export/CDN dan load test: [PERFORMANCE.md](PERFORMANCE.md). Seluruh route contoh kini diprerender; foto responsif WebP disiapkan sebelum deployment.

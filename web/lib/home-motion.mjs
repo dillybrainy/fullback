@@ -18,10 +18,17 @@ export function installHomeMotion(root) {
       events.push(() => element.removeEventListener(event, handler));
     };
     let disposed = false;
-    let refreshFrame = 0;
+    let refreshTimer = 0;
     const refresh = () => {
-      cancelAnimationFrame(refreshFrame);
-      refreshFrame = requestAnimationFrame(() => { if (!disposed) ScrollTrigger.refresh(); });
+      clearTimeout(refreshTimer);
+      // Measure after scrolling is quiet; refreshing mid-anchor cancels Chrome's
+      // native smooth scroll. New scroll events restart this pending measurement.
+      refreshTimer = setTimeout(() => {
+        refreshTimer = 0;
+        if (disposed) return;
+        if (ScrollTrigger.isScrolling()) refresh();
+        else ScrollTrigger.refresh();
+      }, 250);
     };
 
     // Kick-off: a short pass cues two headline beats; links never move.
@@ -147,10 +154,11 @@ export function installHomeMotion(root) {
     root.querySelectorAll("details").forEach(details => listen(details, "toggle", refresh));
     root.querySelectorAll("img").forEach(img => { if (!img.complete) listen(img, "load", refresh); });
     document.fonts.ready.then(() => { if (!disposed) refresh(); });
+    listen(window, "scroll", () => { if (refreshTimer) refresh(); });
     listen(window, "resize", measurePayment);
     return () => {
       disposed = true;
-      cancelAnimationFrame(refreshFrame);
+      clearTimeout(refreshTimer);
       events.forEach(remove => remove());
       replay.hidden = true;
       replay.removeAttribute("aria-disabled");

@@ -12,13 +12,15 @@ Baseline dibangun ulang dari snapshot Git HEAD sebelum optimasi dalam direktori 
 | Route produk yang dirender per request | 3 | 0 |
 | Foto PNG di public | 18.512 MB | 0 |
 | Seluruh varian foto WebP di public | — | 1.003 MB |
-| Seluruh chunk JavaScript, gzip per file | 194,255 byte | 233,976 byte |
+| Seluruh chunk JavaScript, gzip per file | 194,255 byte | 289,995 byte |
 
 Perbandingan foto adalah ukuran berkas sumber/deployment. Sebelum optimasi, Next Image juga mengompresi gambar saat request, sehingga angka ini **bukan** bukti pengurangan bandwidth kunjungan sebesar 94.6%. Sesudah optimasi, format/ukuran dipilih browser dari varian yang sudah dibuat, tanpa image optimizer pada origin. Hero mobile 480px berukuran 6,152 byte. Kualitas WebP 82 mempertahankan foto yang sama, dengan kompresi lossy.
 
 Angka JavaScript mencakup seluruh chunk yang dihasilkan, bukan hanya JS awal satu halaman. Sebelum revisi GSAP, output terbaru 192,590 byte; sesudahnya 240,404 byte: tambahan bersih 47,814 byte gzip (+24.8%). Chunk Home motion sendiri 48,846 byte gzip, ditunda sampai Home terhidrasi dan motion diizinkan. Browser offline memverifikasi chunk tidak diminta saat reduced motion aktif sejak awal atau kunjungan ke non-Home sesudah landing. Ini tradeoff ukuran untuk koreografi yang diminta, bukan penghematan JS. Tidak ada klaim perbaikan LCP, INP, latensi, CPU, atau request/detik tanpa pengukuran deployment. Rincian: [MOTION.md](MOTION.md).
 
 Angka GSAP di atas adalah checkpoint historis. Sesudah penutupan workspace dan revisi preview, output terbaru 233,976 byte gzip dalam 15 file, turun 6,428 byte dari checkpoint tersebut. Seluruh delapan route tetap diprerender, termasuk halaman akses tertutup; komponen workspace tidak lagi diimpor oleh entry page. Foto tetap 1,002,870 byte untuk seluruh varian. Font desain kini menggunakan next/font/local dengan hash dan preload. JSON menyimpan beforeAccessRevision agar dua scope pengukuran tidak tercampur.
+
+Checkpoint terbaru sebelum navbar 234,409 byte setelah penambahan first-entry gate. Revisi shadcn/navbar/hero menghasilkan **289,995 byte gzip dalam 16 file**, tambahan bersih 55,586 byte (+23.7%). Tidak ada raster baru; hero memakai ulang WebP stadion yang sudah ada. Seluruh delapan route tetap diprerender. Rincian dan batas pengukuran: [NAVBAR.md](NAVBAR.md). Checkpoint sebelumnya dipertahankan sebagai riwayat, bukan klaim ukuran build yang sekarang.
 
 ## Perubahan
 

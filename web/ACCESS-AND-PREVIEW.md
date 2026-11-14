@@ -61,7 +61,7 @@ Hasil pengujian:
 - `test:entry` memeriksa sesi baru pada tujuh URL, cookie sesi, akses Verify/refresh setelah landing, workspace tetap tertutup, cookie diblokir, dan fallback tanpa JavaScript. Tidak ada redirect loop.
 - Build normal dan static export tetap menghasilkan delapan route produk yang diprerender. Screenshot: `web/.qa/public-access/` dan `web/.qa/gsap/`.
 
-Output JavaScript keseluruhan sesudah revisi: 233,976 byte gzip dalam 15 file, dibanding 240,404 byte/17 file sebelumnya. Ini ukuran seluruh chunk, bukan transfer awal satu halaman. Sumber angka dan batas pengukuran: [PERFORMANCE.md](PERFORMANCE.md).
+Checkpoint output JavaScript sesudah revisi akses, sebelum first-entry/navbar: 233,976 byte gzip dalam 15 file, dibanding 240,404 byte/17 file sebelumnya. Ini ukuran seluruh chunk, bukan transfer awal satu halaman. Ukuran build terkini dan batas pengukuran: [PERFORMANCE.md](PERFORMANCE.md), [NAVBAR.md](NAVBAR.md).
 
 ## Memakai build yang sama di komputer lain
 
