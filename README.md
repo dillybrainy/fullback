@@ -6,7 +6,7 @@ FULLBACK turns a football transfer agreement into a NEAR smart contract. The con
 
 Built at NEAR HACKATHON "Build Beyond Boundaries" (November 2026). Runs on **NEAR testnet** with play-money fEUR (1 fEUR stands for €1).
 
-> **Live demo:** `[VERCEL_URL]` · **Video (≤3 min):** `[VIDEO_URL]` · **Contract:** `[CONTRACT_ID]` on testnet
+> **Live demo:** `[VERCEL_URL]` · **Video (≤3 min):** `[VIDEO_URL]` · **Contract:** `fullback.fullback-team.testnet` on testnet
 
 ---
 
@@ -81,7 +81,7 @@ buyer ── ft_transfer_call (fEUR) ──► FULLBACK contract ◄── settl
 | NEP-297 events | Deal history shown in the app |
 | near-api-js | Server routes, scripts and the collector agent |
 | @hot-labs/near-connect | Wallet sign-in |
-| NEAR AI Cloud | The AI Reader (OpenAI-compatible API), model `google/gemini-2.5-flash-lite` |
+| NEAR AI Cloud | The AI Reader (OpenAI-compatible API), model `Qwen/Qwen3.6-35B-A3B-FP8` (private TEE) |
 | testnet.nearblocks.io | Explorer links for every transaction |
 
 ## Libraries and templates
