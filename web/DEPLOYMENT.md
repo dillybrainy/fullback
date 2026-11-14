@@ -118,6 +118,10 @@ Deploy dilakukan sendiri dari akun Vercel. Panduan ini tidak mempublikasikan apl
    | `DEMO_MODE` | `false` untuk membaca PDF apa pun secara live. `true` hanya menerima PDF demo (Lucas, OK-01, OK-02) tanpa LLM |
    | `READER_ALLOWED_ORIGINS` | opsional; domain lain yang boleh memanggil API. Domain deployment itu sendiri selalu diizinkan |
 
+   Untuk **Judge demo mode** (`/demo`, route `/api/demo/*` dan `/api/collector/tick`), salin nilai dari `scripts/.env.demo` (ditulis `npm run setup:demo`). Kunci ini hanya dipakai di server dan tidak pernah dikirim ke browser:
+   `NEAR_NETWORK=testnet`, `CONTRACT_ID`, `FT_ID`, `FT_OWNER_ACCOUNT_ID`, `FT_OWNER_PRIVATE_KEY`, `DEMO_SELLER_ACCOUNT_ID`, `DEMO_SELLER_PRIVATE_KEY`, `DEMO_BUYER_ACCOUNT_ID`, `DEMO_BUYER_PRIVATE_KEY`, `DEMO_RESALE_BUYER_ACCOUNT_ID`, `DEMO_RESALE_BUYER_PRIVATE_KEY`, `DEMO_ACADEMY_1_ACCOUNT_ID`, `DEMO_ACADEMY_2_ACCOUNT_ID`, `KEEPER_ACCOUNT_ID`, `KEEPER_PRIVATE_KEY` (kunci terbatas `settle_due`, **bukan** `KEEPER_FULL_ACCESS_PRIVATE_KEY`).
+   Kalau salah satu kosong, `/demo` menampilkan "Judge demo mode is not configured on this deployment", tidak crash.
+
 9. Gunakan deployment preview untuk review perubahan, lalu buka URL yang diberikan Vercel.
 
 Build normal menggunakan preset Next.js. Untuk static hosting tanpa proses Node, frontend contoh saat ini juga mendukung `npm.cmd run build:static -w web`: deploy isi `web/out/`, dengan cache dan header diatur pada hosting. Jangan mengunggah folder `.next` sebagai website statis biasa. Pilihannya dijelaskan di [PERFORMANCE.md](PERFORMANCE.md). [Dokumentasi deployment Next.js](https://nextjs.org/docs/app/getting-started/deploying)

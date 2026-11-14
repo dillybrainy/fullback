@@ -7,9 +7,13 @@ import { firstVisitRedirects } from "./lib/landing-entry.mjs";
 // Next only reads web/.env*, so load the root file too. Server-side only: nothing
 // is exposed to the browser unless it starts with NEXT_PUBLIC_. On Vercel there is
 // no such file and the dashboard env vars are used.
-// Variables that are already set (shell, web/.env, Vercel) are not overwritten.
-const rootEnv = path.resolve(process.cwd(), "..", ".env");
-if (existsSync(rootEnv)) process.loadEnvFile(rootEnv);
+// Variables that are already set (shell, web/.env, Vercel) are not overwritten, so
+// scripts/.env.demo (demo account keys written by `npm run setup:demo`) is read
+// first: the root .env may list the same names with empty values.
+for (const file of ["../scripts/.env.demo", "../.env"]) {
+  const envPath = path.resolve(process.cwd(), file);
+  if (existsSync(envPath)) process.loadEnvFile(envPath);
+}
 
 const staticExport = process.env.FULLBACK_STATIC_EXPORT === "1";
 
@@ -27,7 +31,7 @@ const nextConfig: NextConfig = {
   // /api/reader bundles the AI Reader from agent/dist (JavaScript built from the
   // `agent` workspace by `prebuild`). pdf.js stays an external Node package: it
   // loads its worker and fonts from its own folder at runtime.
-  serverExternalPackages: ["pdfjs-dist"],
+  serverExternalPackages: ["pdfjs-dist", "near-api-js"],
   images: { unoptimized: true },
   redirects: firstVisitRedirects,
   async rewrites() {

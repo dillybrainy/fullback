@@ -1,6 +1,6 @@
 // No wallet/session integration is active. These are the only public screens.
 // Private page entries render the access notice, never workspace children.
-export const PUBLIC_ROUTES = Object.freeze(["/", "/signin", "/verify"]);
+export const PUBLIC_ROUTES = Object.freeze(["/", "/signin", "/verify", "/demo"]);
 
 export function isPublicRoute(pathname) {
   if (pathname.startsWith("//") || pathname.includes("\\")) return false;

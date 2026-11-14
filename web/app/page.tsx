@@ -39,7 +39,7 @@ export default function Home() {
         <span className="hero-kickoff" aria-hidden="true" />
         <h1 id="headline"><span className="hero-line"><span>Sell on installments.</span></span><span className="hero-line"><span>Never chase a payment again.</span></span></h1>
         <p>FULLBACK turns a transfer agreement into a NEAR contract. It holds the buyer’s collateral, collects every installment on time, and pays the academies that raised the player.</p>
-        <div className="actions"><Button variant="accent" size="lg" render={<Link href="/signin" />} nativeButton={false}>Create a deal<ArrowUpRight data-icon="inline-end" /></Button><Button variant="inverse" size="lg" render={<a href="#how-it-works" />} nativeButton={false}>See how it works<ArrowDown data-icon="inline-end" /></Button></div>
+        <div className="actions"><Button variant="accent" size="lg" render={<Link href="/signin" />} nativeButton={false}>Create a deal<ArrowUpRight data-icon="inline-end" /></Button><Button variant="inverse" size="lg" render={<a href="#how-it-works" />} nativeButton={false}>See how it works<ArrowDown data-icon="inline-end" /></Button><Button variant="inverse" size="lg" render={<Link href="/demo" />} nativeButton={false}>See it in action<ArrowUpRight data-icon="inline-end" /></Button></div>
       </div>
       <ol className="hero-playbook" aria-label="Transfer process">{steps.map(([title], index) => <li key={title}><span aria-hidden="true">{index + 1}</span><p>{title}</p></li>)}</ol>
     </section>
