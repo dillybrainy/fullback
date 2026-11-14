@@ -3,7 +3,9 @@ import { ReaderOutputSchema } from "../schema.js";
 import { getApiKey } from "../config.js";
 import { createHash } from "node:crypto";
 
-export const MAX_READER_BYTES = 20 * 1024 * 1024;
+// PDF cap: 20 MB locally, but deployments can lower it (Vercel serverless
+// rejects request bodies above 4.5 MB before the route ever runs).
+export const MAX_READER_BYTES = Number(process.env.READER_MAX_BYTES ?? 20 * 1024 * 1024);
 type Options = {
   read?: typeof readPdf;
   origins?: string[];
