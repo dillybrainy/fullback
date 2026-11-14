@@ -41,6 +41,76 @@ const { output, pdfHash } = await readPdf(pdfBytes);
   pemilihan model + file mentah ada di [`eval/README.md`](eval/README.md).
 - Biaya saat demo juri = **$0** (DEMO_MODE memakai fixture, tanpa panggilan LLM).
 
+## Ganti model & provider saat testing (mis. NVIDIA NIM)
+
+Reader memakai API **OpenAI-compatible**, jadi bisa diarahkan ke provider mana pun
+(NEAR AI Cloud, NVIDIA NIM, OpenAI, OpenRouter, model lokal) **tanpa ubah kode** —
+cukup ganti **3 env var** di `.env`. Logikanya ada di `agent/config.ts`, dan URL
+sudah dinormalisasi (tulis dengan atau tanpa `/v1` hasilnya sama).
+
+| Env var | Fallback lama | Arti |
+|---|---|---|
+| `LLM_API_BASE_URL` | `NEARAI_API_BASE_URL` | Base URL provider (tanpa/dengan `/v1` bebas) |
+| `LLM_API_KEY` | `NEARAI_API_KEY` | API key provider |
+| `LLM_MODEL` | `NEARAI_MODEL` | Model ID, mis. `meta/llama-3.3-70b-instruct` |
+
+### Contoh siap salin: NVIDIA NIM
+
+```bash
+# .env — ganti 3 baris ini untuk pindah ke NVIDIA NIM
+LLM_API_BASE_URL=https://integrate.api.nvidia.com/v1
+LLM_API_KEY=nvapi-xxxxxxxxxxxxxxxx        # dari https://build.nvidia.com/settings
+LLM_MODEL=meta/llama-3.3-70b-instruct
+DEMO_MODE=false                            # wajib false supaya benar-benar memanggil LLM
+```
+
+- **Base URL:** `https://integrate.api.nvidia.com/v1` (OpenAI-compatible).
+- **API key:** `nvapi-...` dari <https://build.nvidia.com/settings> — gratis (±1000
+  kredit, tanpa kartu kredit). Satu key berlaku untuk semua model di katalog.
+- **Model ID** (slug bernamespace) — lihat di halaman model di build.nvidia.com:
+  - `meta/llama-3.3-70b-instruct` · `meta/llama-3.1-8b-instruct`
+  - `deepseek-ai/deepseek-r1` · `deepseek-ai/deepseek-v4-flash`
+  - `qwen/qwen2.5-coder-32b-instruct` · `openai/gpt-oss-20b`
+  - `nvidia/llama-3.1-nemotron-70b-instruct`
+
+### Provider lain (umum)
+
+```bash
+# OpenAI
+LLM_API_BASE_URL=https://api.openai.com/v1
+LLM_API_KEY=sk-...
+LLM_MODEL=gpt-4o-mini
+
+# Model lokal (Ollama / vLLM / NIM self-hosted)
+LLM_API_BASE_URL=http://localhost:11434/v1
+LLM_API_KEY=apa-boleh-kosong
+LLM_MODEL=llama3.1
+```
+
+### Cek cepat setelah ganti
+
+```bash
+npm run usage:read -w agent -- ../sample-agreements/deal1-nordvik-portoalegre.pdf
+# -> harus memanggil provider baru & menampilkan pemakaian token NYATA + inference-id
+```
+
+### ⚠️ Peringatan penting (jujur)
+
+- **Yang lintas-provider hanya Reader (chat `/v1/chat/completions`).** Modul
+  monitoring `agent/usage/` (`/v1/health`, `/v1/model/list`, `/v1/billing/costs`,
+  balance) itu **khas NEAR AI Cloud** — endpoint-nya **tidak ada** di NVIDIA NIM /
+  OpenAI. Saat base URL diarahkan ke non-NEAR, `npm run usage` akan menampilkan
+  error "HTTP 404/401" **secara graceful** (tidak crash) — itu normal, bukan bug.
+  Kembali ke `https://cloud-api.near.ai/v1` bila ingin monitoringnya jalan lagi.
+- **Ganti URL + KEY + MODEL bersama-sama.** Karena key dikirim ke base URL, kalau
+  ganti URL ke provider lain tapi lupa ganti key, key-mu ikut terkirim ke endpoint
+  yang salah. Selalu tiganya sekaligus.
+- **Key tidak pernah di-hardcode**, hanya di `.env` (lihat `agent/config.ts`).
+- **Uji kualitas kutipan (R14) tetap berlaku untuk model apa pun.** Bukan semua
+  model patuh menyalin kutipan verbatim — lihat [`eval/README.md`](eval/README.md).
+  Setelah ganti model, jalankan `LIVE_TEST=1 npm test -w agent -- tests/reader-live.test.ts`
+  untuk memastikan angka R2/R3 + `warnings=[]` tetap terpenuhi.
+
 ## Cara cek lokal
 
 ```bash

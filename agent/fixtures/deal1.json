@@ -55,7 +55,7 @@
   "trainingClubs": [
     {
       "name": "Akademi Desa",
-      "account": "akademidesa.<master>.testnet",
+      "account": "akademidesa.fullback-team.testnet",
       "ageFrom": 12,
       "ageTo": 15,
       "bps": 100,
@@ -64,7 +64,7 @@
     },
     {
       "name": "Kota FC",
-      "account": "kotafc.<master>.testnet",
+      "account": "kotafc.fullback-team.testnet",
       "ageFrom": 16,
       "ageTo": 23,
       "bps": 400,

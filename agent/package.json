@@ -8,7 +8,9 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "reader": "tsx reader/cli.ts",
-    "collector": "tsx collector/index.ts"
+    "collector": "tsx collector/index.ts",
+    "usage": "tsx usage/cli.ts",
+    "usage:read": "tsx usage/read-live.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

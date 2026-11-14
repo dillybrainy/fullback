@@ -11,22 +11,14 @@
  */
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { ReaderLLMSchema, type ReaderLLM } from "../schema.js";
+import { recordInference } from "../usage/tracker.js";
+import { chatBaseUrl, getApiKey, getModel } from "../config.js";
 
-const DEFAULT_BASE_URL = "https://cloud-api.near.ai/v1";
-// Model is configurable via NEARAI_MODEL. The original default (the one in the
-// NEAR AI Cloud docs, deepseek-ai/DeepSeek-V3.1) was removed from the catalogue
-// (400 "Model not found"), so the Reader crashed on live PDFs until 14 Nov.
-//
-// DEFAULT_MODEL is chosen by measurement, not by size — see agent/eval/README.md.
-// We require a model that (a) copies clause quotes VERBATIM (R14), (b) keeps
-// every schema field, and (c) does so consistently across runs. Several "bigger"
-// models failed: deepseek-v3.2 paraphrased quotes, gpt-5.4-mini dropped the
-// collateral field, gpt-5.4-nano passed only 1 of 3 runs.
-//
-// google/gemini-2.5-flash-lite passed 3/3 runs on the deal1 sample (asserting the
-// R2/R3 numbers + empty warnings[]) and is the cheapest/fastest tier tested.
-// Override with NEARAI_MODEL to switch without a code change.
-const DEFAULT_MODEL = "google/gemini-2.5-flash-lite";
+// Base URL, API key, dan model kini dari `agent/config.ts` (dinormalisasi, jadi
+// konsisten untuk chat maupun monitoring, dan mendukung provider non-NEAR).
+// Pemilihan model DEFAULT (google/gemini-2.5-flash-lite) berdasar pengukuran —
+// lihat `agent/eval/README.md`. Model lama (deepseek-ai/DeepSeek-V3.1) sempat
+// membuat Reader crash karena dihapus dari katalog NEAR AI Cloud.
 
 const JSON_SCHEMA = JSON.stringify(zodToJsonSchema(ReaderLLMSchema, { name: "AgreementTerms" }));
 
@@ -78,14 +70,14 @@ export class LlmApiError extends Error {
 
 /** Ask NEAR AI Cloud to read the agreement. Throws on API or schema errors. */
 export async function readAgreementWithLlm(pdfText: string): Promise<ReaderLLM> {
-  const apiKey = process.env.NEARAI_API_KEY;
+  const apiKey = getApiKey();
   if (!apiKey) {
     throw new Error(
-      "NEARAI_API_KEY is not set. Set it in .env, or run with DEMO_MODE=true to use the fixtures.",
+      "API key tidak disetel. Isi LLM_API_KEY (atau NEARAI_API_KEY) di .env, atau jalankan dengan DEMO_MODE=true memakai fixture.",
     );
   }
-  const baseUrl = process.env.NEARAI_API_BASE_URL ?? DEFAULT_BASE_URL;
-  const model = process.env.NEARAI_MODEL ?? DEFAULT_MODEL;
+  const baseUrl = chatBaseUrl();
+  const model = getModel();
 
   const res = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
@@ -108,10 +100,29 @@ export async function readAgreementWithLlm(pdfText: string): Promise<ReaderLLM> 
     throw new LlmApiError(res.status, await res.text());
   }
 
-  const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+  const data = (await res.json()) as {
+    choices?: { message?: { content?: string } }[];
+    usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
+  };
   const content = data.choices?.[0]?.message?.content;
   if (!content) {
     throw new Error("NEAR AI Cloud returned no message content.");
+  }
+
+  // Rekam pemakaian NYATA (token + inference-id) supaya biaya per read bisa
+  // dihitung persis, bukan dikira-kira. Sebelumnya nilai ini dibuang. Sengaja
+  // tidak melempar bila gagal — ini pencatatan sampingan, bukan inti pembacaan.
+  try {
+    const inferenceId = res.headers.get("inference-id") ?? undefined;
+    recordInference({
+      model,
+      promptTokens: data.usage?.prompt_tokens,
+      completionTokens: data.usage?.completion_tokens,
+      totalTokens: data.usage?.total_tokens,
+      inferenceId,
+    });
+  } catch {
+    /* pencatatan gagal tidak boleh menggagalkan pembacaan */
   }
 
   let parsed: unknown;
