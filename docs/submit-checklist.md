@@ -22,6 +22,7 @@ Target tim: form terkirim **Sabtu malam WIB**. Hanya manusia yang mengerjakan la
 - [ ] README menyebut semua tools NEAR dan library; kode lama: tidak ada; LICENSE MIT ada
 - [ ] Tidak ada `.env`, kunci privat, atau seed phrase di riwayat git
 - [ ] Kode percobaan yang tidak terpakai sudah dihapus
+- [ ] **Setelan percobaan lokal dihapus sebelum deploy** — baris `NEARAI_MODEL=z-ai/glm-5.3-flash` di `.env` (uji model private TEE, 15 Nov) **jangan ikut disalin** ke environment produksi/Vercel. Model produksi harus yang disepakati tim (default kode: `google/gemini-2.5-flash-lite`, lihat `agent/README.md` + `agent/eval/README.md`).
 - [ ] Video dan post X sudah tayang, repo publik, form diisi sekali
 - [ ] Demo online tetap hidup sampai 18 Nov (jangan matikan Vercel atau hapus akun testnet)
 
