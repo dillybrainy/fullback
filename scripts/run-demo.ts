@@ -15,7 +15,6 @@ import { resolve } from "node:path";
 import { Account, type KeyPairString } from "near-api-js";
 import {
   GAS_SETTLE,
-  ONE_YOCTO,
   REPO_DIR,
   account,
   call,
@@ -104,18 +103,21 @@ async function waitAndSettle(dealId: number) {
 
 async function illegalAttempt() {
   try {
+    // No deposit: a function-call key may never attach one, and leaving it out makes the
+    // chain report the more telling reason (wrong receiver contract).
     await keeper.callFunctionRaw({
       contractId: FT,
       methodName: "ft_transfer",
       args: { receiver_id: keeper.accountId, amount: "1" },
-      deposit: ONE_YOCTO,
       gas: GAS_SETTLE,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    // Only an access-key rejection proves the point; a network error proves nothing.
-    if (!/receiver|access ?key|method/i.test(message)) throw err;
-    log(`Collector agent tried ft_transfer on fEUR and the chain refused it:\n    ${message.split("\n")[0]}`);
+    // Only an access-key rejection (AccessKey...ActionError from the RPC) proves the
+    // point; a network error proves nothing. The transaction is refused before it is
+    // included in a block, so there is no hash to link.
+    const kind = err instanceof Error ? err.constructor.name : "";
+    if (!kind.startsWith("AccessKey")) throw err;
+    log(`Collector agent tried ft_transfer on fEUR and the chain refused it (${kind}):\n    ${(err as Error).message.split("\n")[0]}`);
     return;
   }
   throw new Error("The collector key was able to call ft_transfer. Its key must be limited to settle_due.");

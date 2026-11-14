@@ -1,0 +1,74 @@
+{
+  "current": {
+    "emittedJsFiles": 15,
+    "emittedJsGzipBytes": 233976,
+    "prerenderedRoutes": [
+      "/",
+      "/dashboard",
+      "/deals/new",
+      "/deals/riverside-kingsport",
+      "/deals/riverside-kingsport/resale",
+      "/federation",
+      "/signin",
+      "/verify"
+    ]
+  },
+  "measuredAt": "2026-11-14T10:48:33.529Z",
+  "note": "All emitted JS chunks, gzipped separately; not initial-page transfer or throughput.",
+  "baseline": {
+    "emittedJsFiles": 16,
+    "emittedJsGzipBytes": 194255,
+    "prerenderedRoutes": [
+      "/",
+      "/deals/new",
+      "/federation",
+      "/signin",
+      "/verify"
+    ]
+  },
+  "beforeGsap": {
+    "emittedJsFiles": 16,
+    "emittedJsGzipBytes": 192590,
+    "prerenderedRoutes": [
+      "/",
+      "/dashboard",
+      "/deals/new",
+      "/deals/riverside-kingsport",
+      "/deals/riverside-kingsport/resale",
+      "/federation",
+      "/signin",
+      "/verify"
+    ]
+  },
+  "motion": {
+    "version": "3.15.1",
+    "emittedChunkGzipBytes": 48846,
+    "netAddedGzipBytes": 47814,
+    "loading": "Deferred on Home only; skipped when reduced motion is enabled before load.",
+    "emittedChunk": "10d6pc7x9qf1t.js",
+    "note": "Historical GSAP revision measurement before private routes were closed; see beforeAccessRevision for its full build size."
+  },
+  "beforeAccessRevision": {
+    "emittedJsFiles": 17,
+    "emittedJsGzipBytes": 240404,
+    "prerenderedRoutes": [
+      "/",
+      "/dashboard",
+      "/deals/new",
+      "/deals/riverside-kingsport",
+      "/deals/riverside-kingsport/resale",
+      "/federation",
+      "/signin",
+      "/verify"
+    ]
+  },
+  "accessRevision": {
+    "netChangedGzipBytes": -6428,
+    "publicRoutes": [
+      "/",
+      "/signin",
+      "/verify"
+    ],
+    "privateRoutes": "Closed at page entry, no workspace children rendered."
+  }
+}
