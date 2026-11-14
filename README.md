@@ -79,9 +79,9 @@ buyer ── ft_transfer_call (fEUR) ──► FULLBACK contract ◄── settl
 | Function-call access keys | Restricting the collector agent to `settle_due` |
 | NEP-141 (`ft_transfer_call` / `ft_on_transfer`) | All payments in fEUR |
 | NEP-297 events | Deal history shown in the app |
-| `[near-api-js or near-kit]` | Server routes, scripts and the collector agent |
+| near-api-js | Server routes, scripts and the collector agent |
 | @hot-labs/near-connect | Wallet sign-in |
-| NEAR AI Cloud | The AI Reader (OpenAI-compatible API) |
+| NEAR AI Cloud | The AI Reader (OpenAI-compatible API), model `google/gemini-2.5-flash-lite` |
 | testnet.nearblocks.io | Explorer links for every transaction |
 
 ## Libraries and templates

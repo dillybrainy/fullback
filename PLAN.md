@@ -23,7 +23,7 @@ Kalau isi file lain bertentangan dengan file ini, file ini yang menang, lalu tan
 - **Bukti untuk juri (Fase 2):** Juri membuka demo online, menjalankan skenario fiktif Lucas (data demo saja, bukan isi produk), dan melihat sendiri di testnet NEAR bahwa cicilan, jaminan, sell-on, dan Academy royalties dibayar sesuai isi kontrak, dengan link explorer untuk setiap transaksi.
 - **Means:** Smart contract Rust di NEAR testnet yang memegang token mock fEUR (KTD1, KTD2), agen AI Pembaca + Penagih (KTD6, KTD7), dan web Next.js berbahasa Inggris dengan Dashboard klub dan Judge demo mode (KTD8, KTD14).
 - **Authority:** PLAN.md > `contract/INTERFACE.md` > `agent/schema.ts` > kode. Angka cerita demo Lucas (R1–R4) terkunci dan tidak boleh diubah oleh AI. Lucas hanya mengisi demo; copy produk di web tidak boleh bercerita tentang Lucas.
-- **Execution profile:** 4 orang, masing-masing menjalankan Claude Code di folder miliknya sendiri. Tanpa branch dan tanpa PR: semua commit langsung ke `main` dengan aturan folder (KTD10).
+- **Execution profile:** 4 orang, masing-masing menjalankan Claude Code di folder miliknya sendiri. Setiap orang bekerja di branch sendiri sesuai `orang-<N>/<pekerjaan>` lalu membuka Pull Request ke `main` (KTD10). Aturan folder tetap berlaku: tiap orang hanya mengubah foldernya.
 - **Siapa yang menyelesaikan dan mengirim:** Orang 4 (koordinator) yang menekan tombol submit. Hanya manusia yang boleh membuat repo publik, posting di X, dan mengisi form.
 - **Stop conditions:** Berhenti dan tanya manusia jika (a) perlu mengubah file di luar folder sendiri, (b) perlu mengubah `INTERFACE.md`, `schema.ts`, atau angka terkunci, (c) diminta memakai mainnet atau uang asli, (d) `git pull` menghasilkan konflik, (e) tes kontrak gagal dan penyebabnya ada di folder orang lain.
 - **Deadline:** Submit ditutup Sabtu 14 Nov 2026 23:59 UTC = Minggu 15 Nov 06:59 WIB. Target tim: submit Sabtu 14 Nov malam WIB.
@@ -169,7 +169,7 @@ Klub kecil harus menggugat ke FIFA, menunggu bertahun-tahun, dan bunga keterlamb
 - KTD7. **Penagih dipicu dua cara.** (a) `npm run collector` berulang setiap 15 detik di laptop. (b) Route `/api/collector/tick` yang dipanggil halaman deal setiap 15 detik selama dibuka. Keduanya memakai kunci terbatas (R13). `settle_due` bebas dipanggil siapa pun karena hanya menjalankan isi deal.
 - KTD8. **Web Next.js (App Router) via skill `near-dapp` dengan `@hot-labs/near-connect`.** Next.js dipilih karena butuh route server untuk Pembaca (API key rahasia) dan Judge demo mode. Deploy di Vercel. Kunci akun demo hanya ada di environment Vercel.
 - KTD9. **Monorepo npm workspaces: `agent`, `web`, `scripts`.** `contract/` dibangun dengan cargo terpisah. File `contract/res/fullback.wasm` hasil build ikut di-commit supaya `npm run setup:demo` bisa deploy tanpa Rust. `npm run dev` menjalankan web dalam `DEMO_MODE` yang membaca kontrak yang sudah dideploy tim. `npm run setup:demo` (opsional) membuat akun testnet baru lewat faucet untuk yang ingin menjalankan cerita sendiri.
-- KTD10. **Tanpa branch: semua orang commit ke `main`, tiap orang hanya mengubah foldernya.** (session-settled: user-approved — chosen over feature branch + PR: tim pemula, 4 hari, folder terpisah membuat konflik hampir mustahil)
+- KTD10. **Branch per orang per pekerjaan + PR: setiap orang bekerja di branch `orang-<N>/<pekerjaan>`, lalu membuka Pull Request ke `main`. Tiap orang tetap hanya mengubah foldernya.** (revisi 14 Nov — sebelumnya "tanpa branch, commit langsung ke `main`"; diganti supaya perubahan bisa direview dan riwayat per orang terbaca jelas. PR cukup direview cepat oleh Orang 4/koordinator, bukan alur review berlapis.)
 - KTD11. **Event NEP-297** dengan `standard: "fullback"`, `version: "1.0.0"`. Web membaca riwayat dari view `get_events(deal_id)` agar tidak bergantung pada indexer.
 - KTD12. **Pembayaran yang gagal dicatat di map `pending`** dengan event `payout_failed` dan bisa ditarik lewat `claim_pending` (R16). Ini bentuk terkecil yang mencegah uang tersangkut.
 
@@ -275,7 +275,7 @@ Potong dari atas ke bawah. Yang ada di daftar "jangan pernah dipotong" tetap dib
 
 ---
 
-## Cara kerja tim (tanpa branch)
+## Cara kerja tim (branch per orang + PR)
 
 **Siapa memegang folder apa:**
 
@@ -294,9 +294,10 @@ Setiap orang menulis catatan hariannya di `docs/progress/orang-N.md` (file sendi
 2. Semua orang memasang Git, Node.js 20+, dan Claude Code. Orang 1 juga memasang Rust dan near-cli-rs.
 3. Semua orang meng-clone repo, membuka Claude Code di folder repo, dan mengetik: "Saya Orang N. Baca PLAN.md dan CLAUDE.md, lalu jelaskan tugas saya hari ini."
 
-**Setiap mulai kerja:** minta Claude Code "tarik perubahan terbaru" (`git pull --rebase`).
-**Setiap selesai satu bagian:** minta Claude Code "commit dan push pekerjaanku".
-**Kalau muncul konflik:** berhenti, jangan diselesaikan sendiri oleh AI, kabari grup.
+**Setiap mulai kerja:** minta Claude Code "tarik perubahan terbaru" (`git checkout main && git pull && git checkout -b orang-<N>/<pekerjaan>`). Nama branch = `orang-<N>/<ringkasan-pekerjaan>`, mis. `orang-2/agent-collector` atau `orang-3/web-dashboard`.
+**Setiap selesai satu bagian:** minta Claude Code "commit pekerjaanku, push branch ini, lalu buatkan PR ke `main`". Sertakan ringkasan isi perubahan di deskripsi PR.
+**Kalau muncul konflik saat pull/rebase:** berhenti, jangan diselesaikan sendiri oleh AI, kabari grup.
+**Kalau muncul konflik saat PR:** koordinator (Orang 4) yang memutuskan; jangan force-push menimpa pekerjaan orang lain.
 
 **Hanya manusia yang boleh:** mengeluarkan uang asli, deploy ke mainnet, membuat repo publik, posting di X, mengisi form submit (sekali, tidak bisa diedit).
 
