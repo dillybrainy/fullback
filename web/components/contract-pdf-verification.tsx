@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Search } from "lucide-react";
+import { ArrowRight, Check, Minus, Search } from "lucide-react";
 import { CONTRACT_ID, explorerAccountUrl, viewFunction } from "@/lib/near";
 import { listAgreements, verifyAgreement } from "@/lib/contract-verification.mjs";
 import type { Agreement } from "@/lib/contract-verification.mjs";
@@ -19,6 +19,7 @@ export function ContractPdfVerification({ pdfHash }: { pdfHash: string }) {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<"" | "recorded" | "missing">("");
   const [selected, setSelected] = useState("");
   const [result, setResult] = useState<Verification | null>(null);
   const [checking, setChecking] = useState(false);
@@ -29,9 +30,11 @@ export function ContractPdfVerification({ pdfHash }: { pdfHash: string }) {
   // Client-side filter across the fields an agreement is known by. The selected
   // agreement always stays visible so a search can never discard the result.
   const needle = query.trim().toLowerCase();
-  const visible = needle
-    ? agreements.filter(deal => String(deal.deal_id).includes(needle) || [deal.player_name, deal.seller_id, deal.buyer_id].some(value => value.toLowerCase().includes(needle)))
-    : agreements.slice();
+  const visible = agreements.filter(deal => {
+    if (filter === "recorded" && !deal.pdf_hash) return false;
+    if (filter === "missing" && deal.pdf_hash) return false;
+    return !needle || String(deal.deal_id).includes(needle) || [deal.player_name, deal.seller_id, deal.buyer_id].some(value => value.toLowerCase().includes(needle));
+  });
   if (selected) {
     const current = agreements.find(deal => String(deal.deal_id) === selected);
     if (current && !visible.includes(current)) visible.unshift(current);
@@ -81,17 +84,28 @@ export function ContractPdfVerification({ pdfHash }: { pdfHash: string }) {
       <Search size={16} aria-hidden="true" />
       <input id="agreement-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Number, player, or club" disabled={!agreements.length} />
     </div>
-    <label className="field-label" htmlFor="verification-agreement">Agreement</label>
-    <div className="agreement-select">
-      <select id="verification-agreement" value={selected} onChange={event => void verify(event.target.value)} disabled={!agreements.length}>
-        <option value="">{loading ? "Loading agreements…" : visible.length ? "Choose an agreement" : "No matches"}</option>
-        {visible.map(deal => <option key={deal.deal_id} value={deal.deal_id}>#{deal.deal_id} · {deal.player_name} · {deal.seller_id} → {deal.buyer_id}{deal.pdf_hash ? "" : " · no fingerprint"}</option>)}
-      </select>
-      <ChevronDown size={18} aria-hidden="true" />
+    <div className="agreement-filters" role="group" aria-label="Filter agreements">
+      <button type="button" aria-pressed={filter === ""} className={filter === "" ? "is-active" : ""} onClick={() => setFilter("")}>All</button>
+      <button type="button" aria-pressed={filter === "recorded"} className={filter === "recorded" ? "is-active" : ""} onClick={() => setFilter("recorded")}>Fingerprint recorded</button>
+      <button type="button" aria-pressed={filter === "missing"} className={filter === "missing" ? "is-active" : ""} onClick={() => setFilter("missing")}>No fingerprint</button>
     </div>
-    {loading && <p className="help" role="status">Loading recorded agreements…</p>}
-    {!loading && !loadError && !!agreements.length && !visible.length && <p role="status">No agreements match your search.</p>}
-    {!loading && !loadError && !agreements.length && <p role="status">No agreements have been recorded on this testnet contract yet.</p>}
+    <div className="agreement-table" role="radiogroup" aria-label="Agreement">
+      <div className="agreement-table-head" aria-hidden="true"><span>#</span><span>Player</span><span>Transfer</span><span>Fingerprint</span></div>
+      {loading && <p className="help" role="status">Loading recorded agreements…</p>}
+      {visible.map(deal => {
+        const isCurrent = String(deal.deal_id) === selected;
+        return (
+          <button key={deal.deal_id} type="button" role="radio" aria-checked={isCurrent} className={"agreement-row" + (isCurrent ? " is-selected" : "")} onClick={() => void verify(String(deal.deal_id))}>
+            <span className="agreement-id">{`#${deal.deal_id} ·`}</span>
+            <span className="agreement-player">{deal.player_name}</span>
+            <span className="agreement-route"><span>{deal.seller_id}</span> <ArrowRight size={13} aria-hidden="true" /> <span>{deal.buyer_id}</span></span>
+            {deal.pdf_hash ? <span className="agreement-badge ok"><Check size={12} aria-hidden="true" /> Recorded</span> : <span className="agreement-badge none"><Minus size={12} aria-hidden="true" /> None</span>}
+          </button>
+        );
+      })}
+      {!loading && !loadError && !!agreements.length && !visible.length && <p role="status">No agreements match your search.</p>}
+      {!loading && !loadError && !agreements.length && <p role="status">No agreements have been recorded on this testnet contract yet.</p>}
+    </div>
     {loadError && <p className="error-message" role="alert">{loadError}</p>}
     {(loadError || page.hasMore) && <button type="button" className="button soft" disabled={loading} onClick={() => void load(loadError && !agreements.length ? 0 : page.nextIndex)}>{loadError ? "Retry loading agreements" : "Load more agreements"}</button>}
     <div aria-live="polite" aria-busy={checking}>
