@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+import { StaticIcon as Image } from "@/components/static-icon";
 import { useRef, useState, type DragEvent } from "react";
 import { createPdfFingerprint } from "@/lib/pdf-fingerprint.mjs";
 

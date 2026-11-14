@@ -1,6 +1,12 @@
 # Panduan development, tes, dan deploy FULLBACK
 
+Optimasi terbaru, dua pilihan hosting (Next server atau static CDN), konfigurasi rate limit, hasil pengukuran, dan load test manual tersedia di [PERFORMANCE.md](PERFORMANCE.md).
+
 Semua perintah di bawah dijalankan sendiri saat diperlukan. Tidak ada server yang otomatis dinyalakan oleh unit test, lint, typecheck, atau build.
+
+Aturan terbaru: hanya Home, Sign in, dan Verify yang publik; halaman privat ditutup sementara. Checklist konsistensi preview Chrome dan tes akses offline: [ACCESS-AND-PREVIEW.md](ACCESS-AND-PREVIEW.md).
+
+Pengunjung baru masuk ke landing `/` dahulu, sekali per sesi browser, termasuk jika URL pertama `/verify` atau `/signin`. Next dev/server menggunakan redirect 307; static export menggunakan gate browser dengan fallback Home tanpa JavaScript. Sesudah mengubah `next.config.ts`, restart server dev yang sudah berjalan agar aturan server baru aktif. Uji alur melalui `npm.cmd run test:entry -w web` sesudah build:static, tanpa menyalakan server.
 
 ## Prasyarat
 
@@ -21,10 +27,10 @@ Frontend saat ini tidak membutuhkan `.env`, wallet, atau API key. Dashboard mema
 Dari root repository:
 
 ```powershell
-npm.cmd install --workspace web --package-lock=false
+npm.cmd ci --workspace web
 ```
 
-Perintah ini tidak memperbarui lockfile bersama. Untuk instalasi tim/CI yang reproducible, gunakan `npm.cmd ci` setelah `package-lock.json` root dipastikan sudah sinkron dengan seluruh workspace. Jika `npm ci` melaporkan lockfile tidak sinkron, koordinator perlu memperbarui dan menyertakan lockfile bersama.
+Perintah ini menggunakan `package-lock.json` root, yang sudah menyertakan GSAP. Untuk seluruh workspace tim/CI gunakan `npm.cmd ci` dari root.
 
 ## 2. Jalankan development lokal
 
@@ -56,6 +62,9 @@ Runner menggunakan `node:test` bawaan Node, tanpa browser, koneksi wallet, API e
 |---|---|
 | `tests/deal-view.test.mjs` | Pilihan awal peran/tab, kategori deal, nominal pembeli/penjual/akademi, filter status, pencarian federation, dan data yang tidak termutasi |
 | `tests/pdf-fingerprint.test.mjs` | Vektor SHA-256, byte biner, perubahan isi, ekstensi, file kosong, batas 20 MiB, error pembacaan, dan Web Crypto yang tidak tersedia |
+| `tests/home-motion-loader.test.mjs` | Reduced motion, import terlambat setelah unmount, perubahan preferensi cepat, dan kegagalan chunk |
+| `tests/static-export-paths.test.mjs` | Nama payload prefetch Windows sesuai URL yang diminta router |
+| `tests/performance.test.mjs` | Integritas/budget foto dan prerender seluruh route sesudah build |
 
 Menjalankan satu file:
 
@@ -65,6 +74,8 @@ node --test web/tests/pdf-fingerprint.test.mjs
 ```
 
 Unit test tidak membuktikan layout browser, animasi visual, login wallet, atau transaksi blockchain.
+
+Untuk tes browser produksi tanpa menyalakan server, jalankan `npm.cmd run build:static -w web` lalu `npm.cmd run test:motion -w web`. Prasyarat Playwright/Chrome, cakupan, dan hasil tersedia di [MOTION.md](MOTION.md). Build static juga menambahkan nama payload prefetch portabel untuk output Windows; deploy seluruh isi `web/out/`.
 
 ## 4. Pemeriksaan sebelum deploy
 
@@ -99,13 +110,14 @@ Deploy dilakukan sendiri dari akun Vercel. Panduan ini tidak mempublikasikan apl
 6. Samakan versi Node dengan versi lokal yang sudah diuji. Frontend contoh saat ini tidak memerlukan environment variable.
 7. Gunakan deployment preview untuk review perubahan, lalu buka URL yang diberikan Vercel.
 
-App ini memiliki route yang memerlukan runtime Next.js. Gunakan hosting Next.js/Node; jangan mengunggah folder `.next` sebagai website statis biasa. Build lalu `next start` merupakan alur server Node yang didukung Next.js. [Dokumentasi deployment Next.js](https://nextjs.org/docs/app/getting-started/deploying)
+Build normal menggunakan preset Next.js. Untuk static hosting tanpa proses Node, frontend contoh saat ini juga mendukung `npm.cmd run build:static -w web`: deploy isi `web/out/`, dengan cache dan header diatur pada hosting. Jangan mengunggah folder `.next` sebagai website statis biasa. Pilihannya dijelaskan di [PERFORMANCE.md](PERFORMANCE.md). [Dokumentasi deployment Next.js](https://nextjs.org/docs/app/getting-started/deploying)
 
 ## 7. Pemeriksaan setelah deploy
 
 - Buka `/`, `/signin`, `/dashboard`, `/dashboard?role=academy`, dan `/federation`.
 - Buka langsung `/deals/riverside-kingsport`, `/deals/new`, `/verify`, serta `/deals/riverside-kingsport/resale`; refresh masing-masing route.
-- Periksa foto dan font lokal termuat, menu mobile, FAQ, tab, filter, dan pencarian.
+- `/`, `/signin`, dan `/verify` harus terbuka. Semua URL dashboard/deal/federation harus menuju Sign in; tanpa JavaScript hanya menampilkan akses tertutup, bukan data workspace.
+- Periksa foto/font lokal termuat, menu Home/mobile, FAQ, dan Back to Home. Tidak boleh ada tombol Explore yang melewati login.
 - Unggah PDF contoh di `/verify`: hash harus tampil, sedangkan status tetap belum diverifikasi on-chain.
 - Gunakan HTTPS pada deployment. Web Crypto untuk fingerprint memerlukan secure context; development lokal dapat memakai localhost.
 - Wallet dan transaksi yang belum terhubung harus tetap ditandai belum tersedia.
@@ -119,5 +131,5 @@ App ini memiliki route yang memerlukan runtime Next.js. Gunakan hosting Next.js/
 | `Could not find a production build` | Jalankan `npm.cmd run build -w web` sebelum `start` |
 | Unit test gagal | Baca nama kasus dan assertion; server tidak perlu dinyalakan |
 | Fingerprint meminta HTTPS/localhost | Gunakan localhost atau URL HTTPS, bukan alamat IP LAN melalui HTTP |
-| Foto atau font hilang setelah deploy | Pastikan `web/public/images/` dan `web/public/fonts/` ikut di repository |
+| Foto atau font hilang setelah deploy | Pastikan `web/public/images/`, `web/public/media/`, dan sumber `web/public/fonts/` ikut checkout; deploy seluruh output dari satu build, termasuk `_next/static/media` |
 | Vercel menjalankan project yang salah | Periksa Root Directory harus `web` dan preset Next.js |

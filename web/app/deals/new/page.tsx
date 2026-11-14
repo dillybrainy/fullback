@@ -1,5 +1,2 @@
-import { PageHeading } from "@/components/page-heading";
-import { PdfFingerprint } from "@/components/pdf-fingerprint";
-export default function NewDeal() {
-  return <div className="workspace"><div className="heading-row"><PageHeading title="New deal" description="Upload the signed agreement. We read it, you check it, then both clubs approve." /><ol className="stepper"><li><span>1</span>Upload</li><li><span>2</span>Review terms</li><li><span>3</span>Create deal</li></ol></div><div className="upload-grid"><PdfFingerprint mode="upload" /><aside className="panel"><h2>What happens next</h2><ol className="next-steps">{[["You check the terms", "Every number comes with the clause it was read from. Fix anything that looks wrong."], ["The other club approves", "Nothing is locked until both clubs sign with their NEAR wallets."], ["You lock the collateral", "The deal goes live and installments start collecting themselves."]].map(([title, text], i) => <li key={title}><span className="step-number">{i + 1}</span><div><h3>{title}</h3><p>{text}</p></div></li>)}</ol><p className="preview-note">AI reading and deal creation are not connected yet. You can calculate your PDF fingerprint now.</p></aside></div></div>;
-}
+import { ClosedWorkspace } from "@/components/closed-workspace";
+export default function Page() { return <ClosedWorkspace path="/deals/new" />; }
