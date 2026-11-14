@@ -10,10 +10,14 @@
  * or send NEAR, so a rogue collector cannot steal anything (see also
  * illegal-attempt.ts for a live proof).
  *
- * Key constraints from INTERFACE.md / PLAN.md R13:
+ * Key constraints from INTERFACE.md / PLAN.md R13 (see also issue #10):
  *  - 2 NEAR allowance ≈ 130 settle_due calls (each ~0.015 NEAR at 150 TGas)
  *  - Even NotDue results spend allowance — ALWAYS read view first
- *  - Only call settle_due once next_due_at_ns has passed
+ *  - Only call settle_due once next_due_at_ns has passed, plus a safety margin
+ *    (DUE_SAFETY_MARGIN_NS): the local clock can run ahead of block time, and a
+ *    too-early call returns NotDue while still burning allowance.
+ *  - After a NotDue result a deal rests NOT_DUE_COOLDOWN_NS before retrying.
+ *  - One failing settle_due must never stop the rest of the tick.
  */
 
 import { config as loadEnv } from "dotenv";
@@ -51,10 +55,43 @@ export interface SettleResult {
 
 export interface TickEntry {
   deal_id: number;
-  result: "NotActive" | "NotDue" | "PaidFromCollateral" | "Defaulted";
+  result:
+    | "NotActive"
+    | "NotDue"
+    | "PaidFromCollateral"
+    | "Defaulted"
+    | "Error";
   installment_index: number | null;
-  tx_hash: string;
-  explorer_link: string;
+  /** settle_due tx hash — null when result is "Error" (no tx was produced). */
+  tx_hash: string | null;
+  /** Nearblocks link — null when result is "Error" (no tx was produced). */
+  explorer_link: string | null;
+  /** Set when result is "Error": raw message (RPC timeout, NotEnoughAllowance, …). */
+  error?: string;
+}
+
+/**
+ * Only call settle_due once the due time is this far in the past.
+ *
+ * The wall clock can run ahead of NEAR block time; calling too early returns
+ * NotDue and still spends ~0.015 NEAR of the 2 NEAR allowance (issue #10).
+ */
+export const DUE_SAFETY_MARGIN_NS = 5_000_000_000n;
+
+/**
+ * After a NotDue result, leave the deal alone for this long so block time can
+ * catch up before the next attempt (issue #10).
+ */
+export const NOT_DUE_COOLDOWN_NS = 10_000_000_000n;
+
+/** Cross-tick state: which deals are resting after a NotDue result. */
+export interface TickState {
+  /** deal_id → local-clock ns before which the deal must not be retried. */
+  notDueUntil: Map<number, bigint>;
+}
+
+export function createTickState(): TickState {
+  return { notDueUntil: new Map() };
 }
 
 /**
@@ -80,13 +117,20 @@ export const EXPLORER_BASE = "https://testnet.nearblocks.io/txns";
 /**
  * One collector tick:
  *  1. Load all deals via view (free — no gas).
- *  2. Skip deals that are not Active or not yet overdue.
- *  3. Call settle_due for each overdue deal.
+ *  2. Skip deals that are not Active or not yet overdue (with a safety margin).
+ *  3. Call settle_due for each overdue deal — a failing call is recorded as a
+ *     "Error" TickEntry and never stops the remaining deals (issue #10).
  *
  * Pages through deals in batches of 100 (the INTERFACE.md max per call).
- * Returns one TickEntry per settle_due call made.
+ * Returns one TickEntry per settle_due call attempted.
+ *
+ * `state` carries the per-deal cooldown across ticks; pass the same object on
+ * every tick of a collector run. Without it each tick starts fresh (tests).
  */
-export async function tick(deps: CollectorDeps): Promise<TickEntry[]> {
+export async function tick(
+  deps: CollectorDeps,
+  state: TickState = createTickState(),
+): Promise<TickEntry[]> {
   const now = deps.nowNs();
   const results: TickEntry[] = [];
 
@@ -101,17 +145,42 @@ export async function tick(deps: CollectorDeps): Promise<TickEntry[]> {
       if (deal.status !== "Active") continue;
       // next_due_at_ns is null when all installments are paid.
       if (deal.next_due_at_ns === null) continue;
-      // Skip if the due time is still in the future.
-      if (BigInt(deal.next_due_at_ns) > now) continue;
 
-      const { hash, value } = await deps.settleDue(deal.deal_id);
-      results.push({
-        deal_id: deal.deal_id,
-        result: value.result,
-        installment_index: value.installment_index,
-        tx_hash: hash,
-        explorer_link: `${EXPLORER_BASE}/${hash}`,
-      });
+      const dueNs = BigInt(deal.next_due_at_ns);
+      // Safety margin: act only once the due time is comfortably past, so a
+      // local clock ahead of block time cannot burn allowance on NotDue.
+      if (dueNs + DUE_SAFETY_MARGIN_NS >= now) continue;
+
+      // Cooldown after a previous NotDue: block time trails the local clock.
+      const retryAt = state.notDueUntil.get(deal.deal_id);
+      if (retryAt !== undefined && retryAt > now) continue;
+
+      try {
+        const { hash, value } = await deps.settleDue(deal.deal_id);
+        if (value.result === "NotDue") {
+          // Block time has not caught up yet — rest this deal for a while
+          // instead of paying for another NotDue on every tick.
+          state.notDueUntil.set(deal.deal_id, now + NOT_DUE_COOLDOWN_NS);
+        }
+        results.push({
+          deal_id: deal.deal_id,
+          result: value.result,
+          installment_index: value.installment_index,
+          tx_hash: hash,
+          explorer_link: `${EXPLORER_BASE}/${hash}`,
+        });
+      } catch (err) {
+        // One failing settle_due (RPC timeout, NotEnoughAllowance, …) skips
+        // only this deal; the rest of the tick keeps going.
+        results.push({
+          deal_id: deal.deal_id,
+          result: "Error",
+          installment_index: null,
+          tx_hash: null,
+          explorer_link: null,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
     }
 
     // Stop paging when the batch is smaller than the requested limit.
@@ -203,10 +272,11 @@ async function run() {
   console.log(`[collector] Press Ctrl+C to stop`);
 
   const deps = createLiveDeps();
+  const state = createTickState();
 
   while (true) {
     try {
-      const entries = await tick(deps);
+      const entries = await tick(deps, state);
       if (entries.length === 0) {
         console.log(
           `[collector] ${new Date().toISOString()} — no overdue installments`,
@@ -217,9 +287,15 @@ async function run() {
             e.installment_index !== null
               ? ` (installment #${e.installment_index})`
               : "";
-          console.log(
-            `[collector] deal #${e.deal_id} → ${e.result}${idx} | ${e.explorer_link}`,
-          );
+          if (e.result === "Error") {
+            console.error(
+              `[collector] deal #${e.deal_id} → Error | ${e.error ?? "unknown error"}`,
+            );
+          } else {
+            console.log(
+              `[collector] deal #${e.deal_id} → ${e.result}${idx} | ${e.explorer_link}`,
+            );
+          }
         }
       }
     } catch (err) {

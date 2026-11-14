@@ -15,8 +15,12 @@
  * Usage: `npm run reader -w agent` will not invoke this; it is only called
  * from the Judge demo route in Phase 2 (web/app/api/demo/illegal-attempt).
  *
- * The function never throws — it always returns a structured result so the
- * UI can display the raw blockchain error message and the nearblocks link.
+ * The function never throws — it always returns a structured result. Only
+ * `outcome: "rejected"` (an AccessKey… error from the RPC) is proof that the
+ * chain blocked the attempt; network/env failures come back as `outcome:
+ * "error"` and must not be shown as a rejection (issue #10). A rejected
+ * transaction never enters a block, so there is no tx hash or nearblocks link
+ * for that step — the web UI must not wait for one.
  */
 
 import { config as loadEnv } from "dotenv";
@@ -30,13 +34,27 @@ import {
 import type { KeyPairString } from "near-api-js";
 
 export interface IllegalAttemptResult {
-  /** Always false: the blockchain rejected the transfer. */
-  success: false;
-  /** Raw error message returned by the NEAR RPC. */
-  error: string;
   /**
-   * Nearblocks link for the rejected transaction, if the RPC returned a tx
-   * hash before rejecting (some NEAR rejection modes include one).
+   * "rejected" — the chain refused the transaction with an AccessKey… error
+   *              (classes from near-api-js/rpc-errors): the proof the demo
+   *              wants.
+   * "accepted" — the transaction went through: the keeper key is NOT
+   *              restricted. The demo is misconfigured.
+   * "error"    — network / RPC / env problem: nothing was proven either way,
+   *              never report this as a chain rejection.
+   */
+  outcome: "rejected" | "accepted" | "error";
+  /** True only when outcome is "rejected". */
+  rejected_by_chain: boolean;
+  /** Raw error message returned by the NEAR RPC (empty when outcome is "accepted"). */
+  error: string;
+  /** Error class name, e.g. AccessKeyReceiverMismatchActionError. */
+  error_kind: string | null;
+  /**
+   * Nearblocks link, only when a transaction actually ran (outcome
+   * "accepted"). For "rejected" this is always null: the tx is refused before
+   * it enters a block, so no hash exists — the web UI must not wait for a link
+   * on this demo step (issue #10).
    */
   explorer_link: string | null;
   /** Account that attempted the transfer. */
@@ -56,6 +74,34 @@ function requireEnv(name: string): string {
 }
 
 const EXPLORER_TX = "https://testnet.nearblocks.io/txns";
+
+/**
+ * Classify a caught error from the illegal transfer attempt.
+ *
+ * Only an access-key rejection (class name starting with "AccessKey", from
+ * near-api-js/rpc-errors) proves the restricted key blocked the call — the same
+ * rule scripts/run-demo.ts uses. A network error, a wrong RPC URL, or a missing
+ * env var proves nothing and must NOT be reported as a chain rejection
+ * (issue #10).
+ */
+export function classifyAttemptError(err: unknown): {
+  outcome: "rejected" | "error";
+  error: string;
+  error_kind: string | null;
+} {
+  const kind = err instanceof Error ? err.constructor.name : "";
+  const message =
+    err instanceof Error
+      ? err.message
+      : typeof err === "string"
+        ? err
+        : JSON.stringify(err);
+  return {
+    outcome: kind.startsWith("AccessKey") ? "rejected" : "error",
+    error: message,
+    error_kind: kind === "" ? null : kind,
+  };
+}
 
 /**
  * Try to transfer 1 fEUR (smallest unit: "1") from the Collector's account
@@ -86,8 +132,6 @@ export async function tryIllegalTransfer(opts?: {
     keeperPrivateKey as KeyPairString,
   );
 
-  let explorerLink: string | null = null;
-
   try {
     // Attempt ft_transfer on the fEUR contract.
     // The KEEPER key's receiver_id is the FULLBACK contract and its
@@ -102,48 +146,39 @@ export async function tryIllegalTransfer(opts?: {
         memo: "illegal collector attempt",
       },
       gas: teraToGas("30"),
-      deposit: 1n, // ft_transfer requires 1 yoctoNEAR
+      // NO deposit — on purpose (issue #10). ft_transfer wants 1 yoctoNEAR,
+      // but a function-call key may never attach one: with a deposit the chain
+      // reports AccessKeyDepositWithFunctionCallActionError, without it the
+      // clearer AccessKeyReceiverMismatchActionError ("this key is only for
+      // the FULLBACK contract") — same as scripts/run-demo.ts.
+      deposit: 0n,
       waitUntil: "FINAL",
     });
 
     // If we somehow reach here the network didn't block it — report as an
     // unexpected success (should never happen in a correctly configured demo).
-    explorerLink = `${EXPLORER_TX}/${res.transaction.hash}`;
-    // Treat this as a failure from the demo's perspective.
     return {
-      success: false,
+      outcome: "accepted",
+      rejected_by_chain: false,
       error:
         "Unexpected: transaction was accepted. Check that the key is correctly restricted.",
-      explorer_link: explorerLink,
+      error_kind: null,
+      explorer_link: `${EXPLORER_TX}/${res.transaction.hash}`,
       keeper_account_id: keeperAccountId,
       attempted_receiver: ftId,
       attempted_method: "ft_transfer",
     };
   } catch (err: unknown) {
-    // Extract the tx hash from the error if the RPC included one.
-    if (
-      err &&
-      typeof err === "object" &&
-      "transaction_outcome" in err &&
-      err.transaction_outcome &&
-      typeof err.transaction_outcome === "object" &&
-      "id" in err.transaction_outcome
-    ) {
-      const txHash = (err.transaction_outcome as { id: string }).id;
-      explorerLink = `${EXPLORER_TX}/${txHash}`;
-    }
-
-    const errorMessage =
-      err instanceof Error
-        ? err.message
-        : typeof err === "string"
-          ? err
-          : JSON.stringify(err);
-
+    // Only an AccessKey… rejection counts as "the chain blocked it". For that
+    // outcome there is never a tx hash: the transaction is refused before it
+    // enters a block (issue #10).
+    const { outcome, error, error_kind } = classifyAttemptError(err);
     return {
-      success: false,
-      error: errorMessage,
-      explorer_link: explorerLink,
+      outcome,
+      rejected_by_chain: outcome === "rejected",
+      error,
+      error_kind,
+      explorer_link: null,
       keeper_account_id: keeperAccountId,
       attempted_receiver: ftId,
       attempted_method: "ft_transfer",
@@ -168,9 +203,23 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       if (result.explorer_link) {
         console.log(`\nExplorer: ${result.explorer_link}`);
       }
-      console.log(
-        "\n✓ Blockchain correctly rejected the transfer attempt.",
-      );
+      if (result.outcome === "rejected") {
+        console.log(
+          "\n✓ Blockchain correctly rejected the transfer attempt.",
+        );
+        return;
+      }
+      // Anything else proves nothing — never claim the chain blocked it.
+      if (result.outcome === "accepted") {
+        console.error(
+          "\n✗ The transfer was ACCEPTED — the keeper key is NOT restricted!",
+        );
+      } else {
+        console.error(
+          `\n✗ Nothing was proven — ${result.error_kind ?? "unknown error"}: ${result.error}`,
+        );
+      }
+      process.exit(1);
     })
     .catch((err) => {
       console.error("[illegal-attempt] fatal:", err);

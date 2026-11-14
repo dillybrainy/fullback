@@ -1,0 +1,116 @@
+[
+  {
+    "file": "OK-01-basic.pdf",
+    "kind": "BENAR",
+    "expect": "Tanpa warning. Fee 6,000,000 = 3 x 2,000,000. Sell-on 10% gross. Akademi Desa 12-15 -> 1.00%, Kota FC 16-20 -> 2.50%.",
+    "sha256": "1340d083678a312547b454050f3d4d5246f34deacc641c428ee36bb2c1d3bf88"
+  },
+  {
+    "file": "OK-02-unequal-installments.pdf",
+    "kind": "BENAR",
+    "expect": "Tanpa warning. Cicilan tidak sama: 4,000,000 + 3,000,000 + 3,000,000 = 10,000,000.",
+    "sha256": "dc12f270a006a194ffa00e7dcc955b93ed3c9c3abb5c1a5944af1ee3d5bb816f"
+  },
+  {
+    "file": "OK-03-single-payment-no-security.pdf",
+    "kind": "BENAR",
+    "expect": "Tanpa warning. Satu kali bayar 5,000,000, tanpa pasal jaminan (collateral kosong boleh).",
+    "sha256": "c8a51015ff50a3a07f6ccc1b493fd6ecbaefcf5a20bd04da7022c3bec03f5b95"
+  },
+  {
+    "file": "OK-04-six-installments.pdf",
+    "kind": "BENAR",
+    "expect": "Tanpa warning. 6 cicilan x 2,000,000 = 12,000,000.",
+    "sha256": "3714ab993e31945d84685d0c29883c57577d73ebe9b78a6f8ecd83648dc1f4aa"
+  },
+  {
+    "file": "OK-05-royalty-max-5pct.pdf",
+    "kind": "BENAR",
+    "expect": "Tanpa warning. Akademi Desa 12-15 (1.00%) + Kota FC 16-23 (4.00%) = tepat 5% (batas maksimal).",
+    "sha256": "72d7c4693903ac0b1ae853a436c80097711952d187011aa18dc55ca70f9e8028"
+  },
+  {
+    "file": "OK-06-words-first.pdf",
+    "kind": "BENAR",
+    "expect": "Tanpa warning. Angka ditulis huruf dulu baru digit: 'seven million five hundred thousand euros (EUR 7,500,000)'. Agent harus tetap membaca 7,500,000.",
+    "sha256": "9cdd33fe9cbb86d0799223a7ac55615fabb46e94116fd0eefeae0a667b670d71"
+  },
+  {
+    "file": "OK-07-no-academy-share.pdf",
+    "kind": "BENAR",
+    "expect": "Tanpa warning dan tanpa akademi. Pemain baru terdaftar sejak umur 24 (Nordvik IF), jadi royalti 0% dan daftar akademi kosong.",
+    "sha256": "54d1b3da719989995299453d005a56e91e951c571eafadf4d66fcb3f21bf33a6"
+  },
+  {
+    "file": "BAD-01-installments-dont-add-up.pdf",
+    "kind": "SALAH - harus ketahuan",
+    "expect": "Warning installments_mismatch: 3 x 1,800,000 = 5,400,000, padahal fee 6,000,000.",
+    "sha256": "0e10e3eabf2af81791233c497f9bd6019cc6ea7964756d6bf3a516b149f29377"
+  },
+  {
+    "file": "BAD-02-sell-on-net.pdf",
+    "kind": "SALAH - harus ketahuan",
+    "expect": "Warning sell_on_net: sell-on dihitung dari 'net amount', FULLBACK hanya mendukung gross.",
+    "sha256": "90781f7068e736d2f4477eecb45c7f5823cfebb8842443f1eef0d0b9f0b846e2"
+  },
+  {
+    "file": "BAD-03-unknown-academy.pdf",
+    "kind": "SALAH - harus ketahuan",
+    "expect": "Error 'Unknown training club \"Sunrise Academy\"': akademi tidak ada di agent/clubs.json, jadi deal tidak boleh dibuat.",
+    "sha256": "7ee0c067e3be2cb625adca20677f0c0397deecb572afb9201aff7e5353929c2b"
+  },
+  {
+    "file": "BAD-04-sell-on-decimal.pdf",
+    "kind": "SALAH - harus ketahuan",
+    "expect": "Error validasi: sell-on 12.5% bukan bilangan bulat (schema hanya menerima persen bulat).",
+    "sha256": "03a51f33eb73b8a3a689c41525fa2b9c6e11ed50f5a3b2421541d735709adbd8"
+  },
+  {
+    "file": "BAD-05-no-birth-date.pdf",
+    "kind": "SALAH - harus ketahuan",
+    "expect": "Tanggal lahir pemain tidak ada. Harus error validasi, atau quote_not_found kalau AI mengarang tanggal.",
+    "sha256": "e140bd939ff61b33a42b223e5c7f6b6ab42987b2741ef0a4530c5f9a142070c9"
+  },
+  {
+    "file": "BAD-06-no-schedule.pdf",
+    "kind": "SALAH - harus ketahuan",
+    "expect": "Jadwal cicilan tidak ada ('to be agreed later'). Harus error validasi, atau quote_not_found kalau AI mengarang cicilan.",
+    "sha256": "6b53ccffd39bafd54cdc55e284809ff43ca8504f12caf7ced93b50210125f358"
+  },
+  {
+    "file": "BAD-07-contradicting-clauses.pdf",
+    "kind": "SALAH - harus ketahuan",
+    "expect": "Pasal 3.2 bilang 3 cicilan, pasal 3.3 bilang 4 cicilan x 2,000,000. Kalau AI ambil 4 cicilan -> installments_mismatch (8,000,000 vs 6,000,000).",
+    "sha256": "733e3df15dc5141019f7ee72927d5dfc16fc598c473d51f1509c7b8f02c9e7f7"
+  },
+  {
+    "file": "GAP-01-words-digits-conflict.pdf",
+    "kind": "SALAH - kemungkinan LOLOS",
+    "expect": "Digit 6,000,000 tapi huruf 'five million'. Agent tidak membandingkan angka dengan hurufnya. Manusia harus menangkap ini.",
+    "sha256": "2ca5e6560b38ebc0d06984cfc415ffd0c0319429a7ef9baa3d19f9060c3edba6"
+  },
+  {
+    "file": "GAP-02-security-too-small.pdf",
+    "kind": "SALAH - kemungkinan LOLOS",
+    "expect": "Jaminan cuma 500,000, padahal satu cicilan 2,000,000. Agent tidak mengecek jaminan = satu cicilan.",
+    "sha256": "715accff704d1ba0b8b58748f402065621efc3742d7b80cfd88feebd97a8b70e"
+  },
+  {
+    "file": "GAP-03-dates-before-signing.pdf",
+    "kind": "SALAH - kemungkinan LOLOS",
+    "expect": "Cicilan pertama jatuh tempo 1 Jan 2026, sebelum perjanjian ditandatangani (2 Mar 2026), dan urutannya acak. Agent tidak mengecek tanggal.",
+    "sha256": "94ffcee734ce8beced3afcd146fd86f2d192b07453136f30c606d27cdebe1290"
+  },
+  {
+    "file": "GAP-04-overlapping-history.pdf",
+    "kind": "SALAH - kemungkinan LOLOS",
+    "expect": "Riwayat tumpang tindih: Akademi Desa 12-17 dan Kota FC 16-20 (umur 16-17 dihitung dua kali). Agent tidak mengecek tumpang tindih.",
+    "sha256": "afc2f23a5a981fb3c81fd58094e033aabfc91bdf823dc29f0a55d20303193275"
+  },
+  {
+    "file": "VERIFY-OK-01-TAMPERED.pdf",
+    "kind": "SALAH - untuk Verify",
+    "expect": "Sama persis dengan OK-01, kecuali sell-on 10% jadi 5%. Di halaman Verify, sidik jarinya harus beda dari OK-01.",
+    "sha256": "5ef3249b32b9e8fbaf9d28d759c92241f6bd9a4830e5a7759ab62774c75eb3a0"
+  }
+]
