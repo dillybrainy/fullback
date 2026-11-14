@@ -67,6 +67,12 @@
         "bps": 250
       }
     ],
-    "warnings": []
+    "warnings": [
+      {
+        "code": "quote_not_found",
+        "field": "sellOn",
+        "message": "Demo copy that was tampered with: the sell-on here (5% of gross) does not match the signed agreement (10%). The fingerprint check rejects this file."
+      }
+    ]
   }
 }

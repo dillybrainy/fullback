@@ -11,7 +11,7 @@ key, tanpa LLM, biaya $0) dan sebagai acuan tes.
 | `deal2.json` | `ReaderOutput` langsung | `deal2-portoalegre-clubz.pdf` (Lucas resale, git `f741c98`, hash `2d72a523…`) | **Data terkunci R4**: 20.000.000 sekali bayar, **tanpa** jaminan, sell-on 15% gross |
 | `ok01-basic.json` | `{ pdfHash, output }` | `sample-agreements/tests/OK-01-basic.pdf` | Daniel Okoro, fee 6.000.000 = 3 × 2.000.000, jaminan 2.000.000, sell-on 10% gross, Akademi Desa 100 bps + Kota FC 250 bps |
 | `ok02-unequal-installments.json` | `{ pdfHash, output }` | `sample-agreements/tests/OK-02-unequal-installments.pdf` | Daniel Okoro, fee 10.000.000 = 4 jt + 3 jt + 3 jt, jaminan 3.000.000, sell-on 10% gross |
-| `verify-ok01-tampered.json` | `{ pdfHash, output }` | `sample-agreements/tests/VERIFY-OK-01-TAMPERED.pdf` | Sama dengan `ok01-basic.json` kecuali **sell-on 5% (500 bps)** — jawaban jujur untuk dokumen yang sengaja dirusak, supaya web bisa memperlihatkan angka palsunya berdampingan dengan data asli |
+| `verify-ok01-tampered.json` | `{ pdfHash, output }` | `sample-agreements/tests/VERIFY-OK-01-TAMPERED.pdf` | Sama dengan `ok01-basic.json` kecuali **sell-on 5% (500 bps)** + **1 warning** "tampered copy" (kartu kuning di web). Catatan: `WarningSchema.code` dibekukan, jadi warning ini memakai kode `quote_not_found` — maknanya dibawa oleh `field`/`message`; kode khusus `tampered_copy` butuh persetujuan 4 orang |
 
 - **`deal1.json` dan `deal2.json` jangan diubah** (angka R1–R4 terkunci, CLAUDE.md).
   Bentuknya juga dibaca langsung oleh `web/tests/ai-review.test.mjs` dan

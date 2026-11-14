@@ -176,9 +176,12 @@ describe("DEMO_MODE (fixtures, no API key)", () => {
     expect(ok01.fee.amount).toBe(6000000);
     expect(ok02.fee.amount).toBe(10000000);
     expect(ok02.collateral?.amount).toBe(3000000);
-    // The tampered copy is read honestly: same terms, but the forged sell-on.
+    // The tampered copy is read honestly: same terms, but the forged sell-on,
+    // and a warning that names the tamper (shown as the amber warning card).
     expect(tampered.fee.amount).toBe(6000000);
     expect(tampered.sellOn).toMatchObject({ bps: 500, basis: "gross" });
+    expect(tampered.warnings).toHaveLength(1);
+    expect(tampered.warnings[0]).toMatchObject({ field: "sellOn" });
   });
 
   it("rejects an unknown PDF in demo mode with a helpful message", async () => {
