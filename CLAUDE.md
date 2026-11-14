@@ -35,7 +35,7 @@ Catatan harian ditulis di `docs/progress/orang-N.md` milik masing-masing.
 - Testnet saja. Jangan pernah memakai mainnet atau uang asli.
 - Jangan commit `.env`, kunci privat, atau seed phrase. Kunci akun demo hanya ada di environment Vercel.
 - Desain Figma memakai layer biasa, tanpa component atau instance.
-- Semua commit langsung ke `main` (tanpa branch). Commit kecil dan sering, lalu push.
+- Kerja di branch `orang-<N>/<pekerjaan>`, lalu Pull Request ke `main`. Kalau diminta, AI boleh `git commit` dan `git push` ke branch itu; tambahkan hanya file yang diubah untuk pekerjaan itu, jangan `git add .`.
 
 ## Berhenti dan tanya manusia jika
 
@@ -47,7 +47,7 @@ Catatan harian ditulis di `docs/progress/orang-N.md` milik masing-masing.
 
 ## Hanya manusia yang boleh
 
-Mengeluarkan uang asli, deploy ke mainnet, membuat repo publik, posting di X, dan mengisi form submit (sekali, tidak bisa diedit).
+Push ke `main`, `git merge`, force-push, membuat Pull Request, mengeluarkan uang asli, deploy ke mainnet, membuat repo publik, posting di X, dan mengisi form submit (sekali, tidak bisa diedit).
 
 ## Perintah penting
 
