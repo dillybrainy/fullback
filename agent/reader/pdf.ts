@@ -28,7 +28,8 @@ export function sha256Hex(data: Uint8Array): string {
 }
 
 /** All text of a PDF, whitespace-normalised: every run of spaces/newlines becomes one space. */
-export async function extractPdfText(data: Uint8Array): Promise<string> {
+export async function extractPdfText(data: Uint8Array, options: { signal?: AbortSignal; maxPages?: number; maxTextChars?: number } = {}): Promise<string> {
+  options.signal?.throwIfAborted();
   const doc = await getDocument({
     data,
     isEvalSupported: false,
@@ -36,14 +37,17 @@ export async function extractPdfText(data: Uint8Array): Promise<string> {
     disableFontFace: true,
   }).promise;
   try {
+    if (doc.numPages > (options.maxPages ?? Infinity)) throw new Error(`This PDF exceeds the ${options.maxPages}-page review limit.`);
     let out = "";
     for (let p = 1; p <= doc.numPages; p++) {
+      options.signal?.throwIfAborted();
       const page = await doc.getPage(p);
       const content = await page.getTextContent();
       for (const item of content.items as { str?: string }[]) {
         if (typeof item.str === "string") out += item.str + " ";
       }
       out += "\n";
+      if (out.length > (options.maxTextChars ?? Infinity)) throw new Error("This PDF contains too much text for one review. Choose a shorter agreement.");
     }
     return out.replace(/\s+/g, " ").trim();
   } finally {

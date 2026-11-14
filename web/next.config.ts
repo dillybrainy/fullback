@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: { unoptimized: true },
   redirects: firstVisitRedirects,
+  async rewrites() {
+    const reader = process.env.READER_INTERNAL_URL ?? "http://127.0.0.1:3001";
+    return [{ source: "/api/reader", destination: `${reader.replace(/\/$/, "")}/api/reader` }];
+  },
   async headers() {
     if (staticExport) return [];
     return [
@@ -29,6 +33,7 @@ const nextConfig: NextConfig = {
 if (staticExport) {
   delete nextConfig.headers;
   delete nextConfig.redirects;
+  delete nextConfig.rewrites;
 }
 
 export default nextConfig;

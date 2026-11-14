@@ -53,7 +53,8 @@ function isDemoMode(): boolean {
   return process.env.DEMO_MODE === "true";
 }
 
-export async function readPdf(data: Uint8Array): Promise<ReadPdfResult> {
+export async function readPdf(data: Uint8Array, options: { signal?: AbortSignal; maxPages?: number; maxTextChars?: number } = {}): Promise<ReadPdfResult> {
+  options.signal?.throwIfAborted();
   const pdfHash = sha256Hex(data);
 
   if (isDemoMode()) {
@@ -70,8 +71,9 @@ export async function readPdf(data: Uint8Array): Promise<ReadPdfResult> {
     return { output: fixture, pdfHash };
   }
 
-  const text = await extractPdfText(data);
-  const llm = await readAgreementWithLlm(text);
+  const text = await extractPdfText(data, options);
+  if (!text.trim()) throw new Error("This PDF has no readable text. Choose a text PDF; scanned documents need OCR first.");
+  const llm = await readAgreementWithLlm(text, options.signal);
   const output = enrichReaderOutput(llm, text, { clubs });
   return { output, pdfHash };
 }

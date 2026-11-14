@@ -7,7 +7,7 @@ Aturan masuk terbaru: **kunjungan pertama ke URL halaman apa pun harus melalui l
 | Route | Perilaku sekarang |
 |---|---|
 | `/` | Landing kanonis; menu Home, logo, serta Back to Home kembali ke sini |
-| `/signin` | Koneksi/pemutusan wallet NEAR testnet; pilihan peran nonaktif; Home/Verify tetap tersedia |
+| `/signin` | Koneksi/pemutusan wallet NEAR testnet; pilihan peran aktif setelah terhubung; Home/Verify tetap tersedia |
 | `/verify` | Fingerprint PDF lokal, tanpa login atau pengiriman file |
 | `/dashboard` | Akses ditutup; diarahkan ke `/signin?next=%2Fdashboard` |
 | `/deals/new` | Akses ditutup; diarahkan ke Sign in |
@@ -16,6 +16,10 @@ Aturan masuk terbaru: **kunjungan pertama ke URL halaman apa pun harus melalui l
 | `/federation` | Akses ditutup; diarahkan ke Sign in |
 
 ## Cara penutupan bekerja
+
+Pilihan Club, Academy, dan Federation mengikuti status wallet, bukan atribut `disabled` permanen. Saat belum terhubung/masih menghubungkan, pilihan terkunci. Saat terhubung atau berhasil dipulihkan, ketiganya aktif dengan navigasi radio keyboard native. Disconnect dan pergantian akun mereset pilihan ke Club. Ini pilihan tampilan form dan tidak memberi otorisasi workspace.
+
+Regresi ini diuji tanpa server melalui `npm.cmd run build:static -w web` lalu `npm.cmd run test:roles -w web`, memakai prasyarat Playwright/Chrome yang sama dengan tes motion. Tes menjalankan komponen dan provider produksi; hanya konektor SDK serta respons saldo diganti fixture pada browser. Cakupan: sebelum/saat/setelah connect, ketiga peran, keyboard, pergantian akun, disconnect, pemulihan koneksi, dan workspace tetap tertutup pada 390/1440px. Ini bukan tes login wallet atau transaksi live.
 
 Entry page privat hanya merender `ClosedWorkspace`, tanpa memanggil atau meneruskan komponen workspace sebagai children. HTML dan payload RSC hasil export tidak memuat detail deal, data klub, atau dashboard yang disembunyikan dengan CSS. Setelah landing dikunjungi, JavaScript mengarahkan URL privat ke Sign in dengan `router.replace`. Pada static hosting, respons awal berupa pemberitahuan mulai dari Home; tanpa JavaScript, meta refresh membawa pengguna ke Home. Ini bukan autentikasi server.
 

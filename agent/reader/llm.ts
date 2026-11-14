@@ -69,7 +69,7 @@ export class LlmApiError extends Error {
 }
 
 /** Ask NEAR AI Cloud to read the agreement. Throws on API or schema errors. */
-export async function readAgreementWithLlm(pdfText: string): Promise<ReaderLLM> {
+export async function readAgreementWithLlm(pdfText: string, signal?: AbortSignal): Promise<ReaderLLM> {
   const apiKey = getApiKey();
   if (!apiKey) {
     throw new Error(
@@ -80,6 +80,7 @@ export async function readAgreementWithLlm(pdfText: string): Promise<ReaderLLM> 
   const model = getModel();
 
   const res = await fetch(`${baseUrl}/chat/completions`, {
+    signal,
     method: "POST",
     headers: {
       "Content-Type": "application/json",
