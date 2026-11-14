@@ -165,6 +165,17 @@ ditolak chain dengan `AccessKeyReceiverMismatchActionError`; `tick()` live
 memanggil `settle_due` deal #0 (tx `HG53tgp9…`) → `Defaulted`, tick lanjutan
 bersih tanpa panggilan sia-sia.
 
+**Menguji Collector kapan saja:** buat deal uji dengan jatuh tempo bebas
+(`scripts/make-deal.ts`), lalu nyalakan Penagih:
+
+```powershell
+npm run make:deal -- --due 45 --count 1   # cicilan jatuh tempo 45 dtk lagi, tak dibayar
+npm run collector                          # akan menagihnya: deal #N -> PaidFromCollateral
+```
+
+Opsi: `--due <detik>` (0/negatif = sudah lewat), `--count`, `--interval`,
+`--amount`, `--collateral`, `--pay-first`. Detail di header `scripts/make-deal.ts`.
+
 ## Cara cek lokal
 
 ```powershell

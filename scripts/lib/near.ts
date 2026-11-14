@@ -21,12 +21,14 @@ export const DEMO_ENV_FILE = resolve(SCRIPTS_DIR, ".env.demo");
 loadEnv({ path: resolve(REPO_DIR, ".env") });
 if (existsSync(DEMO_ENV_FILE)) loadEnv({ path: DEMO_ENV_FILE, override: true });
 
-const network = process.env.NEAR_NETWORK ?? "testnet";
+const network = process.env.NEAR_NETWORK?.trim() || "testnet";
 if (network !== "testnet") {
   throw new Error(`NEAR_NETWORK is "${network}". FULLBACK scripts only run on testnet.`);
 }
 
-export const RPC_URL = process.env.NEAR_RPC_URL ?? "https://test.rpc.fastnear.com";
+// Empty string in .env (e.g. `NEAR_RPC_URL=`) must fall back to the default —
+// `??` does not treat "" as unset and fetch("") fails with "Failed to parse URL".
+export const RPC_URL = process.env.NEAR_RPC_URL?.trim() || "https://test.rpc.fastnear.com";
 export const provider = new JsonRpcProvider({ url: RPC_URL });
 
 export const FEUR_DECIMALS = 6n;

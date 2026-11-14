@@ -18,6 +18,7 @@
     "test": "npm test --workspaces --if-present",
     "setup:demo": "npm run setup:demo -w scripts",
     "demo": "npm run demo -w scripts",
+    "make:deal": "npm run make:deal -w scripts --",
     "collector": "npm run collector -w agent"
   }
 }
