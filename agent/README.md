@@ -162,7 +162,7 @@ bersih tanpa panggilan sia-sia.
 ## Cara cek lokal
 
 ```bash
-npm test -w agent                      # semua tes unit (62): schema, training, reader, reader-http, collector, illegal-attempt, config
+npm test -w agent                      # 69 tes: schema, training, reader, collector, http
 LIVE_TEST=1 npm test -w agent -- tests/reader-live.test.ts   # tes live (butuh API key)
 npm run reader -w agent -- <file.pdf>  # cetak hasil Pembaca (DEMO_MODE dari .env)
 npm run collector                      # Penagih live, tick tiap 15 dtk (Ctrl+C berhenti)
