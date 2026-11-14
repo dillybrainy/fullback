@@ -161,3 +161,4 @@ Build normal menggunakan preset Next.js. Untuk static hosting tanpa proses Node,
 | Fingerprint meminta HTTPS/localhost | Gunakan localhost atau URL HTTPS, bukan alamat IP LAN melalui HTTP |
 | Foto atau font hilang setelah deploy | Pastikan `web/public/images/`, `web/public/media/`, dan sumber `web/public/fonts/` ikut checkout; deploy seluruh output dari satu build, termasuk `_next/static/media` |
 | Vercel menjalankan project yang salah | Periksa Root Directory harus `web` dan preset Next.js |
+| `[STATIC_BUILD_NO_OUT_DIR] No Output Directory named "public"` | Vercel mengira ini static site, bukan Next.js (build-nya sendiri sukses). Di Project Settings set **Framework Preset: Next.js** dan **Root Directory: `web`**, aktifkan *Include source files outside of the Root Directory*, lalu redeploy. `web/vercel.json` sudah memaksa `framework: nextjs` untuk mencegah salah deteksi |
