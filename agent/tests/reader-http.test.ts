@@ -58,4 +58,14 @@ describe("Reader HTTP boundary", () => {
     const handle = createReaderHandler({ configured: () => true, read: vi.fn().mockResolvedValue({ ...result, pdfHash: "f".repeat(64) }) });
     expect((await handle(request())).status).toBe(422);
   });
+  it("still matches the fingerprint when the Reader detaches the PDF buffer (pdf.js does)", async () => {
+    const read = vi.fn(async (pdf: Uint8Array) => {
+      const pdfHash = createHash("sha256").update(pdf).digest("hex");
+      structuredClone(pdf.buffer, { transfer: [pdf.buffer] }); // detach, like pdf.js
+      return { output, pdfHash };
+    });
+    const response = await createReaderHandler({ configured: () => true, read })(request());
+    expect(response.status).toBe(200);
+    expect((await response.json()).pdfHash).toBe(result.pdfHash);
+  });
 });

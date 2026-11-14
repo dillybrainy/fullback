@@ -5,6 +5,7 @@
   "type": "module",
   "description": "FULLBACK AI agents: PDF Reader and Collector.",
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "reader": "tsx reader/cli.ts",

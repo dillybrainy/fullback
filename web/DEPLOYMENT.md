@@ -20,7 +20,7 @@ node --version
 npm.cmd --version
 ```
 
-Frontend saat ini tidak membutuhkan `.env`, wallet, atau API key. Dashboard memakai data contoh. PDF hanya dihitung fingerprint-nya di browser; AI reader, perbandingan on-chain, dan transaksi belum terhubung.
+Dashboard memakai data contoh. Di `/verify`, PDF dihitung fingerprint-nya di browser dan bisa direview AI Reader lewat `/api/reader` (butuh `NEARAI_API_KEY`, lihat bagian 6). Transaksi belum terhubung.
 
 ## 1. Pasang dependency frontend
 
@@ -107,8 +107,18 @@ Deploy dilakukan sendiri dari akun Vercel. Panduan ini tidak mempublikasikan apl
 3. Pilih **Framework Preset: Next.js** dan **Root Directory: web**. Vercel mendukung pemilihan project dari subfolder monorepo. [Dokumentasi monorepo Vercel](https://vercel.com/docs/monorepos)
 4. Gunakan build command `npm run build` yang dijalankan dari `web/`; biarkan output directory mengikuti preset Next.js.
 5. Biarkan deteksi instalasi npm workspace menggunakan lockfile root. Jika build perlu membaca file di luar `web/`, aktifkan **Include source files outside of the Root Directory in the Build Step** pada pengaturan Root Directory. [FAQ monorepo Vercel](https://vercel.com/docs/monorepos/monorepo-faq)
-6. Samakan versi Node dengan versi lokal yang sudah diuji. Frontend contoh saat ini tidak memerlukan environment variable.
-7. Gunakan deployment preview untuk review perubahan, lalu buka URL yang diberikan Vercel.
+6. Samakan versi Node dengan versi lokal yang sudah diuji.
+7. **Wajib aktifkan "Include source files outside of the Root Directory"**: `npm run build` di `web/` menjalankan `prebuild`, yang meng-compile AI Reader dari `agent/` ke `agent/dist`, lalu route `/api/reader` mem-bundle hasil itu.
+8. Isi Environment Variables (Settings → Environment Variables) untuk AI Reader `/api/reader`:
+
+   | Nama | Nilai |
+   |---|---|
+   | `NEARAI_API_KEY` | API key NEAR AI Cloud (rahasia, jangan di-commit) |
+   | `NEARAI_MODEL` | **kosongkan**, supaya dipakai default kode `Qwen/Qwen3.6-35B-A3B-FP8` (private TEE) |
+   | `DEMO_MODE` | `false` untuk membaca PDF apa pun secara live. `true` hanya menerima PDF demo (Lucas, OK-01, OK-02) tanpa LLM |
+   | `READER_ALLOWED_ORIGINS` | opsional; domain lain yang boleh memanggil API. Domain deployment itu sendiri selalu diizinkan |
+
+9. Gunakan deployment preview untuk review perubahan, lalu buka URL yang diberikan Vercel.
 
 Build normal menggunakan preset Next.js. Untuk static hosting tanpa proses Node, frontend contoh saat ini juga mendukung `npm.cmd run build:static -w web`: deploy isi `web/out/`, dengan cache dan header diatur pada hosting. Jangan mengunggah folder `.next` sebagai website statis biasa. Pilihannya dijelaskan di [PERFORMANCE.md](PERFORMANCE.md). [Dokumentasi deployment Next.js](https://nextjs.org/docs/app/getting-started/deploying)
 
@@ -119,6 +129,7 @@ Build normal menggunakan preset Next.js. Untuk static hosting tanpa proses Node,
 - `/`, `/signin`, dan `/verify` harus terbuka. Semua URL dashboard/deal/federation harus menuju Sign in; tanpa JavaScript hanya menampilkan akses tertutup, bukan data workspace.
 - Periksa foto/font lokal termuat, menu Home/mobile, FAQ, dan Back to Home. Tidak boleh ada tombol Explore yang melewati login.
 - Unggah PDF contoh di `/verify`: hash harus tampil, sedangkan status tetap belum diverifikasi on-chain.
+- `GET /api/reader` dari browser di domain itu harus mengembalikan `{"configured":true,"mode":"live",...}`. Di `/verify`, unggah `sample-agreements/tests/OK-01-basic.pdf` lalu klik **Review agreement with AI**: hasilnya tanpa warning. `BAD-01-installments-dont-add-up.pdf` harus memunculkan warning cicilan. Static export (`build:static`) tidak memuat `/api/reader`.
 - Gunakan HTTPS pada deployment. Web Crypto untuk fingerprint memerlukan secure context; development lokal dapat memakai localhost.
 - Wallet dan transaksi yang belum terhubung harus tetap ditandai belum tersedia.
 

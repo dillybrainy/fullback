@@ -9,22 +9,20 @@
  * Always returns the PDF's SHA-256 alongside the output: the web needs it for
  * `create_deal`'s `pdf_hash` (R12).
  */
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import type { ReaderOutput } from "../schema.js";
 import { enrichReaderOutput } from "./enrich.js";
 import { readAgreementWithLlm } from "./llm.js";
 import { extractPdfText, sha256Hex } from "./pdf.js";
-
-const AGENT_DIR = dirname(fileURLToPath(import.meta.url));
-
-function loadJson<T>(...segments: string[]): T {
-  return JSON.parse(readFileSync(resolve(AGENT_DIR, "..", ...segments), "utf8")) as T;
-}
+// JSON is imported (not read from disk by path) so the Reader also works when a
+// bundler packs it into the web's API route (/api/reader).
+import clubsJson from "../clubs.json" with { type: "json" };
+import deal1Json from "../fixtures/deal1.json" with { type: "json" };
+import deal2Json from "../fixtures/deal2.json" with { type: "json" };
+import ok01Json from "../fixtures/ok01-basic.json" with { type: "json" };
+import ok02Json from "../fixtures/ok02-unequal-installments.json" with { type: "json" };
 
 /** Club name → testnet account (concrete `*.fullback-team.testnet`, see clubs.json). */
-export const clubs = loadJson<Record<string, string>>("clubs.json");
+export const clubs: Record<string, string> = clubsJson;
 
 /** Test-suite fixture format: exact PDF fingerprint + the Reader's answer. */
 interface FixtureFile {
@@ -36,11 +34,11 @@ interface FixtureFile {
 
 // Lucas demo (PLAN.md R1–R4, locked numbers). Plain `ReaderOutput` files: the
 // web tests and scripts read them in this shape, so it must not change.
-const deal1Fixture = loadJson<ReaderOutput>("fixtures", "deal1.json");
-const deal2Fixture = loadJson<ReaderOutput>("fixtures", "deal2.json");
+const deal1Fixture = deal1Json as unknown as ReaderOutput;
+const deal2Fixture = deal2Json as unknown as ReaderOutput;
 // Neutral test-suite agreements, usable in DEMO_MODE without restoring a PDF.
-const ok01Fixture = loadJson<FixtureFile>("fixtures", "ok01-basic.json");
-const ok02Fixture = loadJson<FixtureFile>("fixtures", "ok02-unequal-installments.json");
+const ok01Fixture = ok01Json as unknown as FixtureFile;
+const ok02Fixture = ok02Json as unknown as FixtureFile;
 
 /**
  * DEMO_MODE answer keys: PDF SHA-256 → ReaderOutput (details in

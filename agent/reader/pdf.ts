@@ -19,8 +19,16 @@ const require = createRequire(import.meta.url);
 // The 14 standard fonts (Helvetica etc.) ship inside pdfjs-dist. The Node
 // build needs this path to embed them; without it pdf.js logs warnings.
 // Must end with "/" — pdf.js resolves font names against it as a URL base.
-const STANDARD_FONT_DATA_URL =
-  join(dirname(require.resolve("pdfjs-dist/package.json")), "standard_fonts") + "/";
+// Best effort: when a bundler packs this file, require.resolve may not return a
+// path; text extraction still works without the fonts.
+const STANDARD_FONT_DATA_URL = (() => {
+  try {
+    const pkg: unknown = require.resolve("pdfjs-dist/package.json");
+    return typeof pkg === "string" ? join(dirname(pkg), "standard_fonts") + "/" : undefined;
+  } catch {
+    return undefined;
+  }
+})();
 
 /** SHA-256 of the exact PDF bytes, hex, lowercase (R12: Contract Fingerprint). */
 export function sha256Hex(data: Uint8Array): string {

@@ -54,14 +54,19 @@ export function createReaderHandler(options: Options = {}) {
       if (!new TextDecoder().decode(bytes.slice(0, 1024)).includes("%PDF-")) return json(415, { error: "This file does not contain a PDF document." });
       total++;
       clients.set(clientId, (clients.get(clientId) ?? 0) + 1);
-      const result = await read(bytes, { signal: controller.signal, maxPages: 50, maxTextChars: 60000 });
+      // Hash first: pdf.js transfers (detaches) the buffer it reads, so the bytes
+      // are empty afterwards. The Reader gets its own copy.
+      const submittedHash = createHash("sha256").update(bytes).digest("hex");
+      const result = await read(bytes.slice(), { signal: controller.signal, maxPages: 50, maxTextChars: 60000 });
       controller.signal.throwIfAborted();
-      if (result.pdfHash !== createHash("sha256").update(bytes).digest("hex")) throw new Error("The reviewed PDF fingerprint does not match the submitted file.");
+      if (result.pdfHash !== submittedHash) throw new Error("The reviewed PDF fingerprint does not match the submitted file.");
       const output = ReaderOutputSchema.parse(result.output);
       return json(200, { pdfHash: result.pdfHash, output, mode: mode() });
     } catch (error) {
       if (controller.signal.aborted) return json(504, { error: "AI review timed out or was cancelled. Please retry." });
       const message = error instanceof Error ? error.message : "";
+      // Server log only (never sent to the browser): helps debug a failed review.
+      console.error("[reader] review failed:", message.slice(0, 500));
       const safe = /^(This PDF|This file|DEMO_MODE is on|Unknown training club)/.test(message);
       return json(422, { error: safe ? message : "The AI Reader could not validate this agreement. Check that the PDF contains readable, complete transfer terms and retry." });
     } finally {

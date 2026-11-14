@@ -1,5 +1,16 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
 import type { NextConfig } from "next";
 import { firstVisitRedirects } from "./lib/landing-entry.mjs";
+
+// Local runs keep secrets in the repo-root .env (CLAUDE.md: `cp .env.example .env`).
+// Next only reads web/.env*, so load the root file too. Server-side only: nothing
+// is exposed to the browser unless it starts with NEXT_PUBLIC_. On Vercel there is
+// no such file and the dashboard env vars are used.
+// Variables that are already set (shell, web/.env, Vercel) are not overwritten.
+const rootEnv = path.resolve(process.cwd(), "..", ".env");
+if (existsSync(rootEnv)) process.loadEnvFile(rootEnv);
+
 const staticExport = process.env.FULLBACK_STATIC_EXPORT === "1";
 
 const nextConfig: NextConfig = {
@@ -10,6 +21,13 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["**.*"],
   ...(staticExport ? { output: "export" as const } : {}),
   poweredByHeader: false,
+  // `*.server.ts` files (API routes such as app/api/reader/route.server.ts) exist
+  // only in the server build; a static export cannot serve POST routes.
+  pageExtensions: staticExport ? ["tsx", "ts", "jsx", "js"] : ["tsx", "ts", "jsx", "js", "server.ts"],
+  // /api/reader bundles the AI Reader from agent/dist (JavaScript built from the
+  // `agent` workspace by `prebuild`). pdf.js stays an external Node package: it
+  // loads its worker and fonts from its own folder at runtime.
+  serverExternalPackages: ["pdfjs-dist"],
   images: { unoptimized: true },
   redirects: firstVisitRedirects,
   async rewrites() {

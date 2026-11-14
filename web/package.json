@@ -17,7 +17,9 @@
     "test:roles": "node scripts/test-signin-roles.cjs",
     "test:verify": "node --import tsx scripts/test-pdf-verification.mjs",
     "assets:prepare": "node scripts/prepare-images.cjs",
-    "perf:report": "node scripts/performance-report.cjs"
+    "perf:report": "node scripts/performance-report.cjs",
+    "prebuild": "npm run build --prefix ../agent",
+    "predev": "npm run build --prefix ../agent"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
