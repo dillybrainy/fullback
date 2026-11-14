@@ -12,7 +12,12 @@ import {
 const FIXTURES = resolve(dirname(fileURLToPath(import.meta.url)), "..", "fixtures");
 
 function fixture(name: string): unknown {
-  return JSON.parse(readFileSync(resolve(FIXTURES, name), "utf8"));
+  // Fixture format: { pdfHash, output } — see agent/fixtures/README.md.
+  const file = JSON.parse(readFileSync(resolve(FIXTURES, name), "utf8")) as {
+    pdfHash: string;
+    output: unknown;
+  };
+  return file.output;
 }
 
 describe("helpers", () => {
@@ -40,15 +45,15 @@ describe("helpers", () => {
 });
 
 describe("fixtures", () => {
-  it("deal1 passes ReaderOutputSchema and matches R2", () => {
+  it("deal1 (tests/OK-01-basic.pdf) passes ReaderOutputSchema and matches the PDF", () => {
     const deal = ReaderOutputSchema.parse(fixture("deal1.json"));
-    expect(deal.fee.amount).toBe(10000000);
-    expect(deal.installments).toHaveLength(4);
-    expect(deal.installments.map((i) => i.amount)).toEqual([2500000, 2500000, 2500000, 2500000]);
-    expect(deal.collateral?.amount).toBe(2500000);
-    expect(deal.sellOn).toMatchObject({ bps: 1500, basis: "gross" });
+    expect(deal.fee.amount).toBe(6000000);
+    expect(deal.installments).toHaveLength(3);
+    expect(deal.installments.map((i) => i.amount)).toEqual([2000000, 2000000, 2000000]);
+    expect(deal.collateral?.amount).toBe(2000000);
+    expect(deal.sellOn).toMatchObject({ bps: 1000, basis: "gross" });
     const byName = Object.fromEntries(deal.trainingClubs.map((c) => [c.name, c.bps]));
-    expect(byName).toEqual({ "Kota FC": 400, "Akademi Desa": 100 });
+    expect(byName).toEqual({ "Akademi Desa": 100, "Kota FC": 250 });
     expect(deal.warnings).toEqual([]);
   });
 
@@ -56,18 +61,25 @@ describe("fixtures", () => {
     const { trainingClubs, ...rest } = ReaderOutputSchema.parse(fixture("deal1.json"));
     const llmShape = {
       ...rest,
-      sellOn: { quote: rest.sellOn.quote, clause: rest.sellOn.clause, percent: 15, basis: "gross" },
+      sellOn: { quote: rest.sellOn.quote, clause: rest.sellOn.clause, percent: 10, basis: "gross" },
       trainingClubs: trainingClubs.map(({ bps, account, ...c }) => c),
     };
     expect(() => ReaderLLMSchema.parse(llmShape)).not.toThrow();
   });
 
-  it("deal2 (resale) passes ReaderOutputSchema without collateral and matches R4", () => {
+  it("deal2 (tests/OK-02-unequal-installments.pdf) passes ReaderOutputSchema with unequal installments", () => {
     const deal = ReaderOutputSchema.parse(fixture("deal2.json"));
-    expect(deal.fee.amount).toBe(20000000);
-    expect(deal.installments).toHaveLength(1);
-    expect(deal.installments[0].amount).toBe(20000000);
-    expect(deal.collateral).toBeUndefined();
-    expect(deal.sellOn).toMatchObject({ bps: 1500, basis: "gross" });
+    expect(deal.fee.amount).toBe(10000000);
+    expect(deal.installments.map((i) => i.amount)).toEqual([4000000, 3000000, 3000000]);
+    expect(deal.collateral?.amount).toBe(3000000);
+    expect(deal.sellOn).toMatchObject({ bps: 1000, basis: "gross" });
+    expect(deal.warnings).toEqual([]);
+  });
+
+  it("collateral is optional (a resale deal has none)", () => {
+    const { collateral: _collateral, ...withoutCollateral } = ReaderOutputSchema.parse(
+      fixture("deal2.json"),
+    );
+    expect(() => ReaderOutputSchema.parse(withoutCollateral)).not.toThrow();
   });
 });

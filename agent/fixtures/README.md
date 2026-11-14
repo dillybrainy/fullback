@@ -1,56 +1,78 @@
 # Fixtures (Orang 2)
 
-Data demo Lucas (PLAN.md R1–R4), angka terkunci — jangan diubah oleh AI. Dipakai
-oleh Pembaca saat `DEMO_MODE=true` (tanpa API key) dan sebagai acuan tes.
+**Kunci jawaban Pembaca** untuk PDF demo, dipakai saat `DEMO_MODE=true` (tanpa API
+key, tanpa LLM, biaya $0) dan sebagai acuan tes.
+
+## Format setiap file
+
+```json
+{
+  "pdfHash": "<sha256 hex huruf kecil dari byte PDF persis>",
+  "output": { "...ReaderOutput (agent/schema.ts, lolos zod)..." }
+}
+```
+
+- `pdfHash` — sidik jari byte PDF; kunci pencocokan DEMO_MODE.
+- `output` — bentuk `ReaderOutput` persis seperti yang dihasilkan Pembaca live.
+
+## Isi (per 15 Nov)
+
+| File | PDF sumber | Isi jawaban |
+|---|---|---|
+| `deal1.json` | `sample-agreements/tests/OK-01-basic.pdf` | Pemain **Daniel Okoro** (lahir 09-08-2004). Fee **6.000.000** = 3 × 2.000.000 (jatuh tempo 1 Apr, 1 Jul, 1 Okt 2026). Jaminan 2.000.000. Sell-on **10% gross** (1000 bps). Pembinaan: Akademi Desa 12–15 (2016–2019) **100 bps** + Kota FC 16–20 (2020–2024) **250 bps**. `warnings: []` |
+| `deal2.json` | `sample-agreements/tests/OK-02-unequal-installments.pdf` | Daniel Okoro. Fee **10.000.000** dengan cicilan **tidak sama**: 4.000.000 + 3.000.000 + 3.000.000 (1 Apr, 1 Jul, 1 Okt 2026). Jaminan 3.000.000. Sell-on 10% gross. Klub pembina sama dengan deal1. `warnings: []` |
+
+Hash byte saat ini (working tree): `OK-01-basic.pdf` = `994899a5…` (→ `deal1.json`),
+`OK-02-unequal-installments.pdf` = `45c251e7…` (→ `deal2.json`) — keduanya sama
+dengan `pdfHash` di dalam fixture masing-masing.
 
 ## Konvensi
 
-- Bentuk setiap file persis `ReaderOutput` dari `agent/schema.ts` (lolos zod).
+- `output` persis `ReaderOutput` dari `agent/schema.ts` (lolos zod).
 - **Uang dalam fEUR utuh** (1 fEUR = €1), bukan satuan terkecil. Konversi ke U128
   lewat `eurToSmallestUnit()` di `schema.ts`.
-- `sellOn.bps` dan `trainingClubs[].bps` sudah dalam basis points (1 bps = 0,01 %).
-- `trainingClubs` hanya berisi klub yang **menerima** Academy royalties (bps > 0).
-  Klub di riwayat pembinaan yang tidak dapat royalti (mis. Nordvik IF, umur 24+,
-  0 bps, sekaligus penjual) **tidak** masuk `trainingClubs`, karena kontrak menolak
-  klub pembina yang sama dengan penjual/pembeli. Penyaringan ini dilakukan
-  Pembaca (`enrich.ts`), bukan oleh web.
-- `account` sudah konkret: `*.fullback-team.testnet` (placeholder `<master>`
-  diganti sejak issue #4, mengikuti `scripts/setup-demo.ts` — prefix `nordvik`,
-  `portoalegre`, `clubz`, `kotafc`, `akademidesa`). Web tidak perlu mengganti
-  apa pun saat runtime.
-- `quote` adalah teks persis dari PDF (ASCII, spasi dinormalisasi). Semua kutipan
-  di bawah **sudah diuji cocok** terhadap PDF asli dengan `pdfjs-dist` v4
-  (Rabu 11 Nov).
-
-## Isi
-
-| File | Sumber PDF | Isi |
-|---|---|---|
-| `deal1.json` | `deal1-nordvik-portoalegre.pdf` (kini hanya di git history, commit `f741c98`) | Deal 1: Nordvik IF → Porto Alegre FC, 10.000.000, 4 × 2.500.000, jaminan 2.500.000, sell-on 15% gross, pembinaan Kota FC 400 bps + Akademi Desa 100 bps |
-| `deal2.json` | `deal2-portoalegre-clubz.pdf` (kini hanya di git history, commit `f741c98`) | Deal 2 (penjualan ulang): Porto Alegre FC → Club Z, 20.000.000 sekali bayar, **tanpa `collateral`** (resale tidak punya jaminan), sell-on 15% gross diakui dari Deal 1 |
-
-Keputusan bentuk Deal 2 (Rabu 11 Nov): `collateral` **opsional** di
-`ReaderOutputSchema` — deal penjualan ulang tidak punya jaminan. Sell-on dan
-klub pembina di Deal 2 hanya untuk tampilan; angka yang dipakai kontrak tetap
-yang tersimpan on-chain dari Deal 1 (`record_resale` tidak menerima keduanya).
+- `sellOn.bps` dan `trainingClubs[].bps` dalam basis points (1 bps = 0,01 %).
+  Contoh: 10% = 1000 bps; 1,00% = 100 bps.
+- `trainingClubs` hanya berisi klub penerima royalti (bps > 0). Klub dengan
+  0 bps **tidak** ikut (penyaringan oleh `enrich.ts`, bukan web).
+- `account` sudah konkret: `*.fullback-team.testnet` (prefix `nordvik`,
+  `portoalegre`, `clubz`, `kotafc`, `akademidesa` — mengikuti
+  `scripts/setup-demo.ts`). Web tidak perlu mengganti apa pun saat runtime.
+- `quote` adalah teks persis dari PDF (ASCII, spasi dinormalisasi) — dipakai
+  untuk verifikasi R14 (angka harus bisa dikutip dari dokumen).
 
 ## Pencocokan hash di DEMO_MODE
 
-`reader/index.ts` mencocokkan SHA-256 PDF dengan fixture. Sejak 15 Nov,
-`sample-agreements/` hanya berisi `tests/`; PDF demo Lucas ada di git history
-(commit `f741c98`). Kembalikan satu file bila perlu:
+`reader/index.ts` mencocokkan SHA-256 PDF yang diunggah dengan `pdfHash` fixture.
+Kalau cocok → `output` langsung dikembalikan tanpa memanggil LLM.
 
-```bash
-git checkout f741c98 -- sample-agreements/deal1-nordvik-portoalegre.pdf
-```
+### Hash sudah dinormalkan (15 Nov)
 
-| PDF | SHA-256 |
+`pdfHash` fixture kini **sama dengan hash versi commit** di
+`sample-agreements/tests/manifest.json`. Repo sudah punya `.gitattributes`
+`*.pdf binary` (PR #14) yang mencegah checkout mengubah byte PDF — jadi hash
+ini berlaku di semua mesin:
+
+| PDF | `pdfHash` fixture = hash manifest = hash file |
 |---|---|
-| `deal1-nordvik-portoalegre.pdf` | `eab475572d0bf6ce627ac7b0160e5a34ef3c2ebc49cbdd8c75b76aa54d0d1832` |
-| `deal2-portoalegre-clubz.pdf` | `2d72a5235790ff650eedec20de6c1e61b6efb25fa1b38852da295a4abe60737e` |
+| `OK-01-basic.pdf` | `1340d083678a312547b454050f3d4d5246f34deacc641c428ee36bb2c1d3bf88` |
+| `OK-02-unequal-installments.pdf` | `dc12f270a006a194ffa00e7dcc955b93ed3c9c3abb5c1a5944af1ee3d5bb816f` |
 
-**Perhatian:** checkout Windows (CRLF) atau regenerasi PDF di Windows mengubah
-byte PDF dan hash-nya. Kalau DEMO_MODE menolak PDF demo, pastikan memakai versi
-commit (`git checkout f741c98 -- sample-agreements/...`), bukan hasil generate
-lokal. (Untuk PDF di `sample-agreements/tests/`, hash versi commit ada di
-`tests/manifest.json`.)
+Kalau suatu saat hash tidak cocok, cek `git ls-files --eol
+"sample-agreements/tests/*.pdf"` (target `w/lf`) dan pulihkan byte commit —
+jangan buru-buru mengubah fixture.
+
+## Catatan integrasi (status 15 Nov — sudah beres)
+
+- `reader/index.ts` memetakan `fixture.pdfHash` → `fixture.output` (bentuk
+  fixture bersarang `{ pdfHash, output }`) — sudah disesuaikan.
+- `reader-live.test.ts` kini menguji `tests/OK-01-basic.pdf` (sumber deal1)
+  dengan pipeline LLM sungguhan dan mem-assert angka fixture + `warnings=[]`.
+
+## Riwayat
+
+Sebelum 15 Nov, fixture berisi jawaban PDF demo Lucas (PLAN.md R1–R4):
+`deal1-nordvik-portoalegre.pdf` (`eab47557…`) dan `deal2-portoalegre-clubz.pdf`
+(`2d72a523…`) — keduanya hanya ada di git history (commit `f741c98`). Diganti
+ketika `sample-agreements/` dirapikan (hanya `tests/` tersisa) dan demo beralih
+ke PDF uji di `tests/`.

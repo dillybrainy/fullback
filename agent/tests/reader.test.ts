@@ -162,11 +162,11 @@ describe("enrichReaderOutput", () => {
 
 describe("DEMO_MODE (fixtures, no API key)", () => {
   it("maps the committed demo PDF hashes to their fixtures", () => {
-    const deal1 = DEMO_FIXTURES_BY_HASH["eab475572d0bf6ce627ac7b0160e5a34ef3c2ebc49cbdd8c75b76aa54d0d1832"];
-    const deal2 = DEMO_FIXTURES_BY_HASH["2d72a5235790ff650eedec20de6c1e61b6efb25fa1b38852da295a4abe60737e"];
-    expect(deal1.fee.amount).toBe(10000000);
-    expect(deal2.fee.amount).toBe(20000000);
-    expect(deal2.collateral).toBeUndefined();
+    const deal1 = DEMO_FIXTURES_BY_HASH["1340d083678a312547b454050f3d4d5246f34deacc641c428ee36bb2c1d3bf88"]; // tests/OK-01-basic.pdf
+    const deal2 = DEMO_FIXTURES_BY_HASH["dc12f270a006a194ffa00e7dcc955b93ed3c9c3abb5c1a5944af1ee3d5bb816f"]; // tests/OK-02-unequal-installments.pdf
+    expect(deal1.fee.amount).toBe(6000000);
+    expect(deal2.fee.amount).toBe(10000000);
+    expect(deal2.collateral?.amount).toBe(3000000);
   });
 
   it("rejects an unknown PDF in demo mode with a helpful message", async () => {

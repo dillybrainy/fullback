@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import { createReaderHandler, MAX_READER_BYTES } from "../reader/http.js";
 import type { ReaderOutput } from "../schema.js";
 import type { ReadPdfResult } from "../reader/index.js";
-const output = JSON.parse(readFileSync(new URL("../fixtures/deal1.json", import.meta.url), "utf8")) as ReaderOutput;
+const output = (JSON.parse(readFileSync(new URL("../fixtures/deal1.json", import.meta.url), "utf8")) as { output: ReaderOutput }).output;
 const bytes = Buffer.from("%PDF-1.7\ntransport fixture");
 const result = { output, pdfHash: createHash("sha256").update(bytes).digest("hex") };
 const origin = "http://localhost:3000";
@@ -15,9 +15,9 @@ afterEach(() => vi.unstubAllEnvs());
 describe("Reader HTTP boundary", () => {
   it("runs the existing real Reader on an exact demo PDF without network or credentials", async () => {
     vi.stubEnv("DEMO_MODE", "true");
-    // Demo PDF left sample-agreements/ on 15 Nov; read the committed LF blob
-    // from git history (pinned) so the hash matches the demo fixture.
-    const pdf = execFileSync("git", ["cat-file", "blob", "f741c98:sample-agreements/deal1-nordvik-portoalegre.pdf"]);
+    // Demo PDF = tests/OK-01-basic.pdf; read the committed LF blob from git so
+    // the hash matches the fixture key regardless of checkout line endings.
+    const pdf = execFileSync("git", ["cat-file", "blob", "HEAD:sample-agreements/tests/OK-01-basic.pdf"]);
     const response = await createReaderHandler()(request(pdf));
     expect(response.status).toBe(200);
     const data = await response.json();

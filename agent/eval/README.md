@@ -86,7 +86,8 @@ keandalan demo. `NEARAI_MODEL` tetap tersedia sebagai override tanpa ubah kode.
 
 ```bash
 # uji satu model tertentu
-LIVE_TEST=1 NEARAI_MODEL="<vendor/model>" npm test -w agent -- tests/reader-live.test.ts
+$env:LIVE_TEST='1'; $env:NEARAI_MODEL='<vendor/model>'; npm test -w agent -- tests/reader-live.test.ts
+# bash: LIVE_TEST=1 NEARAI_MODEL="<vendor/model>" npm test -w agent -- tests/reader-live.test.ts
 
 # daftar model yang tersedia (perlu NEARAI_API_KEY di .env)
 curl -s https://cloud-api.near.ai/v1/models -H "Authorization: Bearer $NEARAI_API_KEY"

@@ -118,8 +118,9 @@ npm run usage:read -w agent -- ../sample-agreements/tests/OK-01-basic.pdf
 - **Key tidak pernah di-hardcode**, hanya di `.env` (lihat `agent/config.ts`).
 - **Uji kualitas kutipan (R14) tetap berlaku untuk model apa pun.** Bukan semua
   model patuh menyalin kutipan verbatim — lihat [`eval/README.md`](eval/README.md).
-  Setelah ganti model, jalankan `LIVE_TEST=1 npm test -w agent -- tests/reader-live.test.ts`
-  untuk memastikan angka R2/R3 + `warnings=[]` tetap terpenuhi.
+  Setelah ganti model, jalankan tes live Reader (PowerShell:
+  `$env:LIVE_TEST='1'; npm test -w agent -- tests/reader-live.test.ts`) untuk
+  memastikan angka R2/R3 + `warnings=[]` tetap terpenuhi.
 
 ## Penagih (Collector) & demo kunci terbatas
 
@@ -166,13 +167,17 @@ bersih tanpa panggilan sia-sia.
 
 ## Cara cek lokal
 
-```bash
-npm test -w agent                      # 69 tes: schema, training, reader, collector, http
-LIVE_TEST=1 npm test -w agent -- tests/reader-live.test.ts   # tes live (butuh API key)
+```powershell
+npm test -w agent                      # semua tes unit: schema, training, reader, reader-http, collector, illegal-attempt, config
+$env:LIVE_TEST='1'; npm test -w agent -- tests/reader-live.test.ts   # tes live (butuh API key)
 npm run reader -w agent -- <file.pdf>  # cetak hasil Pembaca (DEMO_MODE dari .env)
 npm run collector                      # Penagih live, tick tiap 15 dtk (Ctrl+C berhenti)
 npx tsx agent/collector/illegal-attempt.ts  # demo kunci terbatas: wajib ditolak chain
 ```
+
+**Catatan PowerShell (Windows):** set env var dengan `$env:NAME='nilai'` — prefix
+gaya bash (`LIVE_TEST=1 npm test ...`) hanya berlaku di bash/Git Bash, di
+PowerShell akan error "not recognized".
 
 ## Catatan penting
 
@@ -180,11 +185,10 @@ npx tsx agent/collector/illegal-attempt.ts  # demo kunci terbatas: wajib ditolak
   (pdf.js v1.10, 2016) salah membaca `deal2-portoalegre-clubz.pdf` — jangan dipakai.
   (PDF demo Lucas kini hanya di git history, commit `f741c98`.)
 - **Hash PDF sensitif line ending.** PDF yang di-checkout di Windows (CRLF)
-  punya SHA-256 berbeda dari versi commit (LF). Selalu pakai versi commit:
-  `git checkout f741c98 -- sample-agreements/deal1-nordvik-portoalegre.pdf`.
-  Sejak 15 Nov `sample-agreements/` hanya berisi `tests/` (hash versi commit ada
-  di `tests/manifest.json`). `.gitattributes` `*.pdf -text` di root masih perlu
-  (sudah diteruskan ke Orang 4).
+  punya SHA-256 berbeda dari versi commit (LF). Repo sudah punya
+  `.gitattributes` `*.pdf binary` (PR #14) yang mencegah ini; kalau hash tetap
+  tidak cocok, pulihkan byte commit (lihat `agent/fixtures/README.md`).
+  Hash versi commit ada di `sample-agreements/tests/manifest.json`.
 - **Penjual/pembeli bukan output Pembaca.** Pembeli = akun yang login; penjual
   dipilih di UI / dari `clubs.json` / env demo. Schema tidak diubah (sesuai PLAN.md).
 - `schema.ts` **dibekukan Rabu 11 Nov malam**. Perubahan butuh persetujuan 4 orang.

@@ -118,6 +118,16 @@
   diperbarui. `docs/libraries.md` — baris reportlab → `tests/make_tests.py`.
   Path PDF di `agent/tests/reader-http.test.ts` (WIP Reader HTTP) disamakan
   ke blob `f741c98` — tesnya lulus 6/6. Total tes kini **62 lulus**.
+- **Migrasi fixture ke PDF `tests/` (15 Nov, sesuai arahan user):** fixture
+  kini `{ pdfHash, output }` yang memetakan `tests/OK-01-basic.pdf` (deal1,
+  Daniel Okoro 6M = 3×2M) dan `tests/OK-02-unequal-installments.pdf` (deal2,
+  10M = 4+3+3). Yang disesuaikan: `reader/index.ts` (peta hash → `fixture.output`),
+  `reader-live.test.ts` (menguji OK-01 via pipeline live, lulus 60 dtk,
+  `warnings=[]`), `reader.test.ts` + `schema.test.ts` + `reader-http.test.ts`
+  (angka & hash baru), `fixtures/README.md` ditulis ulang. **Hash fixture =
+  hash manifest = hash commit** (byte PDF dinormalkan ulang ke LF; ternyata
+  `.gitattributes` `*.pdf binary` sudah ada sejak PR #14 — tidak perlu ditambah).
+  Total tes **71 lulus** termasuk 1 live.
 
 ## Selesai
 
