@@ -3,7 +3,11 @@ import { firstVisitRedirects } from "./lib/landing-entry.mjs";
 const staticExport = process.env.FULLBACK_STATIC_EXPORT === "1";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["192.168.29.201"],
+  // Dev only. Wildcard so a changing hotspot/LAN IP never breaks HMR again:
+  // entries are matched on hostname only ("*" = one label, "**.x" = one or
+  // more labels), and a bare "*" or "**" never matches — so "**.*" is the
+  // widest valid entry (any host with 2+ labels: every IPv4 + every domain).
+  allowedDevOrigins: ["**.*"],
   ...(staticExport ? { output: "export" as const } : {}),
   poweredByHeader: false,
   images: { unoptimized: true },
