@@ -20,6 +20,7 @@ import deal1Json from "../fixtures/deal1.json" with { type: "json" };
 import deal2Json from "../fixtures/deal2.json" with { type: "json" };
 import ok01Json from "../fixtures/ok01-basic.json" with { type: "json" };
 import ok02Json from "../fixtures/ok02-unequal-installments.json" with { type: "json" };
+import verifyTamperedJson from "../fixtures/verify-ok01-tampered.json" with { type: "json" };
 
 /** Club name → testnet account (concrete `*.fullback-team.testnet`, see clubs.json). */
 export const clubs: Record<string, string> = clubsJson;
@@ -39,6 +40,7 @@ const deal2Fixture = deal2Json as unknown as ReaderOutput;
 // Neutral test-suite agreements, usable in DEMO_MODE without restoring a PDF.
 const ok01Fixture = ok01Json as unknown as FixtureFile;
 const ok02Fixture = ok02Json as unknown as FixtureFile;
+const verifyTamperedFixture = verifyTamperedJson as unknown as FixtureFile;
 
 /**
  * DEMO_MODE answer keys: PDF SHA-256 → ReaderOutput (details in
@@ -57,6 +59,9 @@ export const DEMO_FIXTURES_BY_HASH: Record<string, ReaderOutput> = {
   [ok01Fixture.pdfHash]: ok01Fixture.output,
   // tests/OK-02-unequal-installments.pdf
   [ok02Fixture.pdfHash]: ok02Fixture.output,
+  // tests/VERIFY-OK-01-TAMPERED.pdf — dokumen rusak yang jujur dibaca apa
+  // adanya (sell-on 5%), untuk memperlihatkan perbedaannya dengan yang asli.
+  [verifyTamperedFixture.pdfHash]: verifyTamperedFixture.output,
 };
 
 export interface ReadPdfResult {

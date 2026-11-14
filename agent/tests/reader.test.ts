@@ -172,9 +172,13 @@ describe("DEMO_MODE (fixtures, no API key)", () => {
   it("also maps the neutral test PDFs OK-01 and OK-02", () => {
     const ok01 = DEMO_FIXTURES_BY_HASH["1340d083678a312547b454050f3d4d5246f34deacc641c428ee36bb2c1d3bf88"];
     const ok02 = DEMO_FIXTURES_BY_HASH["dc12f270a006a194ffa00e7dcc955b93ed3c9c3abb5c1a5944af1ee3d5bb816f"];
+    const tampered = DEMO_FIXTURES_BY_HASH["5ef3249b32b9e8fbaf9d28d759c92241f6bd9a4830e5a7759ab62774c75eb3a0"];
     expect(ok01.fee.amount).toBe(6000000);
     expect(ok02.fee.amount).toBe(10000000);
     expect(ok02.collateral?.amount).toBe(3000000);
+    // The tampered copy is read honestly: same terms, but the forged sell-on.
+    expect(tampered.fee.amount).toBe(6000000);
+    expect(tampered.sellOn).toMatchObject({ bps: 500, basis: "gross" });
   });
 
   it("rejects an unknown PDF in demo mode with a helpful message", async () => {
