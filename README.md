@@ -16,7 +16,7 @@ collects every installment on time, and pays the seller, the academies and the s
 [![Built at NEAR HACKATHON](https://img.shields.io/badge/built%20at-NEAR%20HACKATHON%202026-FFD60A?style=flat-square&labelColor=13235B)](#)
 [![License: MIT](https://img.shields.io/badge/license-MIT-111111?style=flat-square)](LICENSE)
 
-**[Live demo](https://[VERCEL_URL])** &nbsp;·&nbsp; **[Judge demo (5 min, no wallet)](https://[VERCEL_URL]/demo)** &nbsp;·&nbsp; **[Video](https://[VIDEO_URL])** &nbsp;·&nbsp; **[Contract on nearblocks](https://testnet.nearblocks.io/address/fullback.fullback-team.testnet)**
+**[Live demo](https://fullback-near.xyz/)** &nbsp;·&nbsp; **[Judge demo (5 min, no wallet)](https://fullback-near.xyz/)** &nbsp;·&nbsp; **[Video](https://[VIDEO_URL])** &nbsp;·&nbsp; **[Contract on nearblocks](https://testnet.nearblocks.io/address/fullback.fullback-team.testnet)**
 
 </div>
 

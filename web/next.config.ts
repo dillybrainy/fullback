@@ -32,6 +32,19 @@ const nextConfig: NextConfig = {
   // `agent` workspace by `prebuild`). pdf.js stays an external Node package: it
   // loads its worker and fonts from its own folder at runtime.
   serverExternalPackages: ["pdfjs-dist", "near-api-js"],
+  // pdf.js memuat workernya lewat dynamic `import()` (pdf.mjs → ./pdf.worker.mjs)
+  // yang tidak bisa diikuti file tracing, sehingga worker tidak pernah masuk ke
+  // bundle serverless: /api/reader mati di runtime dengan "Setting up fake worker
+  // failed: Cannot find module .../pdf.worker.mjs" dan semua review gagal.
+  // Paksa worker + data font bawaan masuk ke jejak /api/reader. Pola glob
+  // diselesaikan dari folder ini (web/), sedangkan pdfjs-dist ter-hoist ke root
+  // monorepo — makanya berprefiks "../node_modules".
+  outputFileTracingIncludes: {
+    "/api/reader": [
+      "../node_modules/pdfjs-dist/legacy/build/**/*",
+      "../node_modules/pdfjs-dist/standard_fonts/**/*",
+    ],
+  },
   images: { unoptimized: true },
   redirects: firstVisitRedirects,
   async rewrites() {
